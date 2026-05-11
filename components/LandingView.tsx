@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import MosaicSymbol from './MosaicSymbol';
+import MosaicSymbol from './ui/icons/MosaicSymbol';
 import { MOSAIC_EASE } from '../lib/data';
 
 export default function LandingView({ onEnter }: { onEnter: () => void }) {
