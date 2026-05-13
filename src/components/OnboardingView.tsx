@@ -2,10 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Wand2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { NICHES, VILLAGES, MOSAIC_EASE } from '../lib/data';
 import { callGemini } from '../lib/gemini';
+import { Button } from './ui/button';
 
-export default function OnboardingView({ onComplete }: { onComplete: () => void }) {
+export default function OnboardingView() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
   const [joined, setJoined] = useState<number[]>([]);
@@ -43,9 +46,11 @@ export default function OnboardingView({ onComplete }: { onComplete: () => void 
           <div className="mb-12">
             <div className="relative mb-8 group">
               <textarea value={aiStory} onChange={(e) => setAiStory(e.target.value)} placeholder="I am a storyteller who finds inspiration in late-night walks through the city..." className="w-full min-h-[120px] bg-white border border-black/5 rounded-[2rem] p-8 outline-none focus:border-[#4338CA] transition-all text-lg italic font-serif resize-none shadow-sm" />
-              <button onClick={handleAiDiscovery} disabled={isAiLoading || !aiStory} className="absolute bottom-6 right-6 flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 text-black font-bold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100">
-                {isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} Find my Niches ✨
-              </button>
+              <Button onClick={handleAiDiscovery} disabled={isAiLoading || !aiStory} variant="accent" size="sm" className="absolute bottom-6 right-6">
+                <div className="flex items-center gap-2 disabled:scale-100">
+                  {isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />} Find my Niches ✨
+                </div>
+              </Button>
             </div>
           </div>
         )}
@@ -53,10 +58,10 @@ export default function OnboardingView({ onComplete }: { onComplete: () => void 
         {step === 1 ? (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {NICHES.map(n => (
-              <button key={n.id} onClick={() => setSelectedNiches(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])} className={`p-8 rounded-[2rem] border transition-all duration-500 flex flex-col items-center gap-4 ${selectedNiches.includes(n.id) ? 'bg-[#4338CA] text-white border-[#4338CA] shadow-xl scale-105' : 'bg-white border-black/5 hover:border-black/20 text-[#111827]'}`}>
+              <Button key={n.id} onClick={() => setSelectedNiches(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])} variant={selectedNiches.includes(n.id) ? "cardActive" : "outline"} size="card" className="duration-500 flex flex-col items-center gap-4">
                 <div className="opacity-60">{n.icon}</div>
                 <span className="font-serif italic text-lg">{n.label}</span>
-              </button>
+              </Button>
             ))}
           </div>
         ) : (
@@ -70,7 +75,7 @@ export default function OnboardingView({ onComplete }: { onComplete: () => void 
                     <p className="text-[10px] opacity-40 font-bold uppercase tracking-widest text-[#111827]">{v.niche} • {v.members} members</p>
                   </div>
                 </div>
-                <button onClick={() => setJoined(prev => prev.includes(v.id) ? prev.filter(x => x !== v.id) : [...prev, v.id])} className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${joined.includes(v.id) ? 'bg-[#4338CA] text-white' : 'bg-black/5 hover:bg-black/10 text-[#111827]'}`}>{joined.includes(v.id) ? 'Joined' : 'Join'}</button>
+                <Button onClick={() => setJoined(prev => prev.includes(v.id) ? prev.filter(x => x !== v.id) : [...prev, v.id])} variant={joined.includes(v.id) ? "default" : "secondary"} size="sm">{joined.includes(v.id) ? 'Joined' : 'Join'}</Button>
               </div>
             ))}
           </div>
@@ -78,9 +83,9 @@ export default function OnboardingView({ onComplete }: { onComplete: () => void 
 
         <div className="mt-16 flex justify-center">
           {step === 1 ? (
-            <button disabled={selectedNiches.length === 0} onClick={() => setStep(2)} className="px-12 py-5 rounded-full bg-[#4338CA] text-white font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-20">Continue</button>
+            <Button disabled={selectedNiches.length === 0} onClick={() => setStep(2)} variant="default" size="lg">Continue</Button>
           ) : (
-            <button disabled={joined.length === 0} onClick={onComplete} className="px-12 py-5 rounded-full bg-amber-500 text-black font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-20">Enter the Square</button>
+            <Button disabled={joined.length === 0} onClick={() => router.push('/explore')} variant="accent" size="lg">Enter the Square</Button>
           )}
         </div>
       </div>

@@ -2,9 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { PERKS, MOSAIC_EASE } from '../lib/data';
+import { Button } from './ui/button';
 
-export default function AuthView({ onAuthComplete }: { onAuthComplete: () => void }) {
+export default function AuthView() {
+  const router = useRouter();
   const [perkIndex, setPerkIndex] = useState(0);
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export default function AuthView({ onAuthComplete }: { onAuthComplete: () => voi
           <h2 className="font-serif text-4xl mb-2 text-[#111827]">Welcome to the Square.</h2>
           <p className="text-[#6B7280] mb-10">Join a village to start creating.</p>
 
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); onAuthComplete(); }}>
+          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); router.push('/onboarding'); }}>
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-40">Display Name</label>
               <div className="relative">
@@ -59,7 +62,7 @@ export default function AuthView({ onAuthComplete }: { onAuthComplete: () => voi
               </div>
             </div>
 
-            <button type="submit" className="w-full py-4 rounded-2xl bg-[#4338CA] text-white font-bold text-lg shadow-xl hover:shadow-2xl transition-all">Join the Village</button>
+            <Button className='w-full' type="submit">Join the Village</Button>
           </form>
         </div>
       </div>

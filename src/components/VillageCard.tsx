@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Sparkles, Heart, MessageSquare, ChevronRight } from 'lucide-react';
 import MVASignalBar from './ui/icons/MVASignalBar';
 import { callGemini } from '../lib/gemini';
+import { Button } from './ui/button';
 
 export default function VillageCard({ v }: any) {
   const [vibe, setVibe] = useState('');
@@ -54,13 +55,8 @@ export default function VillageCard({ v }: any) {
         </div>
         <MVASignalBar signals={v.signals} />
         <div className="flex justify-between items-center mt-6">
-          <div className="flex gap-4 items-center">
-            <button onClick={(e) => { e.stopPropagation(); getVibe(); }} disabled={isLoadingVibe} className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600 hover:text-amber-700 transition-colors">
-              {isLoadingVibe ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} Vibe Check ✨
-            </button>
-            <div className="flex gap-3 opacity-30"><Heart size={16}/> <MessageSquare size={16}/></div>
-          </div>
-          <button className="text-xs font-bold text-[#4338CA] group-hover:gap-2 flex items-center gap-1 transition-all">Read Story <ChevronRight size={14}/></button>
+          <div className="flex gap-3 opacity-30"><Heart size={16}/> <MessageSquare size={16}/></div>
+          <Button variant="ghost" size="none" className="text-xs font-bold text-[#4338CA] group-hover:gap-2 flex items-center gap-1 bg-transparent hover:bg-transparent">Read Story <ChevronRight size={14}/></Button>
         </div>
       </div>
     </div>
