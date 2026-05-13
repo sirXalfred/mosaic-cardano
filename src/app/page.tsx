@@ -1,6 +1,5 @@
-"use client";
-import MainApp from '../components/MainApp';
+import LandingView from '../components/LandingView';
 
 export default function Page() {
-  return <MainApp />;
+  return <LandingView />;
 }
