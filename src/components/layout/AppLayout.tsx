@@ -1,0 +1,46 @@
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import AppSidebar from './AppSidebar';
+import { cn } from '@/lib/utils';
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Listen to storage events to sync layout margin with sidebar state across components if needed
+    // For simpler sync, we can just read it here on mount and use an event listener for same-window updates, 
+    // or just pass a state down. Since sidebar reads localStorage, let's just use CSS generic margin or 
+    // keep state in a context if they need to perfectly sync. 
+    // To keep it simple without context, we will poll or listen to a custom event, but for now 
+    // we can assume the sidebar handles its own width and we just add `pl-20` or `pl-64` based on state.
+    
+    const checkState = () => {
+      const stored = localStorage.getItem('mosaic_sidebar_collapsed');
+      if (stored) setIsCollapsed(JSON.parse(stored));
+    };
+    
+    checkState();
+    
+    // An interval is a dirty but reliable way to sync state across components without a context
+    const interval = setInterval(checkState, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!mounted) return <div className="min-h-screen bg-theme-surface" />;
+
+  return (
+    <div className="h-screen flex flex-col bg-theme-surface text-theme-forest font-sans overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuC9QuQNM5A8ulD-usGL7WPxprHWmeC1zp2nhD8CF6pluhdSTFuGFuDybp4W_4FJrvqFXLHILme-ekFljqjyy1t27hqsnYO2PUlSGsXUH1BfWcy0l0MKNAy2jiO3HvfNGyioojpRvp8bVSINIT5kfC9L4YKawElG2iVn_euP7Vj-dA-gIgOS9mvtepudjtKzCEPea5dqpIe5HBeRa1_s6b3zisR-w8wf7EZ1vl74rUcdHioIx5gkTk5zqs3kBht290neCZWMfeVva1U)' }} />
+
+      <div className='size-full flex overflow-y-hidden'>
+        <AppSidebar />
+        <main className={cn("flex-1 flex flex-col transition-all duration-300 overflow-y-auto w-full", isCollapsed ? "ml-20" : "ml-64")}>
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
