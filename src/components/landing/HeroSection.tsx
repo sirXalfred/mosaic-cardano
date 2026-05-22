@@ -19,7 +19,7 @@ export const HeroSection = ({ itemVariants, containerVariants }: { itemVariants:
           Collaborative infrastructure for creative villages. Write, document, and preserve together in an immutable archive.
         </motion.p>
         <motion.div variants={itemVariants}>
-          <Button asChild size="xl" className="group mx-auto shadow-2xl bg-theme-forest text-theme-parchment hover:bg-theme-clay transition-all duration-500 rounded-xl px-12 py-8 relative z-10">
+          <Button asChild size="xl" className="group mx-auto transition-all duration-500 rounded-xl px-12 py-8 relative z-10">
             <Link href="/home">
               <div className='flex items-center gap-3'>
                 <span className='text-xl uppercase tracking-widest font-sans font-bold'>Open the Gates</span>

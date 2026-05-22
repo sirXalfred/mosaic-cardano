@@ -7,7 +7,8 @@ import { PERKS, MOSAIC_EASE } from '../lib/data';
 import { Button } from './ui/button';
 import { FormError } from './ui/form-error';
 import Link from 'next/link';
-import MosaicSymbol from './ui/icons/MosaicSymbol';
+import { DecorativeGrid } from './ui/decorative-grid';
+import MosaicBrand from './ui/icons/MosaicBrand';
 
 export default function AuthView() {
   const router = useRouter();
@@ -53,15 +54,8 @@ export default function AuthView() {
       
       {/* Left Column - Graphic/Info */}
       <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-theme-forest text-theme-parchment flex-col justify-center px-24">
-        {/* Decorative Grid */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100">
-            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.1" />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
+
+        <DecorativeGrid />
 
         {/* Back Button */}
         <Link href="/" className="absolute top-12 left-12 flex items-center gap-2 text-theme-parchment/60 hover:text-theme-parchment transition-colors text-xs font-bold uppercase tracking-widest z-50">
@@ -90,12 +84,12 @@ export default function AuthView() {
 
         <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -100, opacity: 0 }} transition={{ duration: 1, ease: MOSAIC_EASE }} className="max-w-md w-full mx-auto">
           
-          <div className="mb-12">
-            <div className="w-12 h-12 bg-theme-forest text-theme-parchment flex items-center justify-center rounded-xl mb-6 shadow-lg">
-              <span className="font-serif font-bold text-xl">m</span>
-            </div>
+          <div className="mb-12 space-y-6">
+            <MosaicBrand />
+            
+            
             <h2 className="font-serif text-4xl mb-2 text-theme-forest">
-              {mode === 'signup' ? 'Create your Passport.' : 'Welcome back.'}
+              {mode === 'signup' ? 'Create an Account.' : 'Welcome back.'}
             </h2>
             <p className="text-theme-on-surface/60">
               {mode === 'signup' ? 'Join the network of creative villages.' : 'Sign in to access your artifacts.'}
@@ -131,18 +125,18 @@ export default function AuthView() {
 
             <FormError message={error} />
 
-            <Button className='w-full bg-theme-forest text-theme-parchment hover:bg-theme-forest/90 shadow-xl' type="submit" isLoading={isLoading} size="lg">
+            <Button className='w-full shadow-xl' type="submit" isLoading={isLoading} size="lg">
               {mode === 'signup' ? 'Join the Village' : 'Sign In'}
             </Button>
           </form>
 
           <div className="mt-8 text-center">
-            <button 
+            <Button variant="link" 
               onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-              className="text-xs font-bold uppercase tracking-widest text-theme-accent hover:text-theme-forest transition-colors"
+              className="text-xs font-bold uppercase"
             >
-              {mode === 'signin' ? "Don't have a passport? Sign up" : "Already have a passport? Sign in"}
-            </button>
+              {mode === 'signin' ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            </Button>
           </div>
         </motion.div>
       </div>

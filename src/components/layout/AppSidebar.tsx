@@ -14,11 +14,13 @@ import {
   ChevronRight,
   HomeIcon,
   UserCircle2Icon,
-  CompassIcon
+  CompassIcon,
+  PlusIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import MosaicSymbol from '../ui/icons/MosaicSymbol';
 import { Button } from '../ui/button';
+import { Plus } from '@hugeicons/core-free-icons';
 
 const navItems = [
   { name: 'Home', path: '/home', icon: HomeIcon },
@@ -67,7 +69,7 @@ export default function AppSidebar() {
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="text-theme-forest opacity-50 hover:opacity-100 transition-opacity"
+          className="opacity-50 hover:opacity-100 transition-opacity"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </Button>
@@ -101,15 +103,17 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      <div className={cn("mt-auto border-t border-theme-outline/20 pt-6", isCollapsed ? "px-2" : "px-4")}>
-        <button className={cn(
-          "w-full bg-theme-forest text-theme-parchment text-xs uppercase tracking-widest py-3 rounded-lg mb-6 hover:opacity-90 transition-opacity flex justify-center items-center",
-          isCollapsed && "px-0"
-        )}>
-          {isCollapsed ? <span className="font-bold">+</span> : "Contribute Work"}
-        </button>
+      <div className={cn("mt-auto border-t border-theme-outline/20 pt-6 ", isCollapsed ? "px-2" : "px-4")}>
 
         <div className="space-y-4">
+        <Button className='w-full tracking-widest gap-1 justify-center' size={isCollapsed ? "icon" : "sm"}>
+          <PlusIcon className="size-5" />
+          {
+            !isCollapsed && (
+              "Contribute Work"
+            )
+          }
+        </Button>
           <Link href="/settings" className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
             <Settings size={18} />
             {!isCollapsed && <span>Settings</span>}

@@ -23,6 +23,7 @@ export default function OnboardingView() {
       const response = await callGemini(aiStory, systemInstruction, 'application/json');
       const data = response ? JSON.parse(response) : null;
       if (data?.suggested_niche_ids) setSelectedNiches(data.suggested_niche_ids);
+      
     } catch (error) {
       console.error(error);
     } finally {
