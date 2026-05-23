@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Fingerprint, Shield } from 'lucide-react';
 
 const TooltipText = ({ text, tooltip, id, activeTooltip, setActiveTooltip }: { text: string, tooltip: string, id: string, activeTooltip: string | null, setActiveTooltip: (id: string | null) => void }) => (
@@ -19,7 +19,7 @@ const TooltipText = ({ text, tooltip, id, activeTooltip, setActiveTooltip }: { t
   </span>
 );
 
-export const TrustSection = ({ itemVariants, containerVariants }: { itemVariants: any, containerVariants: any }) => {
+export const TrustSection = ({ itemVariants, containerVariants }: { itemVariants: Variants, containerVariants: Variants }) => {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   return (

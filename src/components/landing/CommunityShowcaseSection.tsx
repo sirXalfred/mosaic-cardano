@@ -1,11 +1,11 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Users } from 'lucide-react';
 import { TexturedCard } from '../ui/textured-card';
 import { useGetFeaturedVillages } from '@/services/villages';
 
-export const CommunityShowcaseSection = ({ itemVariants, containerVariants }: { itemVariants: any, containerVariants: any }) => {
+export const CommunityShowcaseSection = ({ itemVariants, containerVariants }: { itemVariants: Variants, containerVariants: Variants }) => {
   const { data: featuredVillages, isLoading: isLoadingVillages } = useGetFeaturedVillages();
 
   return (

@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <MosaicBrand size="large" />
             <p className="font-serif text-2xl leading-relaxed text-theme-parchment/70 max-w-sm italic">
-              "Weaving the fragmented memories of the world into an immutable tapestry."
+              &quot;Weaving the fragmented memories of the world into an immutable tapestry.&quot;
             </p>
           </div>
           <div className="flex gap-4">

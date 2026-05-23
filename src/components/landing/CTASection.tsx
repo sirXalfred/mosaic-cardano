@@ -1,10 +1,10 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Compass, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 
-export const CTASection = ({ itemVariants, containerVariants }: { itemVariants: any, containerVariants: any }) => {
+export const CTASection = ({ itemVariants, containerVariants }: { itemVariants: Variants, containerVariants: Variants }) => {
   return (
     <motion.section 
       initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}

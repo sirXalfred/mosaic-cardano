@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { Award, Code2, Tent, HeartHandshake, FolderKanban } from 'lucide-react';
+import { Reputation } from '@/services/users';
 
-export const ReputationSidebar = ({ reputation, isLoading }: { reputation: any, isLoading: boolean }) => {
+export const ReputationSidebar = ({ reputation, isLoading }: { reputation?: Reputation, isLoading: boolean }) => {
   if (isLoading) {
     return (
       <div className="space-y-12">
@@ -27,7 +28,7 @@ export const ReputationSidebar = ({ reputation, isLoading }: { reputation: any, 
           <Award size={16} /> Verified Badges
         </h4>
         <div className="flex flex-wrap gap-3">
-          {reputation.badges.map((badge: any) => (
+          {reputation.badges.map((badge) => (
             <div key={badge.id} className="flex items-center gap-2 bg-theme-surface border border-theme-outline/20 px-3 py-2 rounded-lg shadow-sm hover:border-theme-clay/30 transition-colors cursor-help" title={badge.name}>
               <span className="text-lg">{badge.icon}</span>
               <span className="font-sans text-sm font-medium text-theme-forest">{badge.name}</span>
@@ -56,7 +57,7 @@ export const ReputationSidebar = ({ reputation, isLoading }: { reputation: any, 
           <Tent size={16} /> Communities
         </h4>
         <div className="space-y-3">
-          {reputation.communities.map((comm: any) => (
+          {reputation.communities.map((comm) => (
             <Link key={comm.id} href={`/v/${comm.id}`} className="flex items-center justify-between p-3 bg-theme-surface border border-theme-outline/10 hover:border-theme-clay/30 hover:-translate-y-0.5 rounded-xl transition-all shadow-sm">
               <span className="font-serif font-bold text-theme-forest">{comm.name}</span>
               <span className="text-[10px] uppercase tracking-widest font-bold text-theme-clay">{comm.role}</span>
@@ -85,7 +86,7 @@ export const ReputationSidebar = ({ reputation, isLoading }: { reputation: any, 
           <HeartHandshake size={16} /> Support History
         </h4>
         <div className="space-y-3">
-          {reputation.supportHistory.map((support: any) => (
+          {reputation.supportHistory.map((support) => (
             <div key={support.id} className="p-4 bg-theme-surface border border-theme-outline/10 rounded-xl space-y-2">
               <div className="flex justify-between items-start">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-600/10 px-2 py-0.5 rounded">{support.type}</span>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { GitMerge, FileText, CheckCircle2 } from 'lucide-react';
+import { GitMergeIcon, FileTextIcon, CheckCircle2Icon } from 'lucide-react';
 import type { Contribution } from '../../services/users';
 
 export const ContributionRecord = ({ contributions, isLoading }: { contributions?: Contribution[], isLoading: boolean }) => {
@@ -19,10 +19,10 @@ export const ContributionRecord = ({ contributions, isLoading }: { contributions
 
   const getIcon = (action: string) => {
     switch(action) {
-      case 'Drafted Artifact': return <FileText size={18} className="text-theme-clay" />;
-      case 'Merged Pull Request': return <GitMerge size={18} className="text-emerald-600" />;
-      case 'Peer Review': return <CheckCircle2 size={18} className="text-blue-600" />;
-      default: return <FileText size={18} className="text-theme-on-surface/40" />;
+      case 'Drafted Artifact': return <FileTextIcon size={18} className="text-theme-clay" />;
+      case 'Merged Pull Request': return <GitMergeIcon size={18} className="text-emerald-600" />;
+      case 'Peer Review': return <CheckCircle2Icon size={18} className="text-blue-600" />;
+      default: return <FileTextIcon size={18} className="text-theme-on-surface/40" />;
     }
   };
 
@@ -31,7 +31,7 @@ export const ContributionRecord = ({ contributions, isLoading }: { contributions
       <h3 className="font-serif text-3xl text-theme-forest border-b border-theme-outline/10 pb-4">Contribution Record</h3>
       
       <div className="relative border-l border-theme-outline/20 ml-4 space-y-10 py-2">
-        {contributions.map((item, idx) => (
+        {contributions.map((item) => (
           <div key={item.id} className="relative pl-8">
             {/* Timeline Dot */}
             <div className="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-theme-parchment border border-theme-outline/20 flex items-center justify-center">

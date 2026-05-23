@@ -11,6 +11,14 @@ const MOCK_USER_PROFILE = {
   walletAddress: 'addr1q9...', // Simplified
 };
 
+export interface PublishedWork {
+  id: string;
+  title: string;
+  type: string;
+  community: string;
+  date: string;
+}
+
 const MOCK_PUBLISHED_WORKS = [
   { id: '1', title: 'On the Ethics of Archives', type: 'Essay', community: 'Neo-Classical Agora', date: 'Oct 2023' },
   { id: '2', title: 'Protocol Governance Draft v2', type: 'Technical', community: 'Syntactic Weavers', date: 'Aug 2023' },
@@ -46,6 +54,30 @@ export interface Contribution {
   community: string;
   date: string;
   description: string;
+}
+
+export interface Reputation {
+  badges: UserRep[];
+  skills: string[];
+  communities: {
+    id: string;
+    name: string;
+    role: string;
+  }[];
+  projects: string[];
+  supportHistory: {
+    id: string;
+    type: string;
+    amount: string;
+    source: string;
+    reason: string;
+  }[];
+}
+
+export interface UserRep {
+  id: string;
+  name: string;
+  icon: string;
 }
 
 const MOCK_REPUTATION = {

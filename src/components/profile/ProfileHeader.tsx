@@ -1,7 +1,8 @@
 import React from 'react';
-import { ShieldCheck, CalendarDays } from 'lucide-react';
+import { ShieldCheckIcon, CalendarDaysIcon } from 'lucide-react';
+import { UserProfile } from '@/services/users';
 
-export const ProfileHeader = ({ profile, isLoading }: { profile: any, isLoading: boolean }) => {
+export const ProfileHeader = ({ profile, isLoading }: { profile?: UserProfile, isLoading: boolean }) => {
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -26,7 +27,7 @@ export const ProfileHeader = ({ profile, isLoading }: { profile: any, isLoading:
         <div className="w-24 h-24 rounded-full bg-theme-forest text-theme-parchment flex items-center justify-center text-4xl font-serif font-bold shadow-xl border-4 border-theme-parchment shrink-0 relative">
           {profile.displayName.charAt(0)}
           <div className="absolute -bottom-2 -right-2 bg-theme-clay text-theme-parchment rounded-full p-1 border-2 border-theme-parchment" title="Cryptographically Verified Identity">
-            <ShieldCheck size={16} />
+            <ShieldCheckIcon size={16} />
           </div>
         </div>
 
@@ -34,7 +35,7 @@ export const ProfileHeader = ({ profile, isLoading }: { profile: any, isLoading:
           <h1 className="font-serif text-5xl text-theme-forest">{profile.displayName}</h1>
           <div className="flex flex-wrap items-center gap-4 text-theme-on-surface/60 text-sm font-sans">
             <span className="font-bold">{profile.handle}</span>
-            <span className="flex items-center gap-1"><CalendarDays size={14} /> Joined {profile.joinedDate}</span>
+            <span className="flex items-center gap-1"><CalendarDaysIcon size={14} /> Joined {profile.joinedDate}</span>
             <span className="px-2 py-0.5 rounded bg-theme-surface-high border border-theme-outline/20 font-mono text-xs uppercase tracking-widest">{profile.walletAddress}</span>
           </div>
         </div>

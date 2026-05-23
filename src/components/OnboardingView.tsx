@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Wand2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { NICHES, VILLAGES, MOSAIC_EASE } from '../lib/data';
+import { NICHES, VILLAGES } from '../lib/data';
 import { callGemini } from '../lib/gemini';
 import { Button } from './ui/button';
 

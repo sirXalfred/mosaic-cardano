@@ -42,8 +42,8 @@ export default function AuthView() {
       });
 
       router.push('/onboarding');
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
+    } catch (err) {
+      setError((err as Error).message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }

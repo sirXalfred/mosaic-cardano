@@ -1,10 +1,10 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 
-export const HeroSection = ({ itemVariants, containerVariants }: { itemVariants: any, containerVariants: any }) => {
+export const HeroSection = ({ itemVariants, containerVariants }: { itemVariants: Variants, containerVariants: Variants }) => {
   return (
     <main className="relative min-h-[90vh] flex flex-col justify-center items-center px-6 text-center pt-40 z-10">
       <motion.div variants={containerVariants} initial="hidden" animate="visible" className="max-w-5xl mx-auto relative">

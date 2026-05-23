@@ -5,7 +5,7 @@ export const callGemini = async (prompt: string, systemInstruction = '', respons
   if (!apiKey) return null;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
-  const payload: any = {
+  const payload: Record<string, unknown> = {
     contents: [{ parts: [{ text: prompt }] }]
   };
 

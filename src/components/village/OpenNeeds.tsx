@@ -3,13 +3,13 @@ import React from 'react';
 import { useGetVillageNeeds } from '@/services/villages';
 import { PlusCircle } from 'lucide-react';
 
-import { useParams } from 'next/navigation';
+// import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
 export default function OpenNeeds() {
   const { data: needs, isLoading } = useGetVillageNeeds();
-  const params = useParams();
-  const communityId = params.community_id as string;
+  // const params = useParams();
+  // const communityId = params.community_id as string;
 
   return (
     <div className="bg-theme-surface-high p-6 rounded-lg border border-theme-outline/40">

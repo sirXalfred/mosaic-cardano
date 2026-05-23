@@ -4,14 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Castle,
-  Palette,
-  BookOpen,
-  Landmark,
-  Settings,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
+  CastleIcon,
+  PaletteIcon,
+  SettingsIcon,
+  HelpCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   HomeIcon,
   UserCircle2Icon,
   CompassIcon,
@@ -20,13 +18,12 @@ import {
 import { cn } from '@/lib/utils';
 import MosaicSymbol from '../ui/icons/MosaicSymbol';
 import { Button } from '../ui/button';
-import { Plus } from '@hugeicons/core-free-icons';
 
 const navItems = [
   { name: 'Home', path: '/home', icon: HomeIcon },
   { name: 'Explore', path: '/explore', icon: CompassIcon },
-  { name: 'Villages', path: '/villages', icon: Castle },
-  { name: 'Studio', path: '/studio', icon: Palette },
+  { name: 'Villages', path: '/villages', icon: CastleIcon },
+  { name: 'Studio', path: '/studio', icon: PaletteIcon },
   { name: 'Profile', path: '/profile', icon: UserCircle2Icon },
 ];
 
@@ -71,7 +68,7 @@ export default function AppSidebar() {
           onClick={toggleSidebar}
           className="opacity-50 hover:opacity-100 transition-opacity"
         >
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {isCollapsed ? <ChevronRightIcon size={20} /> : <ChevronLeftIcon size={20} />}
         </Button>
       </div>
 
@@ -106,20 +103,20 @@ export default function AppSidebar() {
       <div className={cn("mt-auto border-t border-theme-outline/20 pt-6 ", isCollapsed ? "px-2" : "px-4")}>
 
         <div className="space-y-4">
-        <Button className='w-full tracking-widest gap-1 justify-center' size={isCollapsed ? "icon" : "sm"}>
-          <PlusIcon className="size-5" />
-          {
-            !isCollapsed && (
-              "Contribute Work"
-            )
-          }
-        </Button>
+          <Button className='w-full tracking-widest gap-1 justify-center' size={isCollapsed ? "icon" : "sm"}>
+            <PlusIcon className="size-5" />
+            {
+              !isCollapsed && (
+                "Contribute Work"
+              )
+            }
+          </Button>
           <Link href="/settings" className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
-            <Settings size={18} />
+            <SettingsIcon size={18} />
             {!isCollapsed && <span>Settings</span>}
           </Link>
           <Link href="/support" className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
-            <HelpCircle size={18} />
+            <HelpCircleIcon size={18} />
             {!isCollapsed && <span>Support</span>}
           </Link>
         </div>

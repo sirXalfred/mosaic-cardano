@@ -1,6 +1,5 @@
 import React from 'react';
-import { AlertCircleIcon, HammerIcon } from 'lucide-react';
-import AppLayout from '@/components/layout/AppLayout';
+import { AlertCircleIcon } from 'lucide-react';
 
 export default function NotFound() {
     return (
@@ -10,7 +9,7 @@ export default function NotFound() {
             </div>
             <h1 className="font-serif text-3xl font-medium text-theme-forest mb-2">{404}</h1>
             <p className="text-theme-on-surface/60 max-w-md font-sans leading-relaxed">
-                The page you are looking for doesn't exist or has been moved.
+                The page you are looking for doesn&apos;t exist or has been moved.
             </p>
         </div>
     );
