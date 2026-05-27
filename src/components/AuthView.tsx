@@ -76,7 +76,7 @@ export default function AuthView() {
       </div>
 
       {/* Right Column - Form */}
-      <div className="flex-1 bg-theme-surface flex flex-col justify-center px-6 md:px-24 relative">
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-24 relative">
         {/* Mobile Back Button */}
         <Link href="/" className="lg:hidden absolute top-8 left-6 flex items-center gap-2 text-theme-forest/60 hover:text-theme-forest transition-colors text-xs font-bold uppercase tracking-widest z-50">
           <ArrowLeft size={16} /> Home

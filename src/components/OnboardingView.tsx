@@ -32,7 +32,7 @@ export default function OnboardingView() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="min-h-screen bg-[#FFFBF5] flex flex-col items-center py-20 px-6 w-full relative z-30">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="min-h-screen flex flex-col items-center py-20 px-6 w-full relative z-30">
       <div className="max-w-4xl w-full">
         <div className="mb-16 text-center">
           <div className="flex justify-center gap-2 mb-8">

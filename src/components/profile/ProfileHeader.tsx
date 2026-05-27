@@ -23,12 +23,16 @@ export const ProfileHeader = ({ profile, isLoading }: { profile?: UserProfile, i
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end gap-6">
-        {/* Avatar Placeholder */}
+
         <div className="w-24 h-24 rounded-full bg-theme-forest text-theme-parchment flex items-center justify-center text-4xl font-serif font-bold shadow-xl border-4 border-theme-parchment shrink-0 relative">
           {profile.displayName.charAt(0)}
-          <div className="absolute -bottom-2 -right-2 bg-theme-clay text-theme-parchment rounded-full p-1 border-2 border-theme-parchment" title="Cryptographically Verified Identity">
-            <ShieldCheckIcon size={16} />
-          </div>
+          {
+            profile.isVerified && (
+              <div className="absolute -bottom-2 -right-2 bg-theme-clay text-theme-parchment rounded-full p-1 border-2 border-theme-parchment" title="Cryptographically Verified Identity">
+                <ShieldCheckIcon size={16} />
+              </div>
+            )
+          }
         </div>
 
         <div className="space-y-1">

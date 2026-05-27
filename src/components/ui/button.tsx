@@ -6,14 +6,14 @@ import { Loader2Icon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center cursor-pointer whitespace-nowrap font-bold transition-all disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4338CA] focus-visible:ring-offset-2",
+  "inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap font-bold transition-all disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4338CA] focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
         default: "bg-theme-forest text-theme-parchment hover:bg-theme-forest/90 hover:scale-105 active:scale-95 disabled:opacity-50",
         accent: "bg-amber-500 text-black shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50",
         secondary: "bg-black/5 hover:bg-black/10 text-[#111827]",
-        outline: "border border-black/5 bg-white hover:border-black/20 text-[#111827]",
+        outline: "border border-theme-forest hover:bg-theme-forest hover:text-theme-parchment text-[#111827]",
         cardActive: "bg-[#4338CA] text-white border border-[#4338CA] shadow-xl scale-105",
         ghost: "hover:bg-black/5 text-theme-forest",
         link: "tracking-widest text-theme-accent hover:text-theme-forest transition-colors underline-offset-4 hover:underline",
@@ -21,7 +21,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "px-10 py-3 rounded-2xl text-lg",
-        sm: "px-6 py-2 rounded-sm text-sm",
+        sm: "px-3 py-1 rounded-lg text-sm",
         lg: "px-12 py-5 rounded-lg text-lg",
         xl: "px-12 py-6 rounded-xl text-xl",
         card: "p-8 rounded-[2rem]",
