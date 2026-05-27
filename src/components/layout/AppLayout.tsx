@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import AppSidebar from './AppSidebar';
 import { cn } from '@/lib/utils';
+import { TopAppBarWrapper } from './TopAppBar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -16,14 +17,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // keep state in a context if they need to perfectly sync. 
     // To keep it simple without context, we will poll or listen to a custom event, but for now 
     // we can assume the sidebar handles its own width and we just add `pl-20` or `pl-64` based on state.
-    
+
     const checkState = () => {
       const stored = localStorage.getItem('mosaic_sidebar_collapsed');
       if (stored) setIsCollapsed(JSON.parse(stored));
     };
-    
+
     checkState();
-    
+
     // An interval is a dirty but reliable way to sync state across components without a context
     const interval = setInterval(checkState, 100);
     return () => clearInterval(interval);
@@ -38,7 +39,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className='size-full flex overflow-y-hidden'>
         <AppSidebar />
         <main className={cn("flex-1 flex flex-col transition-all duration-300 overflow-y-auto w-full", isCollapsed ? "ml-20" : "ml-64")}>
-          {children}
+          <TopAppBarWrapper>
+            {children}
+          </TopAppBarWrapper>
         </main>
       </div>
     </div>
