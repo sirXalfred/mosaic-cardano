@@ -11,6 +11,7 @@ import { ContributionRecord } from '@/components/profile/ContributionRecord';
 import { PublishedWorks } from '@/components/profile/PublishedWorks';
 import { ReputationSidebar } from '@/components/profile/ReputationSidebar';
 import Link from 'next/link';
+import { ROUTES } from '@/lib/routes';
 
 export const ProfilePageContent = ({ username }: { username: string }) => {
     const [showFullPassport, setShowFullPassport] = useState(false);
@@ -42,7 +43,7 @@ export const ProfilePageContent = ({ username }: { username: string }) => {
                             <h4 className="text-xs font-bold uppercase tracking-widest text-theme-on-surface/50 mb-4">Active In</h4>
                             <div className="flex flex-wrap gap-2">
                                 {reputation.communities.slice(0, 3).map((comm) => (
-                                    <Link key={comm.id} href={`/v/${comm.id}`} className="flex items-center gap-1.5 px-3 py-2 bg-theme-surface hover:bg-theme-outline/5 border border-theme-outline/20 rounded-xl transition-colors">
+                                    <Link key={comm.id} href={ROUTES.VILLAGE.HOME(comm.id)} className="flex items-center gap-1.5 px-3 py-2 bg-theme-surface hover:bg-theme-outline/5 border border-theme-outline/20 rounded-xl transition-colors">
                                         <Tent size={14} className="text-theme-clay" />
                                         <span className="font-sans text-sm font-bold">{comm.name}</span>
                                     </Link>

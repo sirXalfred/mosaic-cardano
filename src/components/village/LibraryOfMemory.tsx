@@ -4,6 +4,7 @@ import { useGetVillageTimeline } from '@/services/villages';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
+import { ROUTES } from '@/lib/routes';
 
 export default function LibraryOfMemory() {
   const { data: timeline, isLoading } = useGetVillageTimeline();
@@ -14,7 +15,7 @@ export default function LibraryOfMemory() {
     <div>
       <div className="flex items-center justify-between mb-4 border-b border-theme-outline/30 pb-2">
         <h3 className="font-serif text-xl font-medium">Library of Memory</h3>
-        <Link href={`/v/${communityId}/library`} className="text-theme-accent font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 hover:opacity-80 transition-opacity">
+        <Link href={ROUTES.VILLAGE.LIBRARY(communityId)} className="text-theme-accent font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 hover:opacity-80 transition-opacity">
           View Archive <ChevronRight size={14} />
         </Link>
       </div>

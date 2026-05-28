@@ -184,13 +184,14 @@ export default function AppSidebar() {
 
                 {villagesExpanded && (
                   <div className="mt-2 space-y-1 px-2">
+
                     {displayVillages.map((village) => (
                       <Link
                         key={village.id}
-                        href={ROUTES.VILLAGE(village.id)}
+                        href={ROUTES.VILLAGE.HOME(village.id)}
                         className={cn(
                           "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors text-sm",
-                          pathname.includes(`/v/${village.id}`)
+                          pathname.includes(ROUTES.VILLAGE.HOME(village.id))
                             ? "bg-theme-clay/10 text-theme-accent font-medium"
                             : "text-theme-on-surface/70 hover:bg-theme-surface-high hover:text-theme-forest"
                         )}
@@ -216,10 +217,10 @@ export default function AppSidebar() {
                 {displayVillages.map((village) => (
                   <Link
                     key={village.id}
-                    href={ROUTES.VILLAGE(village.id)}
+                    href={ROUTES.VILLAGE.HOME(village.id)}
                     className={cn(
                       "flex items-center justify-center w-10 h-10 rounded-full transition-colors relative group",
-                      pathname.includes(`/v/${village.id}`)
+                      pathname.includes(ROUTES.VILLAGE.HOME(village.id))
                         ? "bg-theme-clay/10 text-theme-accent border border-theme-clay/30"
                         : "bg-theme-surface-high border border-theme-outline/10 hover:border-theme-outline/30"
                     )}

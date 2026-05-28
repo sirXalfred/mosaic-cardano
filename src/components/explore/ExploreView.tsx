@@ -10,6 +10,7 @@ import ExploreHeader from './ExploreHeader';
 import ExploreFiltersPanel from './ExploreFiltersPanel';
 import ExploreTabs from './ExploreTabs';
 import ExploreCard from './ExploreCard';
+import { ROUTES } from '@/lib/routes';
 
 export default function ExploreView() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function ExploreView() {
   };
 
   const navigateToDetail = (communityId: string, itemId: string) => {
-    router.push(`/v/${communityId}?focus_id=${itemId}`);
+    router.push(ROUTES.VILLAGE.PROJECT(communityId, itemId));
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +71,6 @@ export default function ExploreView() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
-      {/* 1. WELCOME HEADER (Zustand persisted visibility) */}
       <ExploreHeader />
 
       {/* 2. SEARCH & FILTER HUB */}

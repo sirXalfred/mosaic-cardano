@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Award, Code2, Tent, HeartHandshake, FolderKanban } from 'lucide-react';
 import { Reputation } from '@/services/users';
+import { ROUTES } from '@/lib/routes';
 
 export const ReputationSidebar = ({ reputation, isLoading }: { reputation?: Reputation, isLoading: boolean }) => {
   if (isLoading) {
@@ -58,7 +59,7 @@ export const ReputationSidebar = ({ reputation, isLoading }: { reputation?: Repu
         </h4>
         <div className="space-y-3">
           {reputation.communities.map((comm) => (
-            <Link key={comm.id} href={`/v/${comm.id}`} className="flex items-center justify-between p-3 bg-theme-surface border border-theme-outline/10 hover:border-theme-clay/30 hover:-translate-y-0.5 rounded-xl transition-all shadow-sm">
+            <Link key={comm.id} href={ROUTES.VILLAGE.HOME(comm.id)} className="flex items-center justify-between p-3 bg-theme-surface border border-theme-outline/10 hover:border-theme-clay/30 hover:-translate-y-0.5 rounded-xl transition-all shadow-sm">
               <span className="font-serif font-bold text-theme-forest">{comm.name}</span>
               <span className="text-[10px] uppercase tracking-widest font-bold text-theme-clay">{comm.role}</span>
             </Link>
