@@ -5,20 +5,22 @@ import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import {
   BookOpen,
-  Landmark,
   Settings,
   ChevronLeft,
   ChevronRight,
-  Flame,
   MessageSquare,
   Users,
   LogOut,
-  Scale
+  Scale,
+  LandmarkIcon,
+  PiggyBankIcon,
+  SquareIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { useGetVillageDetails } from '@/services/villages';
 import AppSidebar from '../layout/AppSidebar';
+import { ROUTES } from '@/lib/routes';
 
 export default function VillageSidebar() {
   const pathname = usePathname();
@@ -46,13 +48,13 @@ export default function VillageSidebar() {
   if (!mounted) return null; // Avoid hydration mismatch
 
   const navItems = [
-    { name: 'Profile', path: `/v/${communityId}`, icon: Flame, exact: true },
-    { name: 'Hearth', path: `/v/${communityId}/workspace`, icon: MessageSquare },
-    { name: 'Feed', path: `/v/${communityId}/feed`, icon: MessageSquare },
-    { name: 'Library', path: `/v/${communityId}/library`, icon: BookOpen },
-    { name: 'Treasury', path: `/v/${communityId}/treasury`, icon: Landmark },
-    { name: 'Governance', path: `/v/${communityId}/governance`, icon: Scale },
-    { name: 'Members', path: `/v/${communityId}/members`, icon: Users },
+    { name: 'Profile', path: ROUTES.VILLAGE.HOME(communityId), icon: SquareIcon, exact: true },
+    { name: 'Town Square', path: ROUTES.VILLAGE.TOWNSQUARE(communityId), icon: LandmarkIcon },
+    { name: 'Feed', path: ROUTES.VILLAGE.FEED(communityId), icon: MessageSquare },
+    { name: 'Library', path: ROUTES.VILLAGE.LIBRARY(communityId), icon: BookOpen },
+    { name: 'Treasury', path: ROUTES.VILLAGE.TREASURY(communityId), icon: PiggyBankIcon },
+    { name: 'Governance', path: ROUTES.VILLAGE.GOVERNANCE(communityId), icon: Scale },
+    { name: 'Members', path: ROUTES.VILLAGE.MEMBERS(communityId), icon: Users },
   ];
 
   if (isLoaded && !village?.isMember) {
@@ -69,7 +71,7 @@ export default function VillageSidebar() {
       <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "px-2 justify-center" : "px-4")}>
         {!isCollapsed && (
           <div className='flex items-center gap-3 overflow-hidden'>
-            <div className="w-8 h-8 rounded bg-theme-clay flex-shrink-0 flex items-center justify-center font-serif text-white font-bold">
+            <div className="w-8 h-8 rounded bg-theme-clay shrink-0 flex items-center justify-center font-serif text-white font-bold">
               {village?.name.charAt(0) || 'V'}
             </div>
             <h1 className="font-serif text-lg font-medium text-theme-forest leading-tight truncate">
@@ -81,7 +83,7 @@ export default function VillageSidebar() {
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="text-theme-forest opacity-50 hover:opacity-100 transition-opacity flex-shrink-0"
+          className="text-theme-forest opacity-50 hover:opacity-100 transition-opacity shrink-0"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </Button>
@@ -117,7 +119,7 @@ export default function VillageSidebar() {
 
       <div className={cn("mt-auto border-t border-theme-outline/20 pt-6", isCollapsed ? "px-2" : "px-4")}>
         <div className="space-y-4">
-          <Link href={`/v/${communityId}/settings`} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
+          <Link href={ROUTES.VILLAGE.SETTINGS(communityId)} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
             <Settings size={18} />
             {!isCollapsed && <span>Village Settings</span>}
           </Link>

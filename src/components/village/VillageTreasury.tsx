@@ -3,6 +3,7 @@ import React from 'react';
 import { Wallet, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { ROUTES } from '@/lib/routes';
 
 export default function VillageTreasury() {
   const params = useParams();
@@ -15,7 +16,7 @@ export default function VillageTreasury() {
           <Wallet className="text-theme-clay" size={24} />
           <h3 className="font-serif text-xl font-medium">Village Treasury</h3>
         </div>
-        <Link href={`/v/${communityId}/treasury`} className="text-theme-clay font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Link href={ROUTES.VILLAGE.TREASURY(communityId)} className="text-theme-clay font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           Ledger <ChevronRight size={14} />
         </Link>
       </div>

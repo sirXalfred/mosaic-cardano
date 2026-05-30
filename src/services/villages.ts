@@ -1,4 +1,14 @@
 import { useXQuery } from "@/lib/extended-react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export interface VillageDetail {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  treasuryBalance: string;
+  isMember: boolean;
+}
 
 // --- Dummy Data ---
 const MOCK_PROJECTS = [
@@ -51,14 +61,17 @@ const MOCK_TIMELINE = [
   { id: '3', date: 'December, 2022', title: 'Settlement Foundation', description: 'The architecture of \'The Scribes of the Sahel\' was carved into the Village Layer.', dotColor: 'bg-theme-outline' },
 ];
 
-const MOCK_VILLAGE_DETAILS = {
-  id: 'scribes-of-sahel',
-  name: 'The Scribes of the Sahel',
-  description: 'A digital settlement dedicated to archiving the oral histories and poetry of West Africa.',
-  memberCount: 142,
-  treasuryBalance: '45,000 SCR',
-  isMember: true,
+const MOCK_VILLAGE_DETAILS: Record<string, VillageDetail> = {
+  'scribes-of-sahel': {
+    id: 'scribes-of-sahel',
+    name: 'The Scribes of the Sahel',
+    description: 'A digital settlement dedicated to archiving the oral histories and poetry of West Africa.',
+    memberCount: 142,
+    treasuryBalance: '45,000 SCR',
+    isMember: true,
+  }
 };
+
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -67,8 +80,8 @@ export const useGetVillageDetails = (id: string) => {
   return useXQuery({
     queryKey: ['villageDetails', id],
     queryFn: async () => {
-      await delay(400);
-      return MOCK_VILLAGE_DETAILS;
+      await delay(5000);
+      return MOCK_VILLAGE_DETAILS[id] || null;
     }
   });
 };
@@ -81,6 +94,10 @@ export const useGetVillageProjects = () => {
       return MOCK_PROJECTS;
     }
   });
+};
+
+export const addMockVillageProject = (project: { id: string, title: string, description: string, progress: number, contributors: number }) => {
+  MOCK_PROJECTS.unshift(project);
 };
 
 export const useGetVillageStream = () => {
@@ -128,6 +145,42 @@ export const useGetFeaturedVillages = () => {
     }
   });
 }
+
+export const useCreateVillage = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: { name: string; description: string; tags: string[] }) => {
+      await delay(1500); // simulate network
+      
+      const newId = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      
+      // Update featured villages
+      MOCK_FEATURED_VILLAGES.unshift({
+        id: newId,
+        name: data.name,
+        desc: data.description,
+        members: 1,
+        icon: '🌱'
+      });
+      
+      // Add village details
+      MOCK_VILLAGE_DETAILS[newId] = {
+        id: newId,
+        name: data.name,
+        description: data.description,
+        memberCount: 1,
+        treasuryBalance: '0 SCR',
+        isMember: true,
+      };
+      
+      return newId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['featuredVillages'] });
+    }
+  });
+};
 const MOCK_FEATURED_ARTIFACTS = [
   { id: '1', title: "The Griot's Echo", community: "Scribes of the Sahel", type: "Poetry", description: "An epic poem transcribed collaboratively by 15 scholars over 3 months, translating ancient dialects into a unified digital volume." },
   { id: '2', title: "Protocol Governance Draft v2", community: "Syntactic Weavers", type: "Technical", description: "The foundational draft for the decentralized node architecture, outlining consensus rules and penalty slashing for bad actors." },

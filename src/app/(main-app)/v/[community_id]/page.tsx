@@ -15,6 +15,7 @@ import {
   useGetVillageTreasuryAllocations, 
   useGetVillageMembers 
 } from '@/services/villages';
+import { ROUTES } from '@/lib/routes';
 
 export default function CommunityPublicProfile() {
   const params = useParams();
@@ -71,9 +72,11 @@ export default function CommunityPublicProfile() {
             <button className="bg-theme-forest text-theme-parchment px-8 py-4 rounded-lg font-bold uppercase tracking-widest text-sm hover:opacity-90 transition-all shadow-xl hover:-translate-y-1 cursor-pointer">
               Apply to Join
             </button>
-            <Link href={`/v/${communityId}/workspace`} className="text-theme-accent font-bold uppercase tracking-widest text-sm hover:underline underline-offset-4 transition-all">
+
+            <Link href={ROUTES.STUDIO} className="text-theme-accent font-bold uppercase tracking-widest text-sm hover:underline underline-offset-4 transition-all">
               View Open Works
             </Link>
+
           </div>
         </div>
       </section>
@@ -93,7 +96,8 @@ export default function CommunityPublicProfile() {
           <div>
             <div className="flex items-center justify-between border-b border-theme-outline/20 pb-4 mb-8">
               <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent font-bold">Featured Works</h3>
-              <Link href={`/v/${communityId}/library`} className="text-theme-forest font-bold uppercase tracking-widest text-xs flex items-center gap-1 hover:underline underline-offset-4 transition-all">
+              
+              <Link href={ROUTES.VILLAGE.LIBRARY(communityId)} className="text-theme-forest font-bold uppercase tracking-widest text-xs flex items-center gap-1 hover:underline underline-offset-4 transition-all">
                 View Archive <ChevronRightIcon size={14} />
               </Link>
             </div>

@@ -3,17 +3,27 @@ import React from 'react';
 import Link from 'next/link';
 import { useGetVillageProjects } from '@/services/villages';
 import { ChevronRight } from 'lucide-react';
+import { Button } from '../ui/button';
+import { ROUTES } from '@/lib/routes';
 
-export default function CentralHearth() {
+export default function CentralHearth({ communityId }: { communityId: string }) {
   const { data: projects, isLoading } = useGetVillageProjects();
 
   return (
     <div>
       <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
-        <h3 className="font-serif text-2xl font-medium text-theme-forest">The Central Hearth</h3>
-        <span className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1">
-          {isLoading ? '...' : `${projects?.length || 0} Active Works`}
-        </span>
+        <h3 className="font-serif text-2xl font-medium text-theme-forest">Projects</h3>
+        <div className="flex gap-2 items-baseline">
+          <span className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1">
+            {isLoading ? '...' : `${projects?.length || 0} Active Works`}
+          </span>
+
+          <Button asChild variant="link" size="sm">
+            <Link href={ROUTES.VILLAGE.PROJECTS(communityId)}>
+              View All
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -47,7 +57,7 @@ export default function CentralHearth() {
                     +{project.contributors - 3 > 0 ? project.contributors - 3 : 0}
                   </div>
                 </div>
-                <Link href={`/studio`} className="text-theme-accent font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <Link href={ROUTES.VILLAGE.PROJECT(communityId, project.id)} className="text-theme-accent font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                   Contribute <ChevronRight size={14} />
                 </Link>
               </div>

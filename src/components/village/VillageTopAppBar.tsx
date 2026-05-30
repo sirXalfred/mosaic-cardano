@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ROUTES } from '@/lib/routes';
 
 export default function VillageTopAppBar() {
   const params = useParams();
@@ -45,7 +46,7 @@ export default function VillageTopAppBar() {
       );
     }
     return (
-      <Link href={`/studio`} className="flex items-center gap-2 bg-theme-forest text-theme-parchment px-4 py-2 rounded-lg text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-opacity shadow-sm">
+      <Link href={ROUTES.STUDIO} className="flex items-center gap-2 bg-theme-forest text-theme-parchment px-4 py-2 rounded-lg text-xs uppercase tracking-widest font-bold hover:opacity-90 transition-opacity shadow-sm">
         <Plus size={16} /> Create
       </Link>
     );
