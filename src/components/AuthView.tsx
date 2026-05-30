@@ -2,20 +2,40 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, ArrowLeft, Key } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { PERKS, MOSAIC_EASE } from '../lib/data';
 import { Button } from './ui/button';
 import { FormError } from './ui/form-error';
 import Link from 'next/link';
 import { DecorativeGrid } from './ui/decorative-grid';
 import MosaicBrand from './ui/icons/MosaicBrand';
+import { useLogin, useRegister } from '@/services/auth';
+import { ROUTES } from '@/lib/routes';
+import { useRouter } from 'next/navigation';
+
+interface AuthFormData {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+const initialData = {
+  email: '',
+  password: '',
+  name: '',
+}
 
 export default function AuthView() {
-  const router = useRouter();
   const [perkIndex, setPerkIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const router = useRouter();
+
+  const [formData, setFormData] = useState<AuthFormData>(initialData);
+
+  const logUserIn = useLogin();
+  const registerUser = useRegister();
+  const isLoading = logUserIn.isPending || registerUser.isPending;
+  const isError = logUserIn.isError || registerUser.isError;
+  const error = mode === 'signin' ? logUserIn.error : registerUser.error;
 
   useEffect(() => {
     const timer = setInterval(() => setPerkIndex(p => (p + 1) % PERKS.length), 4000);
@@ -24,30 +44,31 @@ export default function AuthView() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(undefined);
+
+    if (isLoading) return;
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const email = formData.get('email') as string;
-
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (email === 'error@mosaic.so') {
-            reject(new Error("Invalid credentials. Please try again."));
-          } else {
-            resolve(true);
-          }
-        }, 1500);
+    if (mode === 'signup') {
+      await registerUser.mutateAsync({
+        username: formData.email.split('@')[0]?.replace(/[^a-zA-Z0-9_]/g, '_') || 'mosaic_user',
+        displayName: String(formData.name || 'Mosaic User'),
+        email: formData.email,
+        password: formData.password,
       });
 
-      router.push('/onboarding');
-    } catch (err) {
-      setError((err as Error).message || 'Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
+      router.push(ROUTES.ONBOARDING);
+
+    } else {
+      await logUserIn.mutateAsync({ email: formData.email, password: formData.password });
+
+      router.push(ROUTES.HOME);
     }
-  };
+
+
+  } catch {
+    // do sumn
+  }
+  }
 
   return (
     <div className="min-h-screen flex w-full relative z-20">
@@ -102,7 +123,9 @@ export default function AuthView() {
                 <label className="text-[10px] font-bold uppercase tracking-widest text-theme-on-surface/60">Display Name</label>
                 <div className="relative">
                   <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-on-surface/40" />
-                  <input required name="name" type="text" placeholder="David Artisan" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm" />
+                  <input required name="name" type="text" placeholder="David Artisan" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm" 
+                    onChange={handleInputChange}                  
+                  />
                 </div>
               </div>
             )}
@@ -111,7 +134,9 @@ export default function AuthView() {
               <label className="text-[10px] font-bold uppercase tracking-widest text-theme-on-surface/60">Email</label>
               <div className="relative">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-on-surface/40" />
-                <input required name="email" type="email" placeholder="david@mosaic.so" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm" />
+                <input required name="email" type="email" placeholder="david@mosaic.so" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm"
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
 
@@ -119,11 +144,13 @@ export default function AuthView() {
               <label className="text-[10px] font-bold uppercase tracking-widest text-theme-on-surface/60">Password</label>
               <div className="relative">
                 <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-on-surface/40" />
-                <input required name="password" type="password" placeholder="••••••••" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm" />
+                <input required name="password" type="password" placeholder="••••••••" className="w-full bg-theme-surface-high border border-theme-outline/20 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-theme-forest transition-all text-theme-forest placeholder:text-theme-on-surface/30 shadow-sm" 
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
 
-            <FormError message={error} />
+            <FormError message={isError ? error!.message || "An unknown error occurred" : ''} />
 
             <Button className='w-full shadow-xl' type="submit" isLoading={isLoading} size="lg">
               {mode === 'signup' ? 'Join the Village' : 'Sign In'}
@@ -142,4 +169,8 @@ export default function AuthView() {
       </div>
     </div>
   );
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }
 }
