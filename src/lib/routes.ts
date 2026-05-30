@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/home',
+  ONBOARDING: '/onboarding',
   EXPLORE: '/explore',
   AUTH: '/auth',
   NEW_COMMUNITY: '/new',
