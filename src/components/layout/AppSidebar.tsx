@@ -14,13 +14,13 @@ import {
   ChevronDownIcon,
   LogInIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import MosaicSymbol from '../ui/icons/MosaicSymbol';
 import { Button } from '../ui/button';
 import { useGetAuthState } from '@/services/auth';
 import { ROUTES } from '@/lib/routes';
-import { useExploreStore } from '@/store/exploreStore';
-import { useGetFeaturedVillages } from '@/services/villages';
+import { useGetMyVillages } from '@/services/villages';
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -32,14 +32,8 @@ export default function AppSidebar() {
   const { data: authState } = useGetAuthState();
   const isAuthenticated = authState?.isAuthenticated ?? false;
 
-  const { joinedCommunities } = useExploreStore();
-  const { data: featuredVillages = [] } = useGetFeaturedVillages();
-
-  // To avoid empty states if store hasn't populated, we'll just show the ones matching joinedCommunities,
-  // or a default fallback if none match.
-  const userVillages = featuredVillages.filter(v => joinedCommunities.includes(v.id));
-  // Fallback to show at least one if the mock data doesn't match
-  const displayVillages = userVillages.length > 0 ? userVillages : featuredVillages.slice(0, 1);
+  const { data: userVillages = [], isLoading: isLoadingVillages } = useGetMyVillages(isAuthenticated);
+  const displayVillages = userVillages;
 
   useEffect(() => {
     setMounted(true);
@@ -184,22 +178,40 @@ export default function AppSidebar() {
 
                 {villagesExpanded && (
                   <div className="mt-2 space-y-1 px-2">
+                    {isLoadingVillages ? (
+                      <div className="space-y-2 py-1">
+                        <div className="h-10 rounded-lg bg-theme-surface-high animate-pulse" />
+                        <div className="h-10 rounded-lg bg-theme-surface-high animate-pulse" />
+                      </div>
+                    ) : (
+                      displayVillages.map((village) => {
+                        const imageSrc = village.profileImageUrl || '/village-placeholder.png';
 
-                    {displayVillages.map((village) => (
-                      <Link
-                        key={village.id}
-                        href={ROUTES.VILLAGE.HOME(village.id)}
-                        className={cn(
-                          "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors text-sm",
-                          pathname.includes(ROUTES.VILLAGE.HOME(village.id))
-                            ? "bg-theme-clay/10 text-theme-accent font-medium"
-                            : "text-theme-on-surface/70 hover:bg-theme-surface-high hover:text-theme-forest"
-                        )}
-                      >
-                        <span className="text-base">{village.icon}</span>
-                        <span className="truncate">{village.name}</span>
-                      </Link>
-                    ))}
+                        return (
+                          <Link
+                            key={village.id}
+                            href={ROUTES.VILLAGE.HOME(village.id)}
+                            className={cn(
+                              "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors text-sm",
+                              pathname.includes(ROUTES.VILLAGE.HOME(village.id))
+                                ? "bg-theme-clay/10 text-theme-accent font-medium"
+                                : "text-theme-on-surface/70 hover:bg-theme-surface-high hover:text-theme-forest"
+                            )}
+                          >
+                            <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-theme-outline/20 bg-theme-surface-high">
+                              <Image
+                                src={imageSrc}
+                                alt={village.name}
+                                fill
+                                sizes="32px"
+                                className="object-cover"
+                              />
+                            </span>
+                            <span className="truncate">{village.name}</span>
+                          </Link>
+                        );
+                      })
+                    )}
                   </div>
                 )}
 
@@ -214,21 +226,31 @@ export default function AppSidebar() {
               </>
             ) : (
               <div className="flex flex-col items-center gap-3 pt-2">
-                {displayVillages.map((village) => (
-                  <Link
-                    key={village.id}
-                    href={ROUTES.VILLAGE.HOME(village.id)}
-                    className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full transition-colors relative group",
-                      pathname.includes(ROUTES.VILLAGE.HOME(village.id))
-                        ? "bg-theme-clay/10 text-theme-accent border border-theme-clay/30"
-                        : "bg-theme-surface-high border border-theme-outline/10 hover:border-theme-outline/30"
-                    )}
-                  >
-                    <span className="text-lg">{village.icon}</span>
-                    <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right z-50 whitespace-nowrap">{village.name}</span>
-                  </Link>
-                ))}
+                {displayVillages.map((village) => {
+                  const imageSrc = village.profileImageUrl || '/village-placeholder.png';
+
+                  return (
+                    <Link
+                      key={village.id}
+                      href={ROUTES.VILLAGE.HOME(village.id)}
+                      className={cn(
+                        "flex items-center justify-center w-10 h-10 rounded-full transition-colors relative group overflow-hidden",
+                        pathname.includes(ROUTES.VILLAGE.HOME(village.id))
+                          ? "bg-theme-clay/10 text-theme-accent border border-theme-clay/30"
+                          : "bg-theme-surface-high border border-theme-outline/10 hover:border-theme-outline/30"
+                      )}
+                    >
+                      <Image
+                        src={imageSrc}
+                        alt={village.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                      <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right z-50 whitespace-nowrap">{village.name}</span>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { useGetActionItems } from '@/services/home';
+import { getActionItemLabel, useGetActionItems } from '@/services/home';
 import { Mail, Edit3, ArrowRight } from 'lucide-react';
 
 export default function ActionItems() {
@@ -33,10 +33,10 @@ export default function ActionItems() {
             <div className="h-full bg-[#FFFBF5] border-2 border-theme-outline/20 p-5 rounded-xl hover:border-theme-accent transition-colors flex items-start justify-between group cursor-pointer shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="mt-1 text-theme-accent bg-theme-accent/10 p-2 rounded-lg">
-                  {item.type === 'invitation' ? <Mail size={20} /> : <Edit3 size={20} />}
+                  {item.type === 'INVITE' ? <Mail size={20} /> : <Edit3 size={20} />}
                 </div>
                 <div>
-                  <p className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/60 mb-1">{item.source}</p>
+                  <p className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/60 mb-1">{getActionItemLabel(item.type)}</p>
                   <h3 className="font-bold text-theme-forest text-sm mb-1">{item.title}</h3>
                   <p className="text-theme-on-surface/80 text-sm">{item.description}</p>
                 </div>
