@@ -23,6 +23,7 @@ const toAuthState = (user: Awaited<ReturnType<typeof authService.getUserById>>) 
         .map(part => part[0]?.toUpperCase() ?? '')
         .join('')
         .slice(0, 3),
+      isOnboarded: user.isOnboarded,
       avatarUrl: null,
     },
   };

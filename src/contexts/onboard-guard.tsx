@@ -12,9 +12,16 @@ export const OnboardedGuard = ({ awaitUser, children, loader }: { awaitUser?: bo
     const router = useRouter();
 
     useEffect(() => {
-        if (isLoadedAuthState && data?.user && !data.user.isOnboarded) {
+        if (!isLoadedAuthState || !data?.user) {
+            return;
+        }
+        if (data.user.isOnboarded) {
+            router.push(ROUTES.HOME);
+
+        } else {
             router.push(ROUTES.ONBOARDING);
         }
+
     }, [isLoadedAuthState, data, router]);
 
 
