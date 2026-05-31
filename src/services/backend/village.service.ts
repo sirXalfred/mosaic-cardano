@@ -10,6 +10,18 @@ const listMembersInput = z.object({
 	limit: z.number().int().positive().max(200).default(50),
 });
 
+const listVillagesInput = z.object({
+	limit: z.number().int().positive().max(100).default(10),
+});
+
+export type VillageSummary = {
+	id: string;
+	name: string;
+	description: string | null;
+	memberCount: number;
+	profileImageUrl: string | null;
+};
+
 export const villageService = {
 	async joinCommunity(input: z.infer<typeof JoinCommunityRequestSchema>): Promise<void> {
 		const parsed = JoinCommunityRequestSchema.parse(input);
@@ -106,6 +118,73 @@ export const villageService = {
 				);
 			},
 			60,
+		);
+	},
+
+	async listFeaturedVillages(limit = 10): Promise<VillageSummary[]> {
+		const parsed = listVillagesInput.parse({ limit });
+		const key = cacheKey('community', 'featured', parsed.limit);
+
+		return cacheAside(
+			key,
+			async () => {
+				return runRead(
+					`
+						MATCH (c:Community)
+						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:User)
+						WITH c, count(DISTINCT member) AS memberCount
+						RETURN c AS community, memberCount AS memberCount
+						ORDER BY memberCount DESC, c.createdAt DESC
+						LIMIT toInteger($limit)
+					`,
+					{ limit: parsed.limit },
+					row => {
+						const community = CommunityNodeSchema.parse(row.community);
+						return {
+							id: community.id,
+							name: community.name,
+							description: community.description ?? null,
+							memberCount: Number(row.memberCount ?? 0),
+							profileImageUrl: null,
+						} satisfies VillageSummary;
+					},
+				);
+			},
+			120,
+		);
+	},
+
+	async listUserVillages(userId: string, limit = 20): Promise<VillageSummary[]> {
+		const parsedUserId = z.string().uuid().parse(userId);
+		const parsedLimit = z.number().int().positive().max(100).default(20).parse(limit);
+		const key = cacheKey('community', 'mine', parsedUserId, parsedLimit);
+
+		return cacheAside(
+			key,
+			async () => {
+				return runRead(
+					`
+						MATCH (u:User {id: $userId})-[:MEMBER_OF]->(c:Community)
+						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:User)
+						WITH c, count(DISTINCT member) AS memberCount
+						RETURN c AS community, memberCount AS memberCount
+						ORDER BY c.createdAt DESC
+						LIMIT toInteger($limit)
+					`,
+					{ userId: parsedUserId, limit: parsedLimit },
+					row => {
+						const community = CommunityNodeSchema.parse(row.community);
+						return {
+							id: community.id,
+							name: community.name,
+							description: community.description ?? null,
+							memberCount: Number(row.memberCount ?? 0),
+							profileImageUrl: null,
+						} satisfies VillageSummary;
+					},
+				);
+			},
+			120,
 		);
 	},
 };
