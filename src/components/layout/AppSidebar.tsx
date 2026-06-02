@@ -185,7 +185,7 @@ export default function AppSidebar() {
                       </div>
                     ) : (
                       displayVillages.map((village) => {
-                        const imageSrc = village.profileImageUrl || '/village-placeholder.png';
+                        const imageSrc = village.profileImageUrl || '/assets/images/village-placeholder.png';
 
                         return (
                           <Link
@@ -227,7 +227,7 @@ export default function AppSidebar() {
             ) : (
               <div className="flex flex-col items-center gap-3 pt-2">
                 {displayVillages.map((village) => {
-                  const imageSrc = village.profileImageUrl || '/village-placeholder.png';
+                  const imageSrc = village.profileImageUrl || '/assets/images/village-placeholder.png';
 
                   return (
                     <Link
