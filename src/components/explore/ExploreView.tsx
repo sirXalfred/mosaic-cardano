@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SearchIcon, CompassIcon, XIcon } from 'lucide-react';
+import { SearchIcon, XIcon } from 'lucide-react';
 import { useExploreStore } from '@/store/exploreStore';
-import { useGetExploreItems } from '@/services/explore';
+import { useGetExploreItems, type ExploreItem } from '@/services/explore';
+import { StatePanel } from '@/components/ui/StatePanel';
 
 import ExploreHeader from './ExploreHeader';
 import ExploreFiltersPanel from './ExploreFiltersPanel';
@@ -14,47 +15,34 @@ import { ROUTES } from '@/lib/routes';
 
 export default function ExploreView() {
   const router = useRouter();
-  const { filters, activeTab, setFilter, resetFilters } = useExploreStore();
+  const { filters, activeTab, setFilter } = useExploreStore();
 
-  // Pagination states
-  const [visibleCount, setVisibleCount] = useState(4);
-  const [isMockLoadingMore, setIsMockLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [items, setItems] = useState<ExploreItem[]>([]);
 
-  // Fetch filtered items using React Query hook
-  const { data: allItems = [], isLoading } = useGetExploreItems({
+  const queryFilters = useMemo(() => ({
     search: filters.query,
     topic: filters.topic,
     location: filters.location,
     visibility: filters.visibility,
     activityLevel: filters.activityLevel,
-  });
+  }), [filters.activityLevel, filters.location, filters.query, filters.topic, filters.visibility]);
 
-  // Reset pagination count when activeTab or filters change
+  const { data: page, isLoading, isError, error, refetch, isFetching } = useGetExploreItems(queryFilters, activeTab, offset);
+
   useEffect(() => {
-    setVisibleCount(4);
-    setIsMockLoadingMore(false);
-  }, [activeTab, filters.query, filters.topic, filters.location, filters.visibility, filters.activityLevel]);
+    setOffset(0);
+    setItems([]);
+  }, [activeTab, queryFilters]);
 
-  // Filter items based on active tab
-  const displayedItems = allItems.filter(
-    (item) => activeTab === 'all' || item.type === activeTab
-  );
-
-  // Slice displayed items based on pagination visibleCount
-  const paginatedItems = displayedItems.slice(0, visibleCount);
-
-  // Check if there are more items to load
-  const hasMore = displayedItems.length > visibleCount;
+  useEffect(() => {
+    if (!page) return;
+    setItems((current) => (offset === 0 ? page.items : [...current, ...page.items]));
+  }, [offset, page]);
 
   const handleLoadMore = () => {
-    if (isMockLoadingMore) return;
-    setIsMockLoadingMore(true);
-
-    // Simulate network delay for loading more page items
-    setTimeout(() => {
-      setVisibleCount((prev) => prev + 4);
-      setIsMockLoadingMore(false);
-    }, 850);
+    if (!page?.meta.hasMore || isFetching) return;
+    setOffset(page.meta.nextOffset);
   };
 
   const navigateToDetail = (communityId: string, itemId: string) => {
@@ -100,7 +88,7 @@ export default function ExploreView() {
       </div>
 
       {/* 3. CATEGORY TABS SWITCHER */}
-      <ExploreTabs allItems={allItems} isLoading={isLoading} />
+      <ExploreTabs />
 
       {/* 4. ACTIVE BADGES FOR POPULAR SEARCHES */}
       {Object.entries(filters).some(([key, val]) => key !== 'query' && val !== '') && (
@@ -129,76 +117,50 @@ export default function ExploreView() {
 
       {/* 5. CONTENT GRID LIST */}
       <div className="min-h-[400px] space-y-8">
-        {isLoading ? (
-          /* Pulse skeleton screen cards list */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-44 bg-theme-surface-low border border-theme-outline/15 rounded-xl"
-              ></div>
-            ))}
-          </div>
-        ) : displayedItems.length > 0 ? (
+        {isLoading && items.length === 0 ? (
+          <StatePanel
+            variant="loading"
+            title="Loading explore listings"
+            description="We are fetching the latest communities from the registry."
+          />
+        ) : isError ? (
+          <StatePanel
+            variant="error"
+            title="Could not load explore listings"
+            description="Something went wrong while fetching the registry."
+            errorMessage={error instanceof Error ? error.message : 'Failed to load explore listings.'}
+            onRetry={() => void refetch()}
+          />
+        ) : items.length === 0 ? (
+          <StatePanel
+            variant="empty"
+            title="No listings found"
+            description="Try adjusting your search or filters to surface more communities."
+          />
+        ) : (
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {paginatedItems.map((item, index) => (
+              {items.map((item, index) => (
                 <ExploreCard
                   key={item.id}
                   item={item}
                   index={index}
-                  onClick={() => navigateToDetail(item.communityId, item.id)}
+                  onClick={() => navigateToDetail(item.communityId || item.id, item.id)}
                 />
               ))}
-
-              {/* Show exactly ONE blank pulsing skeleton loader card while loading more */}
-              {isMockLoadingMore && (
-                <div className="h-[190px] w-full bg-theme-surface-low/60 border border-theme-outline/15 rounded-xl animate-pulse flex flex-col justify-between p-6">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="h-4 w-16 bg-theme-outline/15 rounded"></div>
-                      <div className="h-4 w-12 bg-theme-outline/15 rounded"></div>
-                    </div>
-                    <div className="h-6 w-2/3 bg-theme-outline/15 rounded"></div>
-                    <div className="space-y-2">
-                      <div className="h-3 w-full bg-theme-outline/15 rounded"></div>
-                      <div className="h-3 w-5/6 bg-theme-outline/15 rounded"></div>
-                    </div>
-                  </div>
-                  <div className="h-8 w-full bg-theme-outline/5 border-t border-theme-outline/10 pt-4 flex justify-between items-center">
-                    <div className="h-3 w-1/3 bg-theme-outline/15 rounded"></div>
-                    <div className="h-4 w-12 bg-theme-outline/15 rounded"></div>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Pagination Load More trigger row */}
-            {hasMore && !isMockLoadingMore && (
+            {page?.meta.hasMore && (
               <div className="flex justify-center pt-4">
                 <button
                   onClick={handleLoadMore}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-theme-surface-high border border-theme-outline/25 text-xs font-sans font-bold uppercase tracking-widest rounded-xl hover:border-theme-clay/40 text-theme-on-surface/85 transition-all shadow-sm cursor-pointer"
+                  disabled={isFetching}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-theme-surface-high border border-theme-outline/25 text-xs font-sans font-bold uppercase tracking-widest rounded-xl hover:border-theme-clay/40 text-theme-on-surface/85 transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Load More Listings
+                  {isFetching ? 'Loading more' : 'Load More Listings'}
                 </button>
               </div>
             )}
-          </div>
-        ) : (
-          /* Custom empty listing state */
-          <div className="text-center py-20 bg-theme-surface-high border border-theme-outline/20 rounded-2xl p-8 max-w-lg mx-auto shadow-md">
-            <CompassIcon className="mx-auto text-theme-on-surface/20 mb-4" size={56} />
-            <h3 className="font-serif text-2xl text-theme-forest mb-2">No Registry Items Found</h3>
-            <p className="text-sm text-theme-on-surface/70 font-sans leading-relaxed mb-6">
-              There are no villages, projects or documents currently cataloged matching those specific tags or location parameters.
-            </p>
-            <button
-              onClick={resetFilters}
-              className="bg-theme-forest text-theme-parchment px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md cursor-pointer"
-            >
-              Reset All Filters
-            </button>
           </div>
         )}
       </div>

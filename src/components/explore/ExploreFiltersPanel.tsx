@@ -37,14 +37,10 @@ export default function ExploreFiltersPanel() {
   const handleDetectLocation = () => {
     setLocLoading(true);
     setLocMessage('Detecting...');
-    
+
     if (!navigator.geolocation) {
-      setTimeout(() => {
-        setFilter('location', 'Nigeria'); // Fallback mock
-        setLocMessage('Fallback: Nigeria');
-        setLocLoading(false);
-        setTimeout(() => setLocMessage(null), 2000);
-      }, 800);
+      setLocMessage('Location services unavailable');
+      setLocLoading(false);
       return;
     }
 
@@ -52,26 +48,14 @@ export default function ExploreFiltersPanel() {
       (position) => {
         const latitude = position.coords.latitude;
         
-        setTimeout(() => {
-          let detected = 'Nigeria';
-          if (latitude > 10 && latitude < 20) {
-            detected = 'Senegal';
-          } else if (latitude < 0) {
-            detected = 'Kenya';
-          }
-          setFilter('location', detected);
-          setLocMessage(`Detected: ${detected}`);
-          setLocLoading(false);
-          setTimeout(() => setLocMessage(null), 2000);
-        }, 1000);
+        setLocMessage(`Detected latitude ${latitude.toFixed(2)}`);
+        setLocLoading(false);
+        setTimeout(() => setLocMessage(null), 2000);
       },
       () => {
-        setTimeout(() => {
-          setFilter('location', 'Nigeria');
-          setLocMessage('Defaulted to Nigeria');
-          setLocLoading(false);
-          setTimeout(() => setLocMessage(null), 2000);
-        }, 800);
+        setLocMessage('Could not detect your location');
+        setLocLoading(false);
+        setTimeout(() => setLocMessage(null), 2000);
       },
       { timeout: 5000 }
     );
@@ -107,7 +91,7 @@ export default function ExploreFiltersPanel() {
         <DropdownMenuContent
           align="end"
           sideOffset={8}
-          className="w-80 md:w-96"
+          className="w-80 md:w-96 p-4 space-y-4"
         >
           {/* Header */}
           <div className="flex justify-between items-center pb-3 border-b border-theme-outline/10">
