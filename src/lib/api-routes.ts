@@ -30,7 +30,11 @@ export const API = {
         LEAVE: (communityId: string) => `/api/villages/${communityId}/leave`,
         DETAILS: (communityId: string) => `/api/villages/${communityId}`,
         MEMBERS: (communityId: string) => `/api/villages/${communityId}/members`,
+        MEMBERSHIP: (communityId: string) => `/api/villages/${communityId}/membership`,
         MY: '/api/villages/me',
         LIST: '/api/villages',
+    },
+    EXPLORE: {
+        LIST: '/api/explore',
     },
 } as const;
