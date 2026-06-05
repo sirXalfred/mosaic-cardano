@@ -5,10 +5,10 @@ import { ReactNode } from 'react'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 20,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: 2,
     },
     mutations: {
       retry: 1,
