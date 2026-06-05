@@ -21,6 +21,8 @@ export function useXQuery<
 
   return {
     ...result,
+    is404Error:
+      result.isError && result.error instanceof Error && result.error.message.toLowerCase().includes('not found'),
     isLoaded:
       result.status === "success",
   };
