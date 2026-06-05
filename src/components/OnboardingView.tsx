@@ -143,7 +143,7 @@ export default function OnboardingView() {
           {step === 1 ? (
             <Button disabled={selectedNiches.length === 0} onClick={() => setStep(2)} variant="default" size="lg">Continue</Button>
           ) : (
-            <Button disabled={joined.length === 0 || onboardMut.status === 'pending'} onClick={handleComplete} variant="accent" size="lg">{onboardMut.status === 'pending' ? 'Saving...' : 'Enter the Square'}</Button>
+            <Button disabled={joined.length === 0 || ['pending', 'success'].includes(onboardMut.status)} onClick={handleComplete} variant="accent" size="lg">{['pending', 'success'].includes(onboardMut.status)? 'Saving...' : 'Enter the Square'}</Button>
           )}
         </div>
       </div>

@@ -45,8 +45,51 @@ export default function ExploreView() {
     setOffset(page.meta.nextOffset);
   };
 
-  const navigateToDetail = (communityId: string, itemId: string) => {
-    router.push(ROUTES.VILLAGE.PROJECT(communityId, itemId));
+  const getClickOptions = (item: ExploreItem) => {
+    let href = '';
+    let onClick;
+
+    switch (item.type as string) {
+      case 'community': 
+        href = ROUTES.VILLAGE.HOME(item.communityId as string);
+      break;
+      case 'publication':
+        href = ROUTES.VILLAGE.PROJECTS(item.communityId as string);
+      break;
+      case 'collaboration':
+        href = ROUTES.VILLAGE.PROJECTS(item.communityId as string);
+      break;
+      case 'project':
+        href = ROUTES.VILLAGE.PROJECT(item.communityId as string, item.id as string);
+      break;
+      default:
+        onClick = () => navigateToDetail(item as unknown as Record<string, unknown>);
+      break;
+    }
+    
+    return {
+      href,
+      onClick
+    }
+  }
+    
+
+  const navigateToDetail = (item: Record<string, unknown>) => {
+    switch (item.type as string) {
+      default:
+      case 'COMMUNITY': 
+        router.push(ROUTES.VILLAGE.HOME(item.communityId as string));
+      break;
+      case 'PUBLICATION':
+        router.push(ROUTES.VILLAGE.PROJECTS(item.communityId as string));
+      break;
+      case 'COLLABORATION':
+        router.push(ROUTES.VILLAGE.PROJECTS(item.communityId as string));
+      break;
+      case 'PROJECT':
+        router.push(ROUTES.VILLAGE.PROJECT(item.communityId as string, item.projectId as string));
+      break;
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +188,7 @@ export default function ExploreView() {
                   key={item.id}
                   item={item}
                   index={index}
-                  onClick={() => navigateToDetail(item.communityId || item.id, item.id)}
+                  clickOptions={getClickOptions(item)}
                 />
               ))}
             </div>

@@ -62,7 +62,7 @@ export default function AppSidebar() {
         isCollapsed ? "w-20 px-2" : "w-64 px-4"
       )}
     >
-      <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "px-2 justify-center" : "px-4")}>
+      <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed && (
           <Link href="/" className='flex items-center gap-1'>
             <MosaicSymbol />

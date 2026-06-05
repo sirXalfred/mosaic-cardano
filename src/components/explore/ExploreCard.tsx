@@ -3,14 +3,18 @@ import { ArrowUpRight } from 'lucide-react';
 import { ExploreItem } from '@/services/explore';
 import { TexturedCard } from '@/components/ui/textured-card';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface ExploreCardProps {
   item: ExploreItem;
   index: number;
-  onClick: () => void;
+  clickOptions: {
+    href: string;
+    onClick?: () => void;
+  };
 }
 
-export default function ExploreCard({ item, index, onClick }: ExploreCardProps) {
+export default function ExploreCard({ item, index, clickOptions }: ExploreCardProps) {
   const renderCardMetadata = (item: ExploreItem) => {
     const parts: string[] = [];
     if (item.members) parts.push(`${item.members} members`);
@@ -20,10 +24,10 @@ export default function ExploreCard({ item, index, onClick }: ExploreCardProps) 
     return parts.join(' • ');
   };
 
-  const imageSrc = item.imageUrl || '/assets/images/village-placeholder.png';
+  const imageSrc = item.imageUrl || "/assets/images/village-placeholder.png";
 
   return (
-    <div onClick={onClick} className="group cursor-pointer h-full">
+    <Link {...clickOptions} className="group cursor-pointer h-full">
       <TexturedCard
         patternId={((index % 5) + 1) as 1 | 2 | 3 | 4 | 5}
         patternColor="text-theme-clay"
@@ -32,7 +36,7 @@ export default function ExploreCard({ item, index, onClick }: ExploreCardProps) 
       >
         <div className="flex w-full h-full">
           <div className="w-36 h-full relative shrink-0">
-            <Image src={imageSrc} alt={item.communityName || item.title} fill className="object-cover" />
+            <Image src={`${imageSrc}`} alt={item.communityName || item.title} fill className="object-cover" unoptimized />
           </div>
           <div className="p-4 flex flex-1 flex-col justify-between">
             <div>
@@ -64,6 +68,6 @@ export default function ExploreCard({ item, index, onClick }: ExploreCardProps) 
           </div>
         </div>
       </TexturedCard>
-    </div>
+    </Link>
   );
 }

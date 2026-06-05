@@ -26,7 +26,7 @@ export default function VillageSidebar() {
   const pathname = usePathname();
   const params = useParams();
   const communityId = params.community_id as string;
-  const { data: village, isLoaded } = useGetVillageDetails(communityId);
+  const { data: village, isLoaded, isError } = useGetVillageDetails(communityId);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -57,7 +57,7 @@ export default function VillageSidebar() {
     { name: 'Members', path: ROUTES.VILLAGE.MEMBERS(communityId), icon: Users },
   ];
 
-  if (isLoaded && !village?.isMember) {
+  if (isError || (isLoaded && !village?.isMember)) {
     return <AppSidebar />
   }
 
@@ -68,7 +68,7 @@ export default function VillageSidebar() {
         isCollapsed ? "w-20 px-2" : "w-64 px-4"
       )}
     >
-      <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "px-2 justify-center" : "px-4")}>
+      <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed && (
           <div className='flex items-center gap-3 overflow-hidden'>
             <div className="w-8 h-8 rounded bg-theme-clay shrink-0 flex items-center justify-center font-serif text-white font-bold">

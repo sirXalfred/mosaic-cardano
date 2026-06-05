@@ -11,13 +11,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    // Listen to storage events to sync layout margin with sidebar state across components if needed
-    // For simpler sync, we can just read it here on mount and use an event listener for same-window updates, 
-    // or just pass a state down. Since sidebar reads localStorage, let's just use CSS generic margin or 
-    // keep state in a context if they need to perfectly sync. 
-    // To keep it simple without context, we will poll or listen to a custom event, but for now 
-    // we can assume the sidebar handles its own width and we just add `pl-20` or `pl-64` based on state.
-
     const checkState = () => {
       const stored = localStorage.getItem('mosaic_sidebar_collapsed');
       if (stored) setIsCollapsed(JSON.parse(stored));
