@@ -22,10 +22,10 @@ import { useGetVillageDetails } from '@/services/villages';
 import AppSidebar from '../layout/AppSidebar';
 import { ROUTES } from '@/lib/routes';
 
-export default function VillageSidebar() {
+export default function VillageSidebar({ communityId: propCommunityId }: { communityId?: string }) {
   const pathname = usePathname();
   const params = useParams();
-  const communityId = params.community_id as string;
+  const communityId = propCommunityId || (params.community_id as string);
   const { data: village, isLoaded, isError } = useGetVillageDetails(communityId);
 
   const [isCollapsed, setIsCollapsed] = useState(false);

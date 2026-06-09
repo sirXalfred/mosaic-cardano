@@ -5,7 +5,7 @@ import VillageSidebar from './VillageSidebar';
 import { cn } from '@/lib/utils';
 import { TopAppBarWrapper } from '../layout/TopAppBar';
 
-export default function VillageLayout({ children }: { children: React.ReactNode }) {
+export default function VillageLayout({ children, communityId }: { children: React.ReactNode, communityId?: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -30,7 +30,7 @@ export default function VillageLayout({ children }: { children: React.ReactNode 
       <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuC9QuQNM5A8ulD-usGL7WPxprHWmeC1zp2nhD8CF6pluhdSTFuGFuDybp4W_4FJrvqFXLHILme-ekFljqjyy1t27hqsnYO2PUlSGsXUH1BfWcy0l0MKNAy2jiO3HvfNGyioojpRvp8bVSINIT5kfC9L4YKawElG2iVn_euP7Vj-dA-gIgOS9mvtepudjtKzCEPea5dqpIe5HBeRa1_s6b3zisR-w8wf7EZ1vl74rUcdHioIx5gkTk5zqs3kBht290neCZWMfeVva1U)' }} />
 
       <div className='size-full flex overflow-y-hidden'>
-        <VillageSidebar />
+        <VillageSidebar communityId={communityId} />
 
         <main className={cn(
           "flex-1 flex flex-col transition-all duration-300 overflow-y-auto w-full",
