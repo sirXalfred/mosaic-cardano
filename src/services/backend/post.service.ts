@@ -23,8 +23,8 @@ export const postService = {
     const timestamp = Date.now();
 
     const query = `
-      MATCH (c:Community {id: $communityId})
-      MATCH (u:User {id: $authorId})
+      MATCH (c:Mosaic_Community {id: $communityId})
+      MATCH (u:Mosaic_User {id: $authorId})
       CREATE (p:Post {
         id: $postId,
         communityId: $communityId,
@@ -49,7 +49,7 @@ export const postService = {
     `;
 
     const rows = await runWrite(query, { communityId, authorId, content, postId, timestamp, replyToId: replyToId || null }, (row) => row);
-    
+
     if (rows.length === 0) return null;
 
     const post = rows[0].post as Record<string, unknown>;
@@ -65,12 +65,12 @@ export const postService = {
         id: author.id as string,
         name: author.displayName as string || author.name as string,
         username: author.username as string,
-      avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
-    },
-    communityId: post.communityId as string,
-    isPinned: post.isPinned as boolean || false,
-    viewerVote: 'NONE'
-  };
+        avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
+      },
+      communityId: post.communityId as string,
+      isPinned: post.isPinned as boolean || false,
+      viewerVote: 'NONE'
+    };
   },
 
   async listPosts(communityId: string, viewerId: string | null, limit = 50, offset = 0, filter?: string): Promise<PostResponse[]> {
@@ -86,9 +86,9 @@ export const postService = {
     }
 
     const query = `
-      MATCH (p:Post {communityId: $communityId})<-[:AUTHORED]-(author:User)
+      MATCH (p:Post {communityId: $communityId})<-[:AUTHORED]-(author:Mosaic_User)
       ${whereClause}
-      OPTIONAL MATCH (viewer:User {id: $viewerId})
+      OPTIONAL MATCH (viewer:Mosaic_User {id: $viewerId})
       OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
       OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
       RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
@@ -129,8 +129,8 @@ export const postService = {
   async getPostReplies(postId: string, viewerId: string | null, limit = 10, offset = 0): Promise<PostResponse[]> {
     const query = `
       MATCH (p:Post)-[:REPLIED_TO]->(:Post {id: $postId})
-      MATCH (p)<-[:AUTHORED]-(author:User)
-      OPTIONAL MATCH (viewer:User {id: $viewerId})
+      MATCH (p)<-[:AUTHORED]-(author:Mosaic_User)
+      OPTIONAL MATCH (viewer:Mosaic_User {id: $viewerId})
       OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
       OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
       RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
@@ -173,8 +173,8 @@ export const postService = {
       MATCH path = (target:Post {id: $postId})-[:REPLIED_TO*0..]->(root:Post)
       WHERE NOT (root)-[:REPLIED_TO]->()
       UNWIND nodes(path) AS p
-      MATCH (p)<-[:AUTHORED]-(author:User)
-      OPTIONAL MATCH (viewer:User {id: $viewerId})
+      MATCH (p)<-[:AUTHORED]-(author:Mosaic_User)
+      OPTIONAL MATCH (viewer:Mosaic_User {id: $viewerId})
       OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
       OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
       RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
@@ -214,10 +214,10 @@ export const postService = {
 
   async voteOnPost(postId: string, userId: string, direction: 'UP' | 'DOWN' | 'NONE'): Promise<{ score: number, viewerVote: 'UP' | 'DOWN' | 'NONE' } | null> {
     const timestamp = Date.now();
-    
+
     // Atomically delete old votes and set new one, then recalculate score
     const safeQuery = `
-      MATCH (p:Post {id: $postId}), (u:User {id: $userId})
+      MATCH (p:Post {id: $postId}), (u:Mosaic_User {id: $userId})
       OPTIONAL MATCH (u)-[oldUp:UPVOTED]->(p)
       OPTIONAL MATCH (u)-[oldDown:DOWNVOTED]->(p)
       DELETE oldUp, oldDown
@@ -241,7 +241,7 @@ export const postService = {
     `;
 
     const rows = await runWrite(safeQuery, { postId, userId, direction, timestamp }, (row) => row);
-    
+
     if (rows.length === 0) return null;
 
     return {
@@ -252,19 +252,19 @@ export const postService = {
 
   async pinPost(postId: string, userId: string, isPinned: boolean): Promise<PostResponse | null> {
     const query = `
-      MATCH (u:User {id: $userId})-[m:MEMBER_OF]->(c:Community)<-[:POSTED_IN]-(p:Post {id: $postId})
+      MATCH (u:Mosaic_User {id: $userId})-[m:MEMBER_OF]->(c:Mosaic_Community)<-[:POSTED_IN]-(p:Post {id: $postId})
       WHERE m.role = 'ADMIN'
       SET p.isPinned = $isPinned
       WITH p, c, u
-      MATCH (p)<-[:AUTHORED]-(author:User)
-      OPTIONAL MATCH (viewer:User {id: $userId})
+      MATCH (p)<-[:AUTHORED]-(author:Mosaic_User)
+      OPTIONAL MATCH (viewer:Mosaic_User {id: $userId})
       OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
       OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
       RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
     `;
 
     const rows = await runWrite(query, { postId, userId, isPinned }, (row) => row);
-    
+
     if (rows.length === 0) return null; // Not found, or user is not ADMIN
 
     const post = rows[0].post as Record<string, unknown>;

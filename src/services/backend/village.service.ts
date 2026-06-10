@@ -28,14 +28,14 @@ export const villageService = {
 
 		const rows = await runWrite(
 			`
-				MERGE (c:Community {slug: $slug})
+				MERGE (c:Mosaic_Community {slug: $slug})
 				ON CREATE SET
 					c.id = $id,
 					c.name = $name,
 					c.description = $description,
 					c.createdAt = $now
 				WITH c
-				MATCH (u:User {id: $userId})
+				MATCH (u:Mosaic_User {id: $userId})
 				MERGE (u)-[m:MEMBER_OF]->(c)
 				ON CREATE SET m.joinedAt = $now, m.role = 'ADMIN'
 				RETURN c AS community
@@ -52,7 +52,7 @@ export const villageService = {
 		);
 
 		if (!rows[0]) throw new Error('Failed to create community');
-		
+
 		await invalidateCachePattern(cacheKey('community', 'featured', '*'));
 		await invalidateCachePattern(cacheKey('community', 'mine', parsedUserId, '*'));
 
@@ -65,8 +65,8 @@ export const villageService = {
 
 		const rows = await runRead(
 			`
-				MATCH (u:User {id: $userId})
-				OPTIONAL MATCH (u)-[membership:MEMBER_OF]->(:Community {id: $communityId})
+				MATCH (u:Mosaic_User {id: $userId})
+				OPTIONAL MATCH (u)-[membership:MEMBER_OF]->(:Mosaic_Community {id: $communityId})
 				RETURN count(membership) > 0 AS isMember, head(collect(membership.role)) AS role
 			`,
 			{
@@ -88,8 +88,8 @@ export const villageService = {
 
 		await runWrite(
 			`
-				MATCH (u:User {id: $userId})
-				MATCH (c:Community {id: $communityId})
+				MATCH (u:Mosaic_User {id: $userId})
+				MATCH (c:Mosaic_Community {id: $communityId})
 				MERGE (u)-[m:MEMBER_OF]->(c)
 				ON CREATE SET m.joinedAt = $now, m.role = 'MEMBER'
 				RETURN c.id AS communityId
@@ -114,7 +114,7 @@ export const villageService = {
 
 		await runWrite(
 			`
-				MATCH (:User {id: $userId})-[m:MEMBER_OF]->(:Community {id: $communityId})
+				MATCH (:Mosaic_User {id: $userId})-[m:MEMBER_OF]->(:Mosaic_Community {id: $communityId})
 				DELETE m
 				RETURN $communityId AS communityId
 			`,
@@ -140,7 +140,7 @@ export const villageService = {
 			async () => {
 				const rows = await runRead(
 					`
-						MATCH (c:Community)
+						MATCH (c:Mosaic_Community)
 						WHERE c.id = $idOrSlug OR c.slug = $idOrSlug
 						RETURN c AS community
 						LIMIT 1
@@ -163,9 +163,9 @@ export const villageService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (c:Community)
+						MATCH (c:Mosaic_Community)
 						WHERE c.id = $idOrSlug OR c.slug = $idOrSlug
-						MATCH (u:User)-[:MEMBER_OF]->(c)
+						MATCH (u:Mosaic_User)-[:MEMBER_OF]->(c)
 						RETURN u AS user
 						ORDER BY u.createdAt DESC
 						LIMIT toInteger($limit)
@@ -190,8 +190,8 @@ export const villageService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (c:Community)
-						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:User)
+						MATCH (c:Mosaic_Community)
+						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
 						WITH c, count(DISTINCT member) AS memberCount
 						RETURN c AS community, memberCount AS memberCount
 						ORDER BY memberCount DESC, c.createdAt DESC
@@ -224,8 +224,8 @@ export const villageService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (u:User {id: $userId})-[:MEMBER_OF]->(c:Community)
-						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:User)
+						MATCH (u:Mosaic_User {id: $userId})-[:MEMBER_OF]->(c:Mosaic_Community)
+						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
 						WITH c, count(DISTINCT member) AS memberCount
 						RETURN c AS community, memberCount AS memberCount
 						ORDER BY c.createdAt DESC

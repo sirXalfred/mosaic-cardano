@@ -6,10 +6,10 @@ import { UserSettingsSchema, type UserSettings, defaultUserSettings } from '@/ty
 export const settingsService = {
   async getSettings(userId: string): Promise<UserSettings> {
     const parsedUserId = z.string().uuid().parse(userId);
-    
+
     const rows = await runRead(
       `
-        MATCH (u:User {id: $userId})
+        MATCH (u:Mosaic_User {id: $userId})
         RETURN u.settings AS settings
         LIMIT 1
       `,
@@ -37,10 +37,10 @@ export const settingsService = {
 
   async updateSettings(userId: string, partialSettings: DeepPartial<UserSettings>): Promise<UserSettings> {
     const parsedUserId = z.string().uuid().parse(userId);
-    
+
     // Get current settings first
     const currentSettings = await this.getSettings(parsedUserId);
-    
+
     // Deep merge current settings with partial updates
     const mergedSettings = {
       ...currentSettings,
@@ -57,7 +57,7 @@ export const settingsService = {
 
     await runWrite(
       `
-        MATCH (u:User {id: $userId})
+        MATCH (u:Mosaic_User {id: $userId})
         SET u.settings = $settings, u.updatedAt = $now
         RETURN u.id
       `,
@@ -68,11 +68,11 @@ export const settingsService = {
     // Invalidate user cache because settings are part of user node conceptually, 
     // though auth.service doesn't always query them.
     await invalidateCacheKey(cacheKey('user', parsedUserId));
-    
+
     return validated;
   }
 };
 
 type DeepPartial<T> = T extends object ? {
-    [P in keyof T]?: DeepPartial<T[P]>;
+  [P in keyof T]?: DeepPartial<T[P]>;
 } : T;

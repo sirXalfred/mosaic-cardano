@@ -79,10 +79,10 @@ export const homeService = {
 
     return runRead(
       `
-        MATCH (:User {id: $userId})-[membership:CONTRIBUTED_TO]->(project:Project {status: 'ACTIVE'})
-        OPTIONAL MATCH (project)<-[:CONTRIBUTED_TO]-(collaborator:User)
-        OPTIONAL MATCH (project)<-[:HOSTS]-(community:Community)
-        OPTIONAL MATCH (project)-[:CONTAINS]->(artifact:Artifact)
+        MATCH (:Mosaic_User {id: $userId})-[membership:CONTRIBUTED_TO]->(project:Mosaic_Project {status: 'ACTIVE'})
+        OPTIONAL MATCH (project)<-[:CONTRIBUTED_TO]-(collaborator:Mosaic_User)
+        OPTIONAL MATCH (project)<-[:HOSTS]-(community:Mosaic_Community)
+        OPTIONAL MATCH (project)-[:CONTAINS]->(artifact:Mosaic_Piece)
         WITH project, community,
           collect(DISTINCT collaborator.displayName) AS collaboratorNames,
           count(DISTINCT artifact) AS artifactCount,
@@ -120,8 +120,8 @@ export const homeService = {
 
     return runRead(
       `
-        MATCH (:User {id: $userId})-[:MEMBER_OF]->(community:Community)<-[:HOSTS]-(project:Project)
-        OPTIONAL MATCH (project)-[:CONTAINS]->(artifact:Artifact)
+        MATCH (:Mosaic_User {id: $userId})-[:MEMBER_OF]->(community:Mosaic_Community)<-[:HOSTS]-(project:Mosaic_Project)
+        OPTIONAL MATCH (project)-[:CONTAINS]->(artifact:Mosaic_Piece)
         WITH community, project,
           count(DISTINCT artifact) AS artifactCount,
           max(artifact.createdAt) AS lastActivityAt

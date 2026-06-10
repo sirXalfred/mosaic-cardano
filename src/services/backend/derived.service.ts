@@ -23,9 +23,9 @@ export const derivedService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (c:Community)
-						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(members:User)
-						OPTIONAL MATCH (c)-[:HOSTS]->(:Project)-[:CONTAINS]->(a:Artifact)
+						MATCH (c:Mosaic_Community)
+						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(members:Mosaic_User)
+						OPTIONAL MATCH (c)-[:HOSTS]->(:Mosaic_Project)-[:CONTAINS]->(a:Mosaic_Piece)
 						WITH c, count(DISTINCT members) AS memberCount, count(DISTINCT a) AS artifactCount
 						RETURN c AS community, (memberCount * 3 + artifactCount) AS score
 						ORDER BY score DESC, c.createdAt DESC
@@ -48,13 +48,13 @@ export const derivedService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (u:User {id: $userId})
+						MATCH (u:Mosaic_User {id: $userId})
 
-						OPTIONAL MATCH (u)-[:HAS_SKILL]->(skill:Skill)<-[:HAS_SKILL]-(:User)-[:MEMBER_OF]->(candidate:Community)
+						OPTIONAL MATCH (u)-[:HAS_SKILL]->(skill:Mosaic_Skill)<-[:HAS_SKILL]-(:Mosaic_User)-[:MEMBER_OF]->(candidate:Mosaic_Community)
 						WHERE NOT (u)-[:MEMBER_OF]->(candidate)
 						WITH u, candidate, count(DISTINCT skill) AS skillOverlap
 
-						OPTIONAL MATCH (u)-[:INTERESTED_IN]->(topic:Topic)<-[:TAGGED_WITH]-(:Artifact)<-[:CONTAINS]-(:Project)<-[:HOSTS]-(candidate)
+						OPTIONAL MATCH (u)-[:INTERESTED_IN]->(topic:Mosaic_Topic)<-[:TAGGED_WITH]-(:Mosaic_Piece)<-[:CONTAINS]-(:Mosaic_Project)<-[:HOSTS]-(candidate)
 						WITH candidate, skillOverlap, count(DISTINCT topic) AS topicOverlap
 
 						WHERE candidate IS NOT NULL
@@ -83,9 +83,9 @@ export const derivedService = {
 				// Communities with artifacts/projects tagged with the provided topics
 				const topicMatches = await runRead(
 					`
-						MATCH (t:Topic)
+						MATCH (t:Mosaic_Topic)
 						WHERE t.name IN $topics
-						OPTIONAL MATCH (t)<-[:TAGGED_WITH]-(:Artifact)<-[:CONTAINS]-(:Project)<-[:HOSTS]-(c:Community)
+						OPTIONAL MATCH (t)<-[:TAGGED_WITH]-(:Mosaic_Piece)<-[:CONTAINS]-(:Mosaic_Project)<-[:HOSTS]-(c:Mosaic_Community)
 						WITH c, count(*) AS relevance
 						WHERE c IS NOT NULL
 						RETURN c AS community

@@ -11,14 +11,14 @@ export const dbService = {
         // It also does not support named constraints in this context natively.
         // Furthermore, Memgraph requires constraints to be created in implicit (auto-committing) transactions.
         const stmts = [
-            `CREATE CONSTRAINT ON (u:User) ASSERT u.id IS UNIQUE;`,
-            `CREATE CONSTRAINT ON (c:Community) ASSERT c.id IS UNIQUE;`,
-            `CREATE CONSTRAINT ON (p:Project) ASSERT p.id IS UNIQUE;`,
-            `CREATE CONSTRAINT ON (a:Artifact) ASSERT a.id IS UNIQUE;`,
-            `CREATE CONSTRAINT ON (s:Skill) ASSERT s.name IS UNIQUE;`,
-            `CREATE CONSTRAINT ON (t:Topic) ASSERT t.name IS UNIQUE;`,
-            `CREATE INDEX ON :User(username);`,
-            `CREATE INDEX ON :Artifact(type);`
+            `CREATE CONSTRAINT ON (u:Mosaic_User) ASSERT u.id IS UNIQUE;`,
+            `CREATE CONSTRAINT ON (c:Mosaic_Community) ASSERT c.id IS UNIQUE;`,
+            `CREATE CONSTRAINT ON (p:Mosaic_Project) ASSERT p.id IS UNIQUE;`,
+            `CREATE CONSTRAINT ON (a:Mosaic_Piece) ASSERT a.id IS UNIQUE;`,
+            `CREATE CONSTRAINT ON (s:Mosaic_Skill) ASSERT s.name IS UNIQUE;`,
+            `CREATE CONSTRAINT ON (t:Mosaic_Topic) ASSERT t.name IS UNIQUE;`,
+            `CREATE INDEX ON :Mosaic_User(username);`,
+            `CREATE INDEX ON :Mosaic_Piece(type);`
         ];
 
         const session = driver.session();
@@ -72,7 +72,7 @@ export const dbService = {
         await runWrite(
             `
                 UNWIND $villages AS v
-                MERGE (c:Community {slug: v.slug})
+                MERGE (c:Mosaic_Community {slug: v.slug})
                 ON CREATE SET c.id = v.id, c.name = v.name, c.description = v.description, c.createdAt = v.createdAt
                 RETURN count(c) AS created
             `,

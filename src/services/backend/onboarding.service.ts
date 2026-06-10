@@ -18,22 +18,22 @@ export const onboardingService = {
 
 		const rows = await runWrite(
 			`
-				MATCH (u:User {id: $userId})
+				MATCH (u:Mosaic_User {id: $userId})
 				WITH u
 				UNWIND $skills AS skillName
-				MERGE (s:Skill {name: skillName})
+				MERGE (s:Mosaic_Skill {name: skillName})
 				ON CREATE SET s.createdAt = $now
 				MERGE (u)-[:HAS_SKILL {createdAt: $now}]->(s)
 
 				WITH u
 				UNWIND $topics AS topicName
-				MERGE (t:Topic {name: topicName})
+				MERGE (t:Mosaic_Topic {name: topicName})
 				ON CREATE SET t.createdAt = $now
 				MERGE (u)-[:INTERESTED_IN {createdAt: $now}]->(t)
 
 				WITH u
 				UNWIND $communityIds AS communityId
-				MATCH (c:Community {id: communityId})
+				MATCH (c:Mosaic_Community {id: communityId})
 				MERGE (u)-[m:MEMBER_OF]->(c)
 				ON CREATE SET m.role = 'MEMBER', m.joinedAt = $now
 

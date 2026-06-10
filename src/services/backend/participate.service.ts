@@ -24,9 +24,9 @@ export const participateService = {
 
 		const rows = await runWrite(
 			`
-				MATCH (owner:User {id: $ownerId})
-				MATCH (community:Community {id: $communityId})
-				CREATE (project:Project {
+				MATCH (owner:Mosaic_User {id: $ownerId})
+				MATCH (community:Mosaic_Community {id: $communityId})
+				CREATE (project:Mosaic_Project {
 					id: $projectId,
 					ownerId: $ownerId,
 					communityId: $communityId,
@@ -66,9 +66,9 @@ export const participateService = {
 
 		const rows = await runWrite(
 			`
-				MATCH (author:User {id: $userId})
-				MATCH (project:Project {id: $projectId})
-				CREATE (piece:Piece {
+				MATCH (author:Mosaic_User {id: $userId})
+				MATCH (project:Mosaic_Project {id: $projectId})
+				CREATE (piece:Mosaic_Piece {
 					id: $pieceId,
 					projectId: $projectId,
 					authorId: $userId,
@@ -108,8 +108,8 @@ export const participateService = {
 
 		await runWrite(
 			`
-				MATCH (u:User {id: $userId})
-				MATCH (p:Project {id: $projectId})
+				MATCH (u:Mosaic_User {id: $userId})
+				MATCH (p:Mosaic_Project {id: $projectId})
 				MERGE (u)-[r:CONTRIBUTED_TO]->(p)
 				ON CREATE SET r.createdAt = $now
 				SET r.role = $role
@@ -136,8 +136,8 @@ export const participateService = {
 
 		await runWrite(
 			`
-				MATCH (u:User {id: $userId})
-				MATCH (p:Piece {id: $pieceId})
+				MATCH (u:Mosaic_User {id: $userId})
+				MATCH (p:Mosaic_Piece {id: $pieceId})
 				MERGE (u)-[r:CONTRIBUTED_TO]->(p)
 				ON CREATE SET r.createdAt = $now
 				SET r.role = $role
@@ -148,7 +148,7 @@ export const participateService = {
 				role: parsed.role,
 				now,
 			},
-			() => {},
+			() => { },
 		);
 	},
 };
