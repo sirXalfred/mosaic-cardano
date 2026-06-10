@@ -1,4 +1,5 @@
 export const ROUTES = {
+  LANDING: '/',
   HOME: '/home',
   ONBOARDING: '/onboarding',
   EXPLORE: '/explore',
@@ -15,7 +16,6 @@ export const ROUTES = {
 
   VILLAGE: {
     HOME: (villageId: string) => `/v/${villageId}`,
-    TOWNSQUARE: (villageId: string) => `/v/${villageId}/town-square`,
     PROJECTS: (villageId: string) => `/v/${villageId}/projects`,
     PROJECT: (villageId: string, projectId: string) => `/v/${villageId}/project/${projectId}`,
     LIBRARY: (villageId: string) => `/v/${villageId}/library`,

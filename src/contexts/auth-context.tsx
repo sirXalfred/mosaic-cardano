@@ -1,7 +1,7 @@
 "use client";
 
 import { useGetAuthState, useLogout } from "@/services/auth";
-import { createContext, useContext, useEffect, useCallback } from "react";
+import { createContext, useContext, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { registerLogout } from "@/lib/logout-handler";
 
@@ -21,8 +21,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: authState, refetch, isLoaded } = useGetAuthState();
     const userId = authState?.user?.id || null;
     const logoutMutation = useLogout();
+    
+    const isLogOutTriggeredRef = useRef(false);
 
     const logout = useCallback(async (isForced = false) => {
+        if (isLogOutTriggeredRef.current) return;
+
+        isLogOutTriggeredRef.current = true;
+
         try {
             await logoutMutation.mutateAsync();
         } catch (err) {
@@ -39,6 +45,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         registerLogout(logout);
     }, [logout]);
+
+    useEffect(() => {
+        isLogOutTriggeredRef.current = false;
+    }, [authState?.isAuthenticated])
 
     return (
         <AuthContext.Provider value={{ userId, isLoaded, logout, refetchAuthState: refetch }}>
