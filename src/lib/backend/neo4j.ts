@@ -12,11 +12,7 @@ const globalForNeo4j = global as typeof globalThis & GlobalNeo4j;
 
 export const driver =
   globalForNeo4j.neo4jDriver ||
-  neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD), {
-    // explicitly disable encryption for internal network connections
-    disableLosslessIntegers: true,
-    encrypted: 'ENCRYPTION_OFF'
-  });
+  neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
 
 if (process.env.NODE_ENV !== 'production') {
   globalForNeo4j.neo4jDriver = driver;

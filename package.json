@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:init": "node ./scripts/db-init-memgraph.cjs",
+    "db:init": "node ./scripts/db-init.cjs",
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "check": "pnpm run lint && pnpm run type-check"
