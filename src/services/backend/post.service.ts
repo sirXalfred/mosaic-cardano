@@ -13,6 +13,7 @@ export type PostResponse = {
     avatarUrl: string | null;
   };
   communityId: string;
+  isPinned: boolean;
   viewerVote: 'UP' | 'DOWN' | 'NONE';
 };
 
@@ -31,6 +32,7 @@ export const postService = {
         content: $content,
         score: 0,
         replyCount: 0,
+        isPinned: false,
         createdAt: $timestamp
       })
       CREATE (u)-[:AUTHORED]->(p)
@@ -63,22 +65,34 @@ export const postService = {
         id: author.id as string,
         name: author.displayName as string || author.name as string,
         username: author.username as string,
-        avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
-      },
-      communityId: post.communityId as string,
-      viewerVote: 'NONE'
-    };
+      avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
+    },
+    communityId: post.communityId as string,
+    isPinned: post.isPinned as boolean || false,
+    viewerVote: 'NONE'
+  };
   },
 
-  async listPosts(communityId: string, viewerId: string | null, limit = 50, offset = 0): Promise<PostResponse[]> {
+  async listPosts(communityId: string, viewerId: string | null, limit = 50, offset = 0, filter?: string): Promise<PostResponse[]> {
+    let whereClause = `WHERE NOT (p)-[:REPLIED_TO]->()`;
+    let orderClause = `ORDER BY p.createdAt DESC`;
+
+    if (filter === 'Top') {
+      orderClause = `ORDER BY p.score DESC, p.createdAt DESC`;
+    } else if (filter === 'Announcements') {
+      whereClause += ` AND p.isPinned = true`;
+    } else if (filter === 'Pieces') {
+      whereClause += ` AND (p.content CONTAINS 'mosaic://piece/' OR p.content CONTAINS 'mosaic://publication/')`;
+    }
+
     const query = `
       MATCH (p:Post {communityId: $communityId})<-[:AUTHORED]-(author:User)
-      WHERE NOT (p)-[:REPLIED_TO]->()
+      ${whereClause}
       OPTIONAL MATCH (viewer:User {id: $viewerId})
       OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
       OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
       RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
-      ORDER BY p.createdAt DESC
+      ${orderClause}
       SKIP toInteger($offset)
       LIMIT toInteger($limit)
     `;
@@ -106,6 +120,7 @@ export const postService = {
           avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
         },
         communityId: post.communityId as string,
+        isPinned: post.isPinned as boolean || false,
         viewerVote
       };
     });
@@ -147,6 +162,7 @@ export const postService = {
           avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
         },
         communityId: post.communityId as string,
+        isPinned: post.isPinned as boolean || false,
         viewerVote
       };
     });
@@ -187,6 +203,7 @@ export const postService = {
           avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
         },
         communityId: post.communityId as string,
+        isPinned: post.isPinned as boolean || false,
         viewerVote
       };
     });
@@ -230,6 +247,50 @@ export const postService = {
     return {
       score: rows[0].score as number,
       viewerVote: direction
+    };
+  },
+
+  async pinPost(postId: string, userId: string, isPinned: boolean): Promise<PostResponse | null> {
+    const query = `
+      MATCH (u:User {id: $userId})-[m:MEMBER_OF]->(c:Community)<-[:POSTED_IN]-(p:Post {id: $postId})
+      WHERE m.role = 'ADMIN'
+      SET p.isPinned = $isPinned
+      WITH p, c, u
+      MATCH (p)<-[:AUTHORED]-(author:User)
+      OPTIONAL MATCH (viewer:User {id: $userId})
+      OPTIONAL MATCH (viewer)-[up:UPVOTED]->(p)
+      OPTIONAL MATCH (viewer)-[down:DOWNVOTED]->(p)
+      RETURN p AS post, author, up IS NOT NULL AS isUpvoted, down IS NOT NULL AS isDownvoted
+    `;
+
+    const rows = await runWrite(query, { postId, userId, isPinned }, (row) => row);
+    
+    if (rows.length === 0) return null; // Not found, or user is not ADMIN
+
+    const post = rows[0].post as Record<string, unknown>;
+    const author = rows[0].author as Record<string, unknown>;
+    const isUpvoted = rows[0].isUpvoted as boolean;
+    const isDownvoted = rows[0].isDownvoted as boolean;
+
+    let viewerVote: 'UP' | 'DOWN' | 'NONE' = 'NONE';
+    if (isUpvoted) viewerVote = 'UP';
+    else if (isDownvoted) viewerVote = 'DOWN';
+
+    return {
+      id: post.id as string,
+      content: post.content as string,
+      score: typeof post.score === 'number' ? post.score : 0,
+      replyCount: typeof post.replyCount === 'number' ? post.replyCount : 0,
+      createdAt: post.createdAt as number,
+      author: {
+        id: author.id as string,
+        name: author.displayName as string || author.name as string,
+        username: author.username as string,
+        avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
+      },
+      communityId: post.communityId as string,
+      isPinned: post.isPinned as boolean || false,
+      viewerVote
     };
   }
 };

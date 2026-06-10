@@ -15,8 +15,9 @@ export async function GET(
     const url = new URL(request.url);
     const limit = url.searchParams.get('limit') ? Number(url.searchParams.get('limit')) : 50;
     const offset = url.searchParams.get('offset') ? Number(url.searchParams.get('offset')) : 0;
+    const filter = url.searchParams.get('filter') || undefined;
 
-    const posts = await postService.listPosts(communityId, userId, limit, offset);
+    const posts = await postService.listPosts(communityId, userId, limit, offset, filter);
 
     return NextResponse.json({ items: posts });
   } catch (error) {
