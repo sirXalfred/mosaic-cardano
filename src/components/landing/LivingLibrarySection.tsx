@@ -23,14 +23,14 @@ export const LivingLibrarySection = () => {
 
   return (
     <div 
-      className="max-w-6xl mx-auto"
+      className="max-w-7xl mx-auto"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="text-center mb-20">
-        <h2 className="font-serif text-5xl md:text-6xl text-theme-forest mb-6">A Living Library</h2>
+        <h2 className="font-serif text-5xl md:text-6xl text-theme-forest mb-6">Featured Pieces</h2>
         <p className="font-sans text-lg text-theme-on-surface/70 max-w-2xl mx-auto">
-          Discover the artifacts being woven into the collective memory by communities across the globe.
+          Explore the knowledge, work, and discussions actively preserved by our communities.
         </p>
       </div>
 

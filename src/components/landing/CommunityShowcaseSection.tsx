@@ -15,9 +15,9 @@ export const CommunityShowcaseSection = ({ itemVariants, containerVariants }: { 
       className="py-40 px-6 relative z-10"
     >
       <div className="max-w-7xl mx-auto">
-        <motion.div variants={itemVariants} className="text-center mb-20">
-          <span className="font-sans text-xs uppercase tracking-widest text-theme-accent font-bold mb-4 block">The Settlements</span>
-          <h2 className="font-serif text-5xl md:text-6xl text-theme-forest">Explore Creative Villages</h2>
+        <motion.div variants={itemVariants} className="mb-16">
+          <span className="font-sans text-xs uppercase tracking-widest text-theme-accent font-bold mb-4 block">Active Communities</span>
+          <h2 className="font-serif text-4xl md:text-6xl text-theme-forest">Built by the people.</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[400px]">

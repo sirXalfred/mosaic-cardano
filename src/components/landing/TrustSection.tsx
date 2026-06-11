@@ -5,13 +5,13 @@ import { Fingerprint, Shield } from 'lucide-react';
 
 const TooltipText = ({ text, tooltip, id, activeTooltip, setActiveTooltip }: { text: string, tooltip: string, id: string, activeTooltip: string | null, setActiveTooltip: (id: string | null) => void }) => (
   <span 
-    className="relative inline-block cursor-help border-b border-dashed border-theme-accent/50 text-theme-forest group"
+    className="relative inline-block cursor-help border-b border-dashed border-theme-accent/50 group"
     onMouseEnter={() => setActiveTooltip(id)}
     onMouseLeave={() => setActiveTooltip(null)}
   >
     {text}
     {activeTooltip === id && (
-      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-theme-surface-high border border-theme-outline/20 text-xs font-sans text-theme-on-surface shadow-xl rounded-lg z-50 pointer-events-none animate-in fade-in slide-in-from-bottom-2">
+      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-theme-surface-high text-theme-forest border border-theme-outline/20 text-xs font-sans text-theme-on-surface shadow-xl rounded-lg z-50 pointer-events-none animate-in fade-in slide-in-from-bottom-2">
         {tooltip}
         <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-theme-outline/20"></span>
       </span>
@@ -28,15 +28,15 @@ export const TrustSection = ({ itemVariants, containerVariants }: { itemVariants
       variants={containerVariants}
       className="py-40 px-6 bg-theme-forest text-theme-parchment relative z-10"
     >
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <motion.div variants={itemVariants} className="space-y-8">
-          <span className="font-sans text-xs uppercase tracking-widest text-theme-clay font-bold block">The Passport</span>
+          <span className="font-sans text-xs uppercase tracking-widest text-theme-clay font-bold block">Digital Identity</span>
           <h2 className="font-serif text-5xl leading-tight">Trust built on <br/>provable contributions.</h2>
           <p className="font-sans text-lg text-theme-parchment/70 leading-relaxed">
-            Your reputation in the Mosaic is defined by the work you do. Every edit, every proposal, and every artifact you create is recorded in your personal Passport. 
+            Your reputation in the Mosaic is defined by the work you do. Every edit, every proposal, and every piece you create is recorded in your immutable portfolio.
           </p>
           <p className="font-sans text-lg text-theme-parchment/70 leading-relaxed">
-            By leveraging <TooltipText id="blockchain" text="immutable ledger technology" tooltip="A decentralized database (Cardano) that permanently records history without requiring a central authority, ensuring your contributions can never be deleted." activeTooltip={activeTooltip} setActiveTooltip={setActiveTooltip} />, your history becomes a permanent, verifiable testament to your skill and collaboration, establishing trust without needing <TooltipText id="middlemen" text="centralized authorities" tooltip="Traditional platforms that act as gatekeepers, owning your data and dictating your reputation." activeTooltip={activeTooltip} setActiveTooltip={setActiveTooltip} />.
+            By securing your record on a <em><TooltipText id="blockchain" text="decentralized ledger" tooltip="The Cardano blockchain permanently records your history without requiring a central authority, ensuring your contributions can never be deleted or manipulated." activeTooltip={activeTooltip} setActiveTooltip={setActiveTooltip} /></em>, your history becomes a permanent, verifiable testament to your skill and collaboration. This establishes trust natively, completely bypassing the need for <em><TooltipText id="middlemen" text="centralized gatekeepers" tooltip="Traditional platforms that act as middlemen, owning your data and dictating your reputation." activeTooltip={activeTooltip} setActiveTooltip={setActiveTooltip} /></em>.
           </p>
         </motion.div>
 

@@ -3,6 +3,7 @@ import { motion, Variants } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { ROUTES } from '@/lib/routes';
 
 export const HeroSection = ({ itemVariants, containerVariants }: { itemVariants: Variants, containerVariants: Variants }) => {
   return (
@@ -20,9 +21,9 @@ export const HeroSection = ({ itemVariants, containerVariants }: { itemVariants:
         </motion.p>
         <motion.div variants={itemVariants}>
           <Button asChild size="xl" className="group mx-auto transition-all duration-500 rounded-xl px-12 py-8 relative z-10">
-            <Link href="/home">
+            <Link href={ROUTES.AUTH}>
               <div className='flex items-center gap-3'>
-                <span className='text-xl uppercase tracking-widest font-sans font-bold'>Open the Gates</span>
+                <span className='text-xl uppercase tracking-widest font-sans font-bold'>Join the Beta</span>
                 <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-700" />
               </div>
             </Link>

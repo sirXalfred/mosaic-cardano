@@ -1,6 +1,5 @@
 import "../styles/globals.css";
 import type { ReactNode } from 'react';
-import FilmGrain from '../components/FilmGrain';
 import { Figtree } from "next/font/google";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/contexts/query-provider";
@@ -8,9 +7,42 @@ import NextTopLoader from "nextjs-toploader";
 
 const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
-export const metadata = {
-  title: 'mosaic',
-  description: 'Mosaic Cardano - Modular Next.js App'
+import type { Metadata } from 'next';
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+  
+  title: {
+    default: 'Mosaic',
+    template: '%s | Mosaic',
+  },
+  description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+  keywords: ['communities', 'creators', 'cardano', 'web3', 'village', 'collaboration', 'funding'],
+  authors: [{ name: 'Dev_id', url: 'https://github.com/davidtimi1' }],
+  openGraph: {
+    title: 'Mosaic',
+    description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+    url: siteUrl,
+    siteName: 'Mosaic',
+    images: [
+      {
+        url: '/banner-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Mosaic - Every community. Every passion. One home.',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Mosaic',
+    description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+    images: ['/banner-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -20,7 +52,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <QueryProvider>
           <NextTopLoader color="var(--color-theme-accent)" />
           <div className="min-h-screen bg-[#FFFBF5] relative selection:bg-amber-200/50">
-            <FilmGrain />
               {children}
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#4338CA]/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
           </div>

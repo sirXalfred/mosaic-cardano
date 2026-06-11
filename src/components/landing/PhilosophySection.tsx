@@ -8,14 +8,14 @@ export const PhilosophySection = ({ itemVariants, containerVariants }: { itemVar
       variants={containerVariants}
       className="py-40 px-6 bg-theme-surface relative z-10 border-y border-theme-outline/10"
     >
-      <div className="max-w-4xl mx-auto text-center space-y-16">
-        <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-6xl text-theme-forest italic">The Artisan&apos;s Mandate</motion.h2>
+      <div className="max-w-4xl mx-auto text-center relative z-20">
+        <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-6xl text-theme-forest italic">Our Philosophy</motion.h2>
         <div className="space-y-12 text-lg md:text-2xl font-serif leading-loose text-theme-on-surface/80">
           <motion.p variants={itemVariants}>
             We believe that creation is inherently collaborative, yet the tools we use fragment our shared memory. Mosaic is a digital settlement designed for sovereign communities to weave their fragmented works into a cohesive tapestry.
           </motion.p>
           <motion.p variants={itemVariants}>
-            Here, every artifact is preserved immutably, every contribution is recognized, and the community controls its own legacy without relying on fleeting platforms.
+            Here, every piece is preserved immutably, every contribution is recognized, and the community controls its own legacy without relying on fleeting platforms.
           </motion.p>
         </div>
       </div>

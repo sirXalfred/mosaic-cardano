@@ -12,6 +12,7 @@ import { PhilosophySection } from './landing/PhilosophySection';
 import { CommunityShowcaseSection } from './landing/CommunityShowcaseSection';
 import { LivingLibrarySection } from './landing/LivingLibrarySection';
 import { TrustSection } from './landing/TrustSection';
+import { PricingSection } from './landing/PricingSection';
 import { CTASection } from './landing/CTASection';
 
 export default function LandingView() {
@@ -34,13 +35,15 @@ export default function LandingView() {
       {/* Background Texture Overlay */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.04]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuC9QuQNM5A8ulD-usGL7WPxprHWmeC1zp2nhD8CF6pluhdSTFuGFuDybp4W_4FJrvqFXLHILme-ekFljqjyy1t27hqsnYO2PUlSGsXUH1BfWcy0l0MKNAy2jiO3HvfNGyioojpRvp8bVSINIT5kfC9L4YKawElG2iVn_euP7Vj-dA-gIgOS9mvtepudjtKzCEPea5dqpIe5HBeRa1_s6b3zisR-w8wf7EZ1vl74rUcdHioIx5gkTk5zqs3kBht290neCZWMfeVva1U)' }} />
 
-      <nav className="fixed top-0 w-full z-[60] px-6 py-6 flex justify-between items-center bg-theme-parchment/80 backdrop-blur-md border-b border-theme-outline/10">
-        <div className="flex items-center gap-3">
-          <MosaicBrand size="medium" />
+      <nav className="fixed top-0 w-full z-[60] py-6 bg-theme-parchment/80 backdrop-blur-md border-b border-theme-outline/10">
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center w-full">
+          <div className="flex items-center gap-3">
+            <MosaicBrand size="medium" />
+          </div>
+          <Link href="/auth" className="font-sans text-xs uppercase tracking-widest font-bold text-theme-accent hover:text-theme-forest transition-colors">
+            Sign In
+          </Link>
         </div>
-        <Link href="/auth" className="font-sans text-xs uppercase tracking-widest font-bold text-theme-accent hover:text-theme-forest transition-colors">
-          Sign In
-        </Link>
       </nav>
 
       {/* 1. Hero Section */}
@@ -64,7 +67,10 @@ export default function LandingView() {
         <LivingLibrarySection />
       </motion.section>
 
-      {/* 6. CTA Section */}
+      {/* 6. Pricing Section */}
+      <PricingSection containerVariants={containerVariants} />
+
+      {/* 7. CTA Section */}
       <CTASection containerVariants={containerVariants} itemVariants={itemVariants} />
 
       {/* 7. Footer */}
