@@ -10,7 +10,7 @@ export const previewService = {
     try {
       if (type === 'village') {
         const rows = await runRead(
-          `MATCH (c:Community {id: $id}) RETURN c`,
+          `MATCH (c:Mosaic_Community {id: $id}) RETURN c`,
           { id },
           (row: Record<string, unknown>) => row['c'] as { name: string; description?: string; slug: string }
         );
@@ -20,10 +20,10 @@ export const previewService = {
             description: rows[0].description || 'A community on Mosaic',
           };
         }
-      } 
+      }
       else if (type === 'project') {
         const rows = await runRead(
-          `MATCH (p:Project {id: $id}) RETURN p`,
+          `MATCH (p:Mosaic_Project {id: $id}) RETURN p`,
           { id },
           (row: Record<string, unknown>) => row['p'] as { title: string; description?: string }
         );
@@ -33,10 +33,10 @@ export const previewService = {
             description: rows[0].description || 'A project on Mosaic',
           };
         }
-      } 
+      }
       else if (type === 'piece' || type === 'publication') {
         const rows = await runRead(
-          `MATCH (p:Piece {id: $id}) RETURN p`,
+          `MATCH (p:Mosaic_Piece {id: $id}) RETURN p`,
           { id },
           (row: Record<string, unknown>) => row['p'] as { title: string; contentType?: string }
         );
@@ -49,7 +49,7 @@ export const previewService = {
         } else {
           // Fallback to Artifact label if the DB hasn't migrated yet
           const legacyRows = await runRead(
-            `MATCH (p:Artifact {id: $id}) RETURN p`,
+            `MATCH (p:Mosaic_Artifact {id: $id}) RETURN p`,
             { id },
             (row: Record<string, unknown>) => row['p'] as { title: string; contentType?: string }
           );
@@ -61,7 +61,7 @@ export const previewService = {
           }
         }
       }
-      
+
       return null;
     } catch (error) {
       console.error(`Error fetching preview for ${type} ${id}:`, error);

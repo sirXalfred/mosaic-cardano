@@ -73,10 +73,10 @@ export const exploreService = {
     const where = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
     const query = `
-      MATCH (c:Community)
-      OPTIONAL MATCH (viewer:User {id: $userId})
+      MATCH (c:Mosaic_Community)
+      OPTIONAL MATCH (viewer:Mosaic_User {id: $userId})
       OPTIONAL MATCH (viewer)-[membership:MEMBER_OF]->(c)
-      OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:User)
+      OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
       ${where}
       WITH c, count(DISTINCT member) AS memberCount, count(membership) > 0 AS isMember, collect(DISTINCT member.avatarUrl)[0..3] AS previewAvatars
       RETURN c AS community, memberCount, isMember, previewAvatars
@@ -119,7 +119,7 @@ export const exploreService = {
 
   async getExploreItem(id: string): Promise<ExploreCard | null> {
     const rows = await runRead(
-      `MATCH (c:Community {id: $id}) RETURN c AS community LIMIT 1`,
+      `MATCH (c:Mosaic_Community {id: $id}) RETURN c AS community LIMIT 1`,
       { id },
       row => row.community
     );

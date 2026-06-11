@@ -24,8 +24,8 @@ export const notificationService = {
 
 		const rows = await runWrite(
 			`
-				MATCH (u:User {id: $userId})
-				CREATE (n:Notification {
+				MATCH (u:Mosaic_User {id: $userId})
+				CREATE (n:Mosaic_Notification {
 					id: $notificationId,
 					userId: $userId,
 					type: $type,
@@ -71,7 +71,7 @@ export const notificationService = {
 			async () => {
 				const rows = await runRead(
 					`
-						MATCH (:User {id: $userId})-[:HAS_NOTIFICATION]->(n:Notification)
+						MATCH (:Mosaic_User {id: $userId})-[:HAS_NOTIFICATION]->(n:Mosaic_Notification)
 						WHERE $cursor IS NULL OR n.createdAt < toInteger($cursor)
 						RETURN n AS notification
 						ORDER BY n.createdAt DESC
@@ -107,7 +107,7 @@ export const notificationService = {
 
 		await runWrite(
 			`
-				MATCH (u:User {id: $userId})-[:HAS_NOTIFICATION]->(n:Notification {id: $notificationId})
+				MATCH (u:Mosaic_User {id: $userId})-[:HAS_NOTIFICATION]->(n:Mosaic_Notification {id: $notificationId})
 				SET n.isRead = true
 				RETURN n.id AS id
 			`,

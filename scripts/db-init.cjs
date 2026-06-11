@@ -20,14 +20,14 @@ const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
     console.log('Enforcing constraints...');
     await session.executeWrite(async tx => {
       const stmts = [
-        `CREATE CONSTRAINT unique_user_id IF NOT EXISTS FOR (u:User) REQUIRE u.id IS UNIQUE`,
-        `CREATE CONSTRAINT unique_community_id IF NOT EXISTS FOR (c:Community) REQUIRE c.id IS UNIQUE`,
-        `CREATE CONSTRAINT unique_project_id IF NOT EXISTS FOR (p:Project) REQUIRE p.id IS UNIQUE`,
-        `CREATE CONSTRAINT unique_artifact_id IF NOT EXISTS FOR (a:Artifact) REQUIRE a.id IS UNIQUE`,
-        `CREATE CONSTRAINT unique_skill_name IF NOT EXISTS FOR (s:Skill) REQUIRE s.name IS UNIQUE`,
-        `CREATE CONSTRAINT unique_topic_name IF NOT EXISTS FOR (t:Topic) REQUIRE t.name IS UNIQUE`,
-        `CREATE INDEX user_username_idx IF NOT EXISTS FOR (u:User) ON (u.username)`,
-        `CREATE INDEX artifact_type_idx IF NOT EXISTS FOR (a:Artifact) ON (a.type)`,
+        `CREATE CONSTRAINT unique_user_id IF NOT EXISTS FOR (u:Mosaic_User) REQUIRE u.id IS UNIQUE`,
+        `CREATE CONSTRAINT unique_community_id IF NOT EXISTS FOR (c:Mosaic_Community) REQUIRE c.id IS UNIQUE`,
+        `CREATE CONSTRAINT unique_project_id IF NOT EXISTS FOR (p:Mosaic_Project) REQUIRE p.id IS UNIQUE`,
+        `CREATE CONSTRAINT unique_artifact_id IF NOT EXISTS FOR (a:Mosaic_Piece) REQUIRE a.id IS UNIQUE`,
+        `CREATE CONSTRAINT unique_skill_name IF NOT EXISTS FOR (s:Mosaic_Skill) REQUIRE s.name IS UNIQUE`,
+        `CREATE CONSTRAINT unique_topic_name IF NOT EXISTS FOR (t:Mosaic_Topic) REQUIRE t.name IS UNIQUE`,
+        `CREATE INDEX user_username_idx IF NOT EXISTS FOR (u:Mosaic_User) ON (u.username)`,
+        `CREATE INDEX artifact_type_idx IF NOT EXISTS FOR (a:Mosaic_Piece) ON (a.type)`,
       ];
       for (const s of stmts) {
         // run each statement separately (neo4j requires one statement per run)
@@ -64,7 +64,7 @@ const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
 
     await session.executeWrite(tx => tx.run(`
             UNWIND $villages AS v
-            MERGE (c:Community {slug: v.slug})
+            MERGE (c:Mosaic_Community {slug: v.slug})
             ON CREATE SET c.id = v.id, c.name = v.name, c.description = v.description, c.createdAt = v.createdAt
             RETURN count(c) AS created
         `, { villages }));

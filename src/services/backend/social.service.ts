@@ -17,8 +17,8 @@ export const socialService = {
 
 		await runWrite(
 			`
-				MATCH (follower:User {id: $followerId})
-				MATCH (target:User {id: $targetUserId})
+				MATCH (follower:Mosaic_User {id: $followerId})
+				MATCH (target:Mosaic_User {id: $targetUserId})
 				MERGE (follower)-[r:FOLLOWS]->(target)
 				ON CREATE SET r.createdAt = $now, r.isMuted = false
 				RETURN follower.id AS followerId
@@ -43,7 +43,7 @@ export const socialService = {
 
 		await runWrite(
 			`
-				MATCH (:User {id: $followerId})-[r:FOLLOWS]->(:User {id: $targetUserId})
+				MATCH (:Mosaic_User {id: $followerId})-[r:FOLLOWS]->(:Mosaic_User {id: $targetUserId})
 				DELETE r
 				RETURN $followerId AS followerId
 			`,
@@ -67,7 +67,7 @@ export const socialService = {
 
 		await runWrite(
 			`
-				MATCH (:User {id: $followerId})-[r:FOLLOWS]->(:User {id: $targetUserId})
+				MATCH (:Mosaic_User {id: $followerId})-[r:FOLLOWS]->(:Mosaic_User {id: $targetUserId})
 				SET r.isMuted = $isMuted
 				RETURN $followerId AS followerId
 			`,
@@ -91,7 +91,7 @@ export const socialService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (u:User {id: $userId})<-[:FOLLOWS]-(follower:User)
+						MATCH (u:Mosaic_User {id: $userId})<-[:FOLLOWS]-(follower:Mosaic_User)
 						RETURN follower AS user
 						ORDER BY follower.createdAt DESC
 						LIMIT toInteger($limit)

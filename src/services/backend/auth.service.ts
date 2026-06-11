@@ -97,11 +97,11 @@ export const authService = {
 			memoryCost: 2 ** 16,
 			parallelism: 1,
 		});
-		
-const rows = await runWrite(
-`
 
-				MERGE (cred:Credential {email: $email})
+		const rows = await runWrite(
+			`
+
+				MERGE (cred:Mosaic_Credential {email: $email})
 				ON CREATE SET
 					cred.id = $credentialId,
 					cred.userId = $userId,
@@ -110,7 +110,7 @@ const rows = await runWrite(
 					cred.createdAt = $now
 				WITH cred
 				WHERE cred.userId = $userId
-				MERGE (u:User {id: $userId})
+				MERGE (u:Mosaic_User {id: $userId})
 				ON CREATE SET
 					u.username = $username,
 					u.displayName = $displayName,
@@ -119,17 +119,17 @@ const rows = await runWrite(
 				MERGE (u)-[:HAS_CREDENTIAL]->(cred)
 				RETURN u AS user
 `,
-{
-    email,
-    credentialId,
-    userId,
-    passwordHash,
-    username: parsed.username,
-    displayName: parsed.displayName,
-    now,
-},
-row => mapUserNode(row.user),
-);
+			{
+				email,
+				credentialId,
+				userId,
+				passwordHash,
+				username: parsed.username,
+				displayName: parsed.displayName,
+				now,
+			},
+			row => mapUserNode(row.user),
+		);
 
 		if (!rows[0]) {
 			throw new Error('Email is already registered');
@@ -148,7 +148,7 @@ row => mapUserNode(row.user),
 
 		const rows = await runRead(
 			`
-				MATCH (u:User)-[:HAS_CREDENTIAL]->(cred:Credential {email: $email, provider: 'LOCAL'})
+				MATCH (u:Mosaic_User)-[:HAS_CREDENTIAL]->(cred:Mosaic_Credential {email: $email, provider: 'LOCAL'})
 				RETURN u AS user, cred.passwordHash AS passwordHash
 				LIMIT 1
 			`,
@@ -174,7 +174,7 @@ row => mapUserNode(row.user),
 		await clearAttemptCounters(email, parsed.ipAddress);
 		await runWrite(
 			`
-				MATCH (:User {id: $userId})-[:HAS_CREDENTIAL]->(cred:Credential {email: $email})
+				MATCH (:Mosaic_User {id: $userId})-[:HAS_CREDENTIAL]->(cred:Mosaic_Credential {email: $email})
 				SET cred.lastLoginAt = $now, cred.updatedAt = $now
 				RETURN cred.id AS credentialId
 			`,
@@ -192,7 +192,7 @@ row => mapUserNode(row.user),
 
 		const rows = await runWrite(
 			`
-				MERGE (u:User {id: $id})
+				MERGE (u:Mosaic_User {id: $id})
 				ON CREATE SET
 					u.username = $username,
 					u.displayName = $displayName,
@@ -233,7 +233,7 @@ row => mapUserNode(row.user),
 			async () => {
 				const rows = await runRead(
 					`
-						MATCH (u:User {id: $userId})
+						MATCH (u:Mosaic_User {id: $userId})
 						RETURN u AS user
 						LIMIT 1
 					`,
@@ -250,7 +250,7 @@ row => mapUserNode(row.user),
 	async getUserByUsername(username: string): Promise<UserNode | null> {
 		const rows = await runRead(
 			`
-				MATCH (u:User {username: $username})
+				MATCH (u:Mosaic_User {username: $username})
 				RETURN u AS user
 				LIMIT 1
 			`,
@@ -287,7 +287,7 @@ row => mapUserNode(row.user),
 
 		const rows = await runWrite(
 			`
-				MATCH (u:User {id: $userId})
+				MATCH (u:Mosaic_User {id: $userId})
 				SET ${setClauses.join(', ')}
 				RETURN u AS user
 			`,
@@ -306,7 +306,7 @@ row => mapUserNode(row.user),
 
 		await runWrite(
 			`
-				MATCH (u:User {id: $userId})
+				MATCH (u:Mosaic_User {id: $userId})
 				SET u.isOnboarded = true, u.updatedAt = $now
 				RETURN u.id AS userId
 			`,
