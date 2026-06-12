@@ -39,10 +39,8 @@ export default function AuthView() {
 
   const logUserIn = useLogin();
   const registerUser = useRegister();
-  const isLoading = logUserIn.isPending || registerUser.isPending;
-  const isError = logUserIn.isError || registerUser.isError;
-  const error = mode === 'signin' ? logUserIn.error : registerUser.error;
-  const isSuccessful = logUserIn.isSuccess || registerUser.isSuccess;
+
+  const [isLoading, isError, error, isSuccessful] = mode === 'signin' ? [logUserIn.isPending, logUserIn.isError, logUserIn.error, logUserIn.isSuccess] : [registerUser.isPending, registerUser.isError, registerUser.error, registerUser.isSuccess];
 
   useEffect(() => {
     const timer = setInterval(() => setPerkIndex(p => (p + 1) % PERKS.length), 4000);
@@ -201,7 +199,7 @@ export default function AuthView() {
               </div>
             </div>
 
-            <FormError message={isError ? error!.message || "An unknown error occurred" : ''} />
+            <FormError message={isError ? error?.message || "An unknown error occurred" : ''} />
 
             <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
               {mode === 'signup' ? 'Join the Village' : 'Sign In'}
