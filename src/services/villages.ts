@@ -9,6 +9,7 @@ import {
 import { useXQuery } from '@/lib/extended-react-query';
 import { fetchAPI } from './api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export interface VillageDetail {
   id: string;
@@ -250,3 +251,38 @@ export const useGetVillageActivityLog = (villageId: string) => {
   });
 };
 
+
+export const useShareInvite = (communityId: string) => {
+  const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
+  const [error, setError] = useState('');
+  const isError = !!error;
+
+  const shareInvite = async () => {
+    if (isGeneratingInvite) return;
+    setIsGeneratingInvite(true);
+    setError('');
+
+    try {
+      const res = await fetchAPI(API.INVITES.CREATE, {
+        method: 'POST',
+        data: { communityId },
+      }) as { hash: string };
+
+      const inviteUrl = `${window.location.origin}/invite/${res.hash}?villageId=${communityId}`;
+      await navigator.clipboard.writeText(inviteUrl);
+
+      return inviteUrl;
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsGeneratingInvite(false);
+    }
+  };
+
+  return {
+    shareInvite,
+    isGeneratingInvite,
+    error,
+    isError
+  }
+};

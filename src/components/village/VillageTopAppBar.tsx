@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from 'react';
-import { Bell, Plus, Search, LogOut, Settings, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bell, Plus, Search, LogOut, Settings, User, Share, Loader2 } from 'lucide-react';
 import { useParams, usePathname } from 'next/navigation';
-import { useGetVillageDetails } from '@/services/villages';
+import { useGetVillageDetails, useShareInvite } from '@/services/villages';
 import { useGetAuthState, useGetVillageMembership } from '@/services/auth';
 import Link from 'next/link';
 import {
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ROUTES } from '@/lib/routes';
+import { toast } from 'sonner';
 
 export default function VillageTopAppBar() {
   const params = useParams();
@@ -24,6 +25,7 @@ export default function VillageTopAppBar() {
   const { data: membership } = useGetVillageMembership(communityId);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { shareInvite, isGeneratingInvite, isError, error } = useShareInvite(communityId);
 
   const isMember = authState?.isAuthenticated && membership?.isMember;
 
@@ -51,6 +53,19 @@ export default function VillageTopAppBar() {
       </Link>
     );
   };
+
+  const handleShareInvite = async () => {
+    const inviteUrl = await shareInvite();
+    if (inviteUrl) {
+      toast.success('Invite link copied to clipboard');
+    }
+  };
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(error);
+    }
+  }, [isError, error]);
 
   return (
     <header className="flex justify-between items-center w-full px-6 md:px-12 lg:px-24 py-8 h-12 sticky top-0 z-40 bg-theme-parchment/90 backdrop-blur-md border-b border-theme-outline/30">
@@ -109,6 +124,16 @@ export default function VillageTopAppBar() {
             />
           )}
         </div>
+        {isMember && (
+          <button 
+            onClick={handleShareInvite}
+            disabled={isGeneratingInvite}
+            className="flex items-center gap-2 text-theme-forest px-3 py-1.5 rounded-lg text-xs uppercase tracking-widest font-bold hover:bg-theme-surface transition-colors border border-theme-outline/20 disabled:opacity-50"
+          >
+            {isGeneratingInvite ? <Loader2 size={16} className="animate-spin" /> : <Share size={16} />}
+            Invite
+          </button>
+        )}
         {getContextActions()}
         <div className="flex items-center gap-4 ml-4 pl-4 border-l border-theme-outline/20">
 

@@ -45,5 +45,8 @@ export const API = {
         DETAILS: (postId: string) => `/api/posts/${postId}`,
         VOTE: (postId: string) => `/api/posts/${postId}/vote`,
         REPLIES: (postId: string) => `/api/posts/${postId}/replies`,
+    },
+    INVITES: {
+        CREATE: '/api/invites',
     }
 } as const;

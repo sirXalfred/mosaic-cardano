@@ -49,6 +49,24 @@ export default function AuthView() {
     return () => clearInterval(timer);
   }, []);
 
+  const processPendingInvite = async () => {
+    try {
+      const stored = localStorage.getItem('pendingInvite');
+      if (stored) {
+        const { hash } = JSON.parse(stored);
+        if (hash) {
+          await fetch(`/api/invites/${hash}/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          localStorage.removeItem('pendingInvite');
+        }
+      }
+    } catch (err) {
+      console.error('Error processing pending invite:', err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -63,14 +81,15 @@ export default function AuthView() {
           password: formData.password,
         });
 
+        await processPendingInvite();
         router.push(ROUTES.ONBOARDING);
 
       } else {
         await logUserIn.mutateAsync({ email: formData.email, password: formData.password });
 
+        await processPendingInvite();
         router.push(ROUTES.HOME);
       }
-
 
     } catch {
       // do sumn

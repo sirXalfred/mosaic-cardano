@@ -110,6 +110,15 @@ export const PagedResultMetaSchema = z.object({
   hasMore: z.boolean(),
 });
 
+export const InviteNodeSchema = z.object({
+  id: UUIDSchema,
+  hash: z.string().min(1),
+  communityId: UUIDSchema,
+  inviterId: UUIDSchema,
+  createdAt: TimestampSchema,
+  expiresAt: TimestampSchema.optional(),
+});
+
 
 // Relationship Schemas
 export const MemberOfEdgeSchema = z.object({
@@ -152,6 +161,9 @@ export const RepliedToEdgeSchema = z.object({
   createdAt: TimestampSchema,
 });
 
+export const InvitedByEdgeSchema = z.object({
+  createdAt: TimestampSchema,
+});
 
 
 export type UserNode = z.infer<typeof UserNodeSchema>;
@@ -174,3 +186,5 @@ export type PostNode = z.infer<typeof PostNodeSchema>;
 export type UpvotedEdge = z.infer<typeof UpvotedEdgeSchema>;
 export type DownvotedEdge = z.infer<typeof DownvotedEdgeSchema>;
 export type RepliedToEdge = z.infer<typeof RepliedToEdgeSchema>;
+export type InviteNode = z.infer<typeof InviteNodeSchema>;
+export type InvitedByEdge = z.infer<typeof InvitedByEdgeSchema>;

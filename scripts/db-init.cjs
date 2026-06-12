@@ -26,6 +26,7 @@ const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD));
         `CREATE CONSTRAINT unique_artifact_id IF NOT EXISTS FOR (a:Mosaic_Piece) REQUIRE a.id IS UNIQUE`,
         `CREATE CONSTRAINT unique_skill_name IF NOT EXISTS FOR (s:Mosaic_Skill) REQUIRE s.name IS UNIQUE`,
         `CREATE CONSTRAINT unique_topic_name IF NOT EXISTS FOR (t:Mosaic_Topic) REQUIRE t.name IS UNIQUE`,
+        `CREATE CONSTRAINT unique_invite_hash IF NOT EXISTS FOR (i:Mosaic_Invite) REQUIRE i.hash IS UNIQUE`,
         `CREATE INDEX user_username_idx IF NOT EXISTS FOR (u:Mosaic_User) ON (u.username)`,
         `CREATE INDEX artifact_type_idx IF NOT EXISTS FOR (a:Mosaic_Piece) ON (a.type)`,
       ];
