@@ -17,7 +17,7 @@
 [![Build Status](https://img.shields.io/badge/status-building%20in%20public-blueviolet?style=for-the-badge&logo=github)](https://github.com/sirXalfred/mosaic-cardano)
 [![Hackathon](https://img.shields.io/badge/Gimbalabs-Piece%20of%20Pie%202026-orange?style=for-the-badge)](https://www.gimbalabs.com/piece-of-pie)
 [![Built on](https://img.shields.io/badge/Built%20on-Cardano-0033AD?style=for-the-badge&logo=cardano)](https://cardano.org)
-[![Week](https://img.shields.io/badge/Week-2%20of%2012-yellow?style=for-the-badge)](#roadmap)
+[![Week](https://img.shields.io/badge/Week-7%20of%2012-yellow?style=for-the-badge)](#roadmap)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -287,30 +287,30 @@ WEEK 1  ████████████████████  ✓ DONE
         └── Project registered · Repo created · Team aligned
             PRD written · Vision finalised · Week 1 tweet posted
 
-WEEK 2  ████████████████████  ◉ NOW
+WEEK 2  ████████████████████  ✓ DONE
         Ideation & Design Principles
         └── Finalising design philosophy · README updated
             Design principles being agreed · Team discussions ongoing
 
-WEEK 3  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 3  ████████████████████  ✓ DONE
         Design Begins
         └── Wireframes for all key screens
             User interviews with 2 community founders
             Design system foundations
 
-WEEK 4  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 4  ████████████████████  ✓ DONE
         Design Complete + Development Starts
         └── Hi-fi designs complete
             Frontend scaffolding begins
             First design handoff to engineering
 
-WEEK 5  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 5  ████████████████████  ✓ DONE
         Frontend Build
         └── Community workspace
             Creative studio (editor)
             Cardano wallet connect
 
-WEEK 6  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 6  ████████████░░░░░░░░  NOW
         Backend Build
         └── Cardano smart contracts (testnet)
             Badge minting flow
