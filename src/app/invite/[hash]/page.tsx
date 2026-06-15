@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { ROUTES } from '@/lib/routes';
+import { AppIntent, INTENT_KEY } from '@/lib/intents';
 
 export default function InvitePage({ params }: { params: { hash: string } }) {
   const router = useRouter();
@@ -13,7 +14,8 @@ export default function InvitePage({ params }: { params: { hash: string } }) {
 
   useEffect(() => {
     if (hash && villageId) {
-      localStorage.setItem('pendingInvite', JSON.stringify({ hash, villageId }));
+      localStorage.setItem(INTENT_KEY, AppIntent.INVITE_VILLAGE);
+      localStorage.setItem(AppIntent.INVITE_VILLAGE, JSON.stringify({ hash, villageId }));
       router.push(ROUTES.AUTH);
       
     } else {

@@ -276,7 +276,7 @@ export const useShareInvite = (communityId: string) => {
   const { userId } = useAuth();
 
   const query = useXQuery({
-    queryKey: ['invite-hash', userId],
+    queryKey: ['invite-hash', userId, communityId],
     queryFn: async () => {
       const res = await fetchAPI(API.INVITES.CREATE, {
         method: 'POST',
