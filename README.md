@@ -277,7 +277,7 @@ We think it is important to be honest about what we know, what we are assuming, 
 
 ## ✦ The Roadmap
 
-*We are currently in Week 2 of 12 for the Gimbalabs Piece of Pie Hackathon. This roadmap reflects our plan at this moment — it will change, and we will document those changes here.*
+*We are currently in Week 7 of 12 for the Gimbalabs Piece of Pie Hackathon. This roadmap reflects our plan at this moment — it will change, and we will document those changes here.*
 
 <br/>
 
@@ -478,6 +478,6 @@ We are not open for external code contributions yet — we are too early in the 
 
 <br/>
 
-*Last updated: Week 2 · May 2026*
+*Last updated: Week 6 · June 2026*
 
 </div>
