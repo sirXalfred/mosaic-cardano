@@ -48,5 +48,9 @@ export const API = {
     },
     INVITES: {
         CREATE: '/api/invites',
+        ACCEPT: (hash: string) => `/api/invites/${hash}/accept`,
+    },
+    PAYMENTS: {
+        VERIFY: '/api/payments/verify',
     }
 } as const;
