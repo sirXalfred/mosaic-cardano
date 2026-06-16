@@ -8,6 +8,8 @@ import NextTopLoader from "nextjs-toploader";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ModalsProvider } from "@/contexts/modals-context";
 import { ModalsContainer } from "@/components/layout/ModalsContainer";
+import { MeshProvider } from "@meshsdk/react";
+import { ParseIntent } from "@/components/layout/ParseIntent";
 
 const figtree = Figtree({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -60,12 +62,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <QueryProvider>
           <AuthProvider>
             <ModalsProvider>
-              <NextTopLoader color="var(--color-theme-accent)" />
-              <div className="min-h-screen bg-[#FFFBF5] relative selection:bg-amber-200/50">
-                {children}
-                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#4338CA]/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
-              </div>
-              <ModalsContainer />
+              <MeshProvider>
+                <ParseIntent />
+                <NextTopLoader color="var(--color-theme-accent)" />
+                <div className="min-h-screen bg-[#FFFBF5] relative selection:bg-amber-200/50">
+                  {children}
+                  <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#4338CA]/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+                </div>
+                <ModalsContainer />
+              </MeshProvider>
             </ModalsProvider>
           </AuthProvider>
         </QueryProvider>

@@ -1,10 +1,14 @@
 import React from 'react';
 import { useGetAuthState } from '@/services/auth';
 import { Button } from '@/components/ui/button';
-
+import { CardanoWallet, useWallet } from '@meshsdk/react';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
 export default function AccountTab() {
   const { data: authState } = useGetAuthState();
   const user = authState?.user;
+  const { connected } = useWallet();
+  const { openModal } = useModals();
 
   return (
     <div className="space-y-8 animate-onrender --fade-in">
@@ -44,18 +48,31 @@ export default function AccountTab() {
         <hr className="border-theme-outline/10" />
 
         <div>
+          <h3 className="text-sm font-bold text-theme-on-surface mb-3">Subscription Plan</h3>
+          <div className="flex items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl mb-4">
+            <div>
+              <p className="text-sm font-medium text-theme-forest">Current Plan: <span className="font-bold text-theme-accent">{user?.planType || 'FREE'}</span></p>
+              <p className="text-xs text-theme-on-surface/60 mt-1">Upgrade for more village features.</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => openModal(MODALS.PRICING)}>See other plans</Button>
+          </div>
+        </div>
+
+        <hr className="border-theme-outline/10" />
+
+        <div>
           <h3 className="text-sm font-bold text-theme-on-surface mb-3">Wallet Connection</h3>
-          <div className="flex items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#0033AD]/10 flex items-center justify-center text-[#0033AD] font-bold text-lg">₳</div>
               <div>
                 <p className="text-sm font-medium text-theme-forest">Cardano Wallet</p>
-                <p className="text-xs text-theme-on-surface/60">Not connected</p>
+                <p className="text-xs text-theme-on-surface/60">{connected ? 'Connected securely' : 'Not connected'}</p>
               </div>
             </div>
-            <Button variant="outline" size="sm">Connect Wallet</Button>
+            <CardanoWallet />
           </div>
-          <p className="text-xs text-theme-on-surface/50 mt-2">Connect your wallet to receive SCR rewards and participate in governance.</p>
+          <p className="text-xs text-theme-on-surface/50 mt-2">Connect your wallet to receive SCR rewards, participate in governance, and manage your subscriptions.</p>
         </div>
 
         <hr className="border-theme-outline/10" />
