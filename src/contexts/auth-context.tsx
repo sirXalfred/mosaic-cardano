@@ -47,7 +47,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, [logout]);
 
     useEffect(() => {
-        isLogOutTriggeredRef.current = false;
+        if (authState?.isAuthenticated) {
+            isLogOutTriggeredRef.current = false;
+        }
     }, [authState?.isAuthenticated])
 
     return (
