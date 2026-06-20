@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { NICHES, VILLAGES } from '../lib/data';
 import { callGemini } from '../lib/gemini';
 import { Button } from './ui/button';
+import { ROUTES } from '../lib/routes';
 
 export default function OnboardingView() {
   const router = useRouter();
@@ -39,8 +41,8 @@ export default function OnboardingView() {
             <div className={`h-1 rounded-full transition-all duration-700 ${step >= 1 ? 'w-12 bg-[#4338CA]' : 'w-4 bg-black/5'}`} />
             <div className={`h-1 rounded-full transition-all duration-700 ${step >= 2 ? 'w-12 bg-[#4338CA]' : 'w-4 bg-black/5'}`} />
           </div>
-          <h2 className="font-serif text-5xl mb-4 italic text-[#111827]">{step === 1 ? 'What draws you in?' : 'Public Villages near you.'}</h2>
-          <p className="text-xl opacity-50 text-[#111827]">{step === 1 ? 'Tell us your story or select niches manually.' : 'Join at least one to enter the square.'}</p>
+          <h2 className="font-serif text-5xl mb-4 italic text-[#111827]">{step === 1 ? 'What draws you in?' : 'Join or Create a Village.'}</h2>
+          <p className="text-xl opacity-50 text-[#111827]">{step === 1 ? 'Tell us your story or select niches manually.' : 'Join an existing community or start your own to enter the square.'}</p>
         </div>
 
         {step === 1 && (
@@ -66,19 +68,42 @@ export default function OnboardingView() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {VILLAGES.map(v => (
-              <div key={v.id} className={`p-6 rounded-[2.5rem] border flex items-center justify-between transition-all duration-500 ${joined.includes(v.id) ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-black/5'}`}>
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${joined.includes(v.id) ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>{v.icon}</div>
-                  <div>
-                    <h4 className="font-serif text-xl font-bold text-[#111827]">{v.name}</h4>
-                    <p className="text-[10px] opacity-40 font-bold uppercase tracking-widest text-[#111827]">{v.niche} • {v.members} members</p>
+          <div className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {VILLAGES.map(v => (
+                <div key={v.id} className={`p-6 rounded-[2.5rem] border flex items-center justify-between transition-all duration-500 ${joined.includes(v.id) ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-black/5'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${joined.includes(v.id) ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>{v.icon}</div>
+                    <div>
+                      <h4 className="font-serif text-xl font-bold text-[#111827]">{v.name}</h4>
+                      <p className="text-[10px] opacity-40 font-bold uppercase tracking-widest text-[#111827]">{v.niche} • {v.members} members</p>
+                    </div>
                   </div>
+                  <Button onClick={() => setJoined(prev => prev.includes(v.id) ? prev.filter(x => x !== v.id) : [...prev, v.id])} variant={joined.includes(v.id) ? "default" : "secondary"} size="sm">{joined.includes(v.id) ? 'Joined' : 'Join'}</Button>
                 </div>
-                <Button onClick={() => setJoined(prev => prev.includes(v.id) ? prev.filter(x => x !== v.id) : [...prev, v.id])} variant={joined.includes(v.id) ? "default" : "secondary"} size="sm">{joined.includes(v.id) ? 'Joined' : 'Join'}</Button>
+              ))}
+            </div>
+
+            <div className="relative pt-6 text-center">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-black/10" />
               </div>
-            ))}
+              <div className="relative flex justify-center">
+                <span className="bg-[#fcfbf9] px-4 text-sm text-black/40 font-serif italic">Or start something new</span>
+              </div>
+            </div>
+
+            <Link href={ROUTES.NEW_COMMUNITY} className="block">
+              <div className="p-8 rounded-[2.5rem] border border-dashed border-indigo-300 bg-indigo-50/30 flex flex-col items-center justify-center gap-4 hover:bg-indigo-50/60 transition-colors cursor-pointer group">
+                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Plus className="w-8 h-8" />
+                </div>
+                <div className="text-center">
+                  <h4 className="font-serif text-2xl font-bold text-[#111827]">Create a Village</h4>
+                  <p className="text-sm opacity-60 text-[#111827] mt-1">Found your own community and invite others to join</p>
+                </div>
+              </div>
+            </Link>
           </div>
         )}
 
@@ -86,7 +111,7 @@ export default function OnboardingView() {
           {step === 1 ? (
             <Button disabled={selectedNiches.length === 0} onClick={() => setStep(2)} variant="default" size="lg">Continue</Button>
           ) : (
-            <Button disabled={joined.length === 0} onClick={() => router.push('/explore')} variant="accent" size="lg">Enter the Square</Button>
+            <Button disabled={joined.length === 0} onClick={() => router.push(ROUTES.EXPLORE)} variant="accent" size="lg">Enter the Square</Button>
           )}
         </div>
       </div>
