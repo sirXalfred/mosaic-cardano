@@ -11,6 +11,17 @@ export const useGetAuthState = () => {
   });
 };
 
+export const getWalletNonce = async () => {
+  return fetchAPI('/api/auth/wallet/nonce', { method: 'GET' }) as Promise<{ nonce: string }>;
+};
+
+export const useGetUserSettings = () => {
+  return useXQuery({
+    queryKey: ['userSettings'],
+    queryFn: async () => fetchAPI('/api/users/me/settings') as Promise<{ email: string | null; walletAddress: string | null; planType: string }>
+  });
+};
+
 export const useRegister = () => {
   const queryClient = useQueryClient();
 
@@ -37,6 +48,25 @@ export const useLogin = () => {
   });
 }
 
+export const useLoginWithWallet = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { signature: { signature: string; key: string; }; payload: string; address: string }) => {
+      const res = await fetchAPI('/api/auth/wallet/login', {
+        method: 'POST',
+        data: payload
+      });
+      return AuthStateResponseSchema.parse(res) satisfies AuthStateResponse;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['authState']
+      });
+    }
+  });
+}
+
 export const useLogout = () => {
   const queryClient = useQueryClient();
 
@@ -46,6 +76,23 @@ export const useLogout = () => {
       queryClient.invalidateQueries({
         queryKey: ['authState']
       });
+    }
+  });
+}
+
+export const useLinkWallet = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { signature: { signature: string; key: string; }; payload: string; address: string }) => {
+      const res = await fetchAPI('/api/auth/wallet/link', {
+        method: 'POST',
+        data: payload
+      });
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
     }
   });
 }

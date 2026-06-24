@@ -12,6 +12,12 @@ import { useLogin, useRegister, useUsernameCheck } from '@/services/auth';
 import { ROUTES } from '@/lib/routes';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from '@/hooks/useDebounce';
+import dynamic from 'next/dynamic';
+import { Skeleton } from './ui/skeleton';
+
+const WalletLoginButton = dynamic(() => import('@/components/wallet/WalletStatus').then((m) => m.WalletLoginButton), {
+  loading: () => <Skeleton className="w-full h-11 rounded-md" />
+});
 
 interface AuthFormData {
   email: string;
@@ -182,6 +188,20 @@ export default function AuthView() {
             <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
               {mode === 'signup' ? 'Join the Village' : 'Sign In'}
             </Button>
+            
+            {mode === 'signin' && (
+              <div className="pt-4 space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-theme-outline/20" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-[#FAF9F6] px-2 text-theme-on-surface/40">Or continue with</span>
+                  </div>
+                </div>
+                <WalletLoginButton />
+              </div>
+            )}
           </form>
 
           <div className="mt-8 text-center">

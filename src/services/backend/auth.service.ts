@@ -261,6 +261,28 @@ export const authService = {
 		return rows[0] ?? null;
 	},
 
+	async getUserSettings(userId: string): Promise<{ email: string | null, walletAddress: string | null, planType: string }> {
+		const parsedUserId = z.string().uuid().parse(userId);
+		
+		const rows = await runRead(
+			`
+				MATCH (u:Mosaic_User {id: $userId})
+				OPTIONAL MATCH (u)-[:HAS_CREDENTIAL]->(cred:Mosaic_Credential)
+				RETURN u.walletAddress AS walletAddress, u.planType AS planType, cred.email AS email
+				LIMIT 1
+			`,
+			{ userId: parsedUserId },
+			row => ({
+				email: row.email ? String(row.email) : null,
+				walletAddress: row.walletAddress ? String(row.walletAddress) : null,
+				planType: String(row.planType || 'FREE')
+			})
+		);
+
+		if (!rows[0]) throw new Error('User not found');
+		return rows[0];
+	},
+
 	async updateProfile(input: z.infer<typeof UpdateProfileInputSchema>): Promise<UserNode> {
 		const parsed = UpdateProfileInputSchema.parse(input);
 		const now = Date.now();
@@ -298,6 +320,23 @@ export const authService = {
 		if (!rows[0]) throw new Error('User not found');
 		await invalidateCacheKey(cacheKey('user', parsed.userId));
 		return rows[0];
+	},
+
+	async linkWallet(userId: string, walletAddress: string): Promise<void> {
+		const parsedUserId = z.string().uuid().parse(userId);
+		const now = Date.now();
+
+		await runWrite(
+			`
+				MATCH (u:Mosaic_User {id: $userId})
+				SET u.walletAddress = $walletAddress, u.updatedAt = $now
+				RETURN u.id AS userId
+			`,
+			{ userId: parsedUserId, walletAddress, now },
+			row => row.userId,
+		);
+
+		await invalidateCacheKey(cacheKey('user', parsedUserId));
 	},
 
 	async setOnboarded(userId: string): Promise<void> {

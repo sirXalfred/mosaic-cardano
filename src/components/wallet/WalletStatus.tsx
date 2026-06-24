@@ -2,9 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@meshsdk/react';
-import { Wallet, AlertCircle } from 'lucide-react';
+import { Wallet, AlertCircle, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
+import { useGetUserSettings, useLinkWallet, getWalletNonce, useLoginWithWallet } from '@/services/auth';
+import { toast } from 'sonner';
+import { Button } from '../ui/button';
+import { CardanoIcon } from '../ui/icons/CardanoLogo';
 
 interface WalletStatusProps {
   className?: string;
@@ -33,7 +37,7 @@ export function WalletStatus({ className = '' }: WalletStatusProps) {
           const netId = await wallet.getNetworkId();
           const isLive = process.env.NEXT_PUBLIC_IS_LIVE === 'true';
           const expectedNetId = isLive ? 1 : 0;
-          
+
           if (isMounted) {
             setNetworkWarning(netId !== expectedNetId);
             const addrs = await wallet.getUsedAddresses();
@@ -70,14 +74,13 @@ export function WalletStatus({ className = '' }: WalletStatusProps) {
           </div>
         </div>
       )}
-      
-      <button 
+
+      <button
         onClick={() => openModal(MODALS.WALLET_CONNECT)}
-        className={`flex items-center cursor-pointer gap-2 px-3 py-1.5 rounded-full border transition-colors text-xs font-bold font-mono tracking-widest ${
-          connected 
-            ? 'bg-theme-surface-high border-theme-outline/20 text-theme-forest hover:border-theme-forest/30' 
-            : 'bg-theme-accent/5 border-theme-accent/20 text-theme-accent hover:bg-theme-accent/10'
-        }`}
+        className={`flex items-center cursor-pointer gap-2 px-3 py-1.5 rounded-full border transition-colors text-xs font-bold font-mono tracking-widest ${connected
+          ? 'bg-theme-surface-high border-theme-outline/20 text-theme-forest hover:border-theme-forest/30'
+          : 'bg-theme-accent/5 border-theme-accent/20 text-theme-accent hover:bg-theme-accent/10'
+          }`}
       >
         <Wallet size={14} className={connected ? "text-theme-forest/60" : "text-theme-accent"} />
         {connected ? (address ? truncateAddress(address) : 'CONNECTING...') : 'CONNECT WALLET'}
@@ -91,5 +94,125 @@ export function WalletConnectedText() {
   const { connected } = useWallet();
   return (
     connected ? 'Connected securely' : 'Not connected'
+  );
+}
+
+export function WalletLinkButton() {
+  const { connected, wallet } = useWallet();
+  const { data: settings } = useGetUserSettings();
+  const { mutateAsync: linkWallet, isPending } = useLinkWallet();
+
+  if (!connected) return null;
+
+  const handleLink = async () => {
+    try {
+      const address = (await wallet.getUsedAddresses())[0];
+      if (!address) throw new Error("No address found");
+
+      const { nonce } = await getWalletNonce();
+      const signature = await wallet.signData(nonce, address);
+
+      await linkWallet({
+        signature,
+        payload: nonce,
+        address
+      });
+      toast.success("Wallet linked successfully");
+
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error((err as Error).message || "Failed to link wallet");
+    }
+  };
+
+  // If the user's saved wallet matches the currently connected wallet, show nothing or "Linked"
+  if (settings?.walletAddress) {
+    return (
+      <div className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 flex items-center gap-2">
+        <LinkIcon size={14} /> LINKED
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleLink}
+      disabled={isPending}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-full border bg-theme-forest text-theme-surface-high hover:bg-theme-forest/90 transition-colors text-xs font-bold font-mono tracking-widest disabled:opacity-50"
+    >
+      {isPending ? <Loader2 size={14} className="animate-spin" /> : <LinkIcon size={14} />}
+      LINK TO ACCOUNT
+    </button>
+  );
+}
+
+export function WalletLoginButton() {
+  const { wallet, connected } = useWallet();
+  const { mutateAsync: loginWithWallet, isPending } = useLoginWithWallet();
+  const { openModal } = useModals();
+  const [pendingLogin, setPendingLogin] = useState(false);
+
+  const executeLogin = async () => {
+    try {
+      const activeWallet = wallet;
+      if (!activeWallet) throw new Error("Wallet instance not found");
+
+      const address = (await activeWallet.getUsedAddresses())[0];
+      if (!address) throw new Error("No address found in wallet");
+
+      toast.loading("Sign the message in your wallet to login...", { id: 'wallet-login' });
+      const { nonce } = await getWalletNonce();
+      const signature = await activeWallet.signData(nonce, address);
+
+      await loginWithWallet({
+        signature,
+        payload: nonce,
+        address
+      });
+      toast.success("Logged in successfully via Wallet", { id: 'wallet-login' });
+      window.location.href = '/'; // Simple redirect to home
+    } catch (err) {
+      const errorMessage = (err as Error).message || "Wallet login failed";
+      console.error(errorMessage);
+      toast.error(errorMessage, { id: 'wallet-login' });
+      setPendingLogin(false);
+    }
+  };
+
+  useEffect(() => {
+    if (connected && wallet && pendingLogin) {
+      setPendingLogin(false);
+      executeLogin();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, wallet, pendingLogin]);
+
+  const handleWalletLogin = async () => {
+    if (!connected) {
+      setPendingLogin(true);
+      openModal(MODALS.WALLET_CONNECT);
+      return;
+    }
+    await executeLogin();
+  };
+
+  return (
+    <Button
+      variant="outline"
+      className='w-full group/cardano'
+      size="lg"
+      onClick={handleWalletLogin}
+      disabled={isPending || pendingLogin}
+    >
+      {isPending || pendingLogin ? (
+        <Loader2 className="animate-spin" size={18} />
+      ) : (
+        <>
+          <CardanoIcon hoverInvert />
+          CARDANO WALLET
+        </>
+      )
+      }
+    </Button>
   );
 }

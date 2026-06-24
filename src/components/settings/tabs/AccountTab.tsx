@@ -1,4 +1,4 @@
-import { useGetAuthState } from '@/services/auth';
+import { useGetUserSettings } from '@/services/auth';
 import { Button } from '@/components/ui/button';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
@@ -12,12 +12,14 @@ const WalletConnectedText = dynamic(() => import('@/components/wallet/WalletStat
 const WalletStatus = dynamic(() => import('@/components/wallet/WalletStatus').then((m) => m.WalletStatus), {
   loading: () => <Skeleton className="w-40 h-12" />
 });
+const WalletLinkButton = dynamic(() => import('@/components/wallet/WalletStatus').then((m) => m.WalletLinkButton), {
+  loading: () => <Skeleton className="w-32 h-10" />
+});
 
 
 
 export default function AccountTab() {
-  const { data: authState } = useGetAuthState();
-  const user = authState?.user;
+  const { data: settings, isLoading: isSettingsLoading } = useGetUserSettings();
   const { openModal } = useModals();
 
   return (
@@ -34,7 +36,7 @@ export default function AccountTab() {
             <input
               type="email"
               disabled
-              value={user?.username ? `${user.username}@example.com` : 'user@example.com'}
+              value={isSettingsLoading ? 'Loading...' : (settings?.email || 'user@example.com')}
               className="flex-1 p-2.5 bg-theme-surface-high border border-theme-outline/20 rounded-xl text-sm font-medium text-theme-on-surface opacity-70 cursor-not-allowed"
             />
             <Button variant="outline">Change Email</Button>
@@ -61,7 +63,7 @@ export default function AccountTab() {
           <h3 className="text-sm font-bold text-theme-on-surface mb-3">Subscription Plan</h3>
           <div className="flex items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl mb-4">
             <div>
-              <p className="text-sm font-medium text-theme-forest">Current Plan: <span className="font-bold text-theme-accent">{user?.planType || 'FREE'}</span></p>
+              <p className="text-sm font-medium text-theme-forest">Current Plan: <span className="font-bold text-theme-accent">{isSettingsLoading ? '...' : (settings?.planType || 'FREE')}</span></p>
               <p className="text-xs text-theme-on-surface/60 mt-1">Upgrade for more village features.</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => openModal(MODALS.PRICING)}>See other plans</Button>
@@ -82,7 +84,10 @@ export default function AccountTab() {
                 </p>
               </div>
             </div>
-            <WalletStatus />
+            <div className="flex items-center gap-3">
+              <WalletLinkButton />
+              <WalletStatus />
+            </div>
           </div>
           <p className="text-xs text-theme-on-surface/50 mt-2">Connect your wallet to receive SCR rewards, participate in governance, and manage your subscriptions.</p>
         </div>
