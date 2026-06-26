@@ -10,6 +10,7 @@ import PrivacySettings from './PrivacySettings';
 import MemberManagement from './MemberManagement';
 import ActivityLog from './ActivityLog';
 import AppPageContainer from '@/components/layout/AppPageContainer';
+import { ROUTES } from '@/lib/routes';
 
 interface Props {
   communityId: string;
@@ -39,7 +40,7 @@ export default function VillageSettingsView({ communityId }: Props) {
     if (confirm("Are you sure you want to delete this village? This action cannot be undone.")) {
       try {
         await deleteMutation.mutateAsync();
-        router.push('/');
+        router.push(ROUTES.HOME);
       } catch (e) {
         console.error(e);
         alert("Failed to delete village");
