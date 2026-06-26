@@ -63,7 +63,7 @@ export const fetchAPI = async (url: string, options: FetchAPIOptions = {}): Prom
       
       try {
         const errorData = await response.json();
-        if (errorData.message) {
+        if (errorData.error) {
           errorMessage = errorData.error;
         }
       } catch {
