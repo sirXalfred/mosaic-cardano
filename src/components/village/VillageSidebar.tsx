@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useParams } from 'next/navigation';
 import {
   BookOpen,
@@ -20,6 +21,21 @@ import { Button } from '../ui/button';
 import { useGetVillageDetails } from '@/services/villages';
 import AppSidebar from '../layout/AppSidebar';
 import { ROUTES } from '@/lib/routes';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const SidebarTooltip = ({ children, label, isCollapsed }: { children: React.ReactNode; label: string; isCollapsed: boolean }) => {
+  if (!isCollapsed) return <>{children}</>;
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={16} className="bg-theme-accent text-theme-parchment text-[10px] uppercase tracking-widest border-none font-bold z-50">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export default function VillageSidebar({ communityId: propCommunityId }: { communityId?: string }) {
   const pathname = usePathname();
@@ -69,8 +85,20 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
       <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed && (
           <div className='flex items-center gap-3 overflow-hidden'>
-            <div className="w-8 h-8 rounded bg-theme-clay shrink-0 flex items-center justify-center font-serif text-white font-bold">
-              {village?.name.charAt(0) || 'V'}
+            <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center overflow-hidden border border-theme-outline/20 bg-theme-surface-high relative">
+              {village?.profileImageUrl ? (
+                <Image 
+                  src={village.profileImageUrl} 
+                  alt={village.name || 'Village'} 
+                  fill 
+                  className="object-cover" 
+                  unoptimized 
+                />
+              ) : (
+                <div className="w-full h-full bg-theme-clay flex items-center justify-center font-serif text-white font-bold">
+                  {village?.name?.charAt(0) || 'V'}
+                </div>
+              )}
             </div>
             <h1 className="font-serif text-lg font-medium text-theme-forest leading-tight truncate">
               {village?.name || 'Loading...'}
@@ -91,40 +119,43 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
         {navItems.map((item) => {
           const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
           return (
-            <Link
-              key={item.name}
-              href={item.path}
-              className={cn(
-                "flex items-center py-3 rounded-lg transition-colors duration-200 relative group",
-                isCollapsed ? "justify-center px-0" : "px-4 gap-3",
-                isActive
-                  ? "text-theme-accent font-bold bg-theme-forest/5"
-                  : "text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent"
-              )}
-            >
-              <item.icon size={20} />
-              {isCollapsed ?
-                <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right z-50 whitespace-nowrap">{item.name}</span>
-                :
-                <span className="font-sans text-[12px] uppercase tracking-widest">{item.name}</span>}
-              {isActive && !isCollapsed && (
-                <span className="absolute right-0 w-1 h-4 bg-theme-accent rounded-full" />
-              )}
-            </Link>
+            <SidebarTooltip key={item.name} label={item.name} isCollapsed={isCollapsed}>
+              <Link
+                href={item.path}
+                className={cn(
+                  "flex items-center py-3 rounded-lg transition-colors duration-200 relative group",
+                  isCollapsed ? "justify-center px-0" : "px-4 gap-3",
+                  isActive
+                    ? "text-theme-accent font-bold bg-theme-forest/5"
+                    : "text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent"
+                )}
+              >
+                <item.icon size={20} />
+                {!isCollapsed && <span className="font-sans text-[12px] uppercase tracking-widest">{item.name}</span>}
+                {isActive && !isCollapsed && (
+                  <span className="absolute right-0 w-1 h-4 bg-theme-accent rounded-full" />
+                )}
+              </Link>
+            </SidebarTooltip>
           );
         })}
       </nav>
 
       <div className={cn("mt-auto border-t border-theme-outline/20 pt-6", isCollapsed ? "px-2" : "px-4")}>
         <div className="space-y-4">
-          <Link href={ROUTES.VILLAGE.SETTINGS(communityId)} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
-            <Settings size={18} />
-            {!isCollapsed && <span>Village Settings</span>}
-          </Link>
-          <Link href="/home" className={cn("flex items-center text-sm text-theme-clay opacity-80 hover:opacity-100 transition-colors mt-4 pt-4 border-t border-theme-outline/10", isCollapsed ? "justify-center" : "gap-3")}>
-            <LogOut size={18} className="rotate-180" />
-            {!isCollapsed && <span>Exit to Mosaic</span>}
-          </Link>
+          <SidebarTooltip label="Village Settings" isCollapsed={isCollapsed}>
+            <Link href={ROUTES.VILLAGE.SETTINGS(communityId)} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent transition-colors", isCollapsed ? "justify-center" : "gap-3")}>
+              <Settings size={18} />
+              {!isCollapsed && <span>Village Settings</span>}
+            </Link>
+          </SidebarTooltip>
+          
+          <SidebarTooltip label="Exit to Mosaic" isCollapsed={isCollapsed}>
+            <Link href="/home" className={cn("flex items-center text-sm text-theme-clay opacity-80 hover:opacity-100 transition-colors mt-4 pt-4 border-t border-theme-outline/10", isCollapsed ? "justify-center" : "gap-3")}>
+              <LogOut size={18} className="rotate-180" />
+              {!isCollapsed && <span>Exit to Mosaic</span>}
+            </Link>
+          </SidebarTooltip>
         </div>
       </div>
     </aside>

@@ -24,6 +24,21 @@ import { ROUTES } from '@/lib/routes';
 import { useGetMyVillages } from '@/services/villages';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const SidebarTooltip = ({ children, label, isCollapsed }: { children: React.ReactNode; label: string; isCollapsed: boolean }) => {
+  if (!isCollapsed) return <>{children}</>;
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={16} className="bg-theme-accent text-theme-parchment text-[10px] uppercase tracking-widest border-none font-bold z-50">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -91,79 +106,72 @@ export default function AppSidebar() {
 
       <nav className="flex-1 flex flex-col space-y-2">
         {/* Main Nav Links */}
-        <Link
-          href={ROUTES.HOME}
-          className={cn(
-            "flex items-center py-3 rounded-lg transition-colors duration-200 relative group",
-            isCollapsed ? "justify-center px-0" : "px-4 gap-3",
-            pathname.startsWith(ROUTES.HOME)
-              ? "text-theme-accent font-bold bg-theme-forest/5"
-              : "text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent"
-          )}
-        >
-          <HomeIcon size={20} />
-          {isCollapsed ? (
-            <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right">Home</span>
-          ) : (
-            <span className="font-sans text-[12px] uppercase tracking-widest">Home</span>
-          )}
-          {pathname.startsWith(ROUTES.HOME) && !isCollapsed && (
-            <span className="absolute right-0 w-1 h-4 bg-theme-accent rounded-full" />
-          )}
-        </Link>
-
-        {isAuthenticated && (
+        <SidebarTooltip label="Home" isCollapsed={isCollapsed}>
           <Link
-            href={ROUTES.EXPLORE}
+            href={ROUTES.HOME}
             className={cn(
               "flex items-center py-3 rounded-lg transition-colors duration-200 relative group",
               isCollapsed ? "justify-center px-0" : "px-4 gap-3",
-              pathname.startsWith(ROUTES.EXPLORE)
+              pathname.startsWith(ROUTES.HOME)
                 ? "text-theme-accent font-bold bg-theme-forest/5"
                 : "text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent"
             )}
           >
-            <CompassIcon size={20} />
-            {isCollapsed ? (
-              <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right">Explore</span>
-            ) : (
-              <span className="font-sans text-[12px] uppercase tracking-widest">Explore</span>
-            )}
-            {pathname.startsWith(ROUTES.EXPLORE) && !isCollapsed && (
+            <HomeIcon size={20} />
+            {!isCollapsed && <span className="font-sans text-[12px] uppercase tracking-widest">Home</span>}
+            {pathname.startsWith(ROUTES.HOME) && !isCollapsed && (
               <span className="absolute right-0 w-1 h-4 bg-theme-accent rounded-full" />
             )}
           </Link>
+        </SidebarTooltip>
+
+        {isAuthenticated && (
+          <SidebarTooltip label="Explore" isCollapsed={isCollapsed}>
+            <Link
+              href={ROUTES.EXPLORE}
+              className={cn(
+                "flex items-center py-3 rounded-lg transition-colors duration-200 relative group",
+                isCollapsed ? "justify-center px-0" : "px-4 gap-3",
+                pathname.startsWith(ROUTES.EXPLORE)
+                  ? "text-theme-accent font-bold bg-theme-forest/5"
+                  : "text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent"
+              )}
+            >
+              <CompassIcon size={20} />
+              {!isCollapsed && <span className="font-sans text-[12px] uppercase tracking-widest">Explore</span>}
+              {pathname.startsWith(ROUTES.EXPLORE) && !isCollapsed && (
+                <span className="absolute right-0 w-1 h-4 bg-theme-accent rounded-full" />
+              )}
+            </Link>
+          </SidebarTooltip>
         )}
 
         {/* Unauthenticated View Additions */}
         {!isAuthenticated && (
           <>
-            <button
-              onClick={() => handleAuthRedirect(ROUTES.NEW_COMMUNITY)}
-              className={cn(
-                "flex items-center py-3 rounded-lg transition-colors duration-200 relative group text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent cursor-pointer",
-                isCollapsed ? "justify-center px-0" : "px-4 gap-3"
-              )}
-            >
-              <PlusIcon size={20} />
-              {isCollapsed ? (
-                <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right">Start a Community</span>
-              ) : (
-                <span className="font-sans text-[12px] uppercase tracking-widest text-left">Start a Community</span>
-              )}
-            </button>
+            <SidebarTooltip label="Start a Community" isCollapsed={isCollapsed}>
+              <button
+                onClick={() => handleAuthRedirect(ROUTES.NEW_COMMUNITY)}
+                className={cn(
+                  "flex items-center py-3 rounded-lg transition-colors duration-200 relative group text-theme-on-surface opacity-60 hover:opacity-100 hover:text-theme-accent cursor-pointer",
+                  isCollapsed ? "justify-center px-0" : "px-4 gap-3"
+                )}
+              >
+                <PlusIcon size={20} />
+                {!isCollapsed && <span className="font-sans text-[12px] uppercase tracking-widest text-left">Start a Community</span>}
+              </button>
+            </SidebarTooltip>
 
-            <div className="flex-1 flex flex-col items-center justify-center px-4 opacity-50 py-10">
-              <CompassIcon size={32} className="mb-4 text-theme-forest" />
-              {!isCollapsed && (
-                <p className="text-center font-sans text-xs tracking-widest uppercase font-bold text-theme-forest">
-                  Sign in to Explore <br /> The Registry
-                </p>
-              )}
-              {isCollapsed && (
-                <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Sign In Required</span>
-              )}
-            </div>
+            <SidebarTooltip label="Sign In Required" isCollapsed={isCollapsed}>
+              <div className="flex-1 flex flex-col items-center justify-center px-4 opacity-50 py-10 group">
+                <CompassIcon size={32} className="mb-4 text-theme-forest" />
+                {!isCollapsed && (
+                  <p className="text-center font-sans text-xs tracking-widest uppercase font-bold text-theme-forest">
+                    Sign in to Explore <br /> The Registry
+                  </p>
+                )}
+              </div>
+            </SidebarTooltip>
           </>
         )}
 
@@ -209,6 +217,7 @@ export default function AppSidebar() {
                                 fill
                                 sizes="32px"
                                 className="object-cover"
+                                unoptimized
                               />
                             </span>
                             <span className="truncate">{village.name}</span>
@@ -234,25 +243,26 @@ export default function AppSidebar() {
                   const imageSrc = village.profileImageUrl || '/assets/images/village-placeholder.png';
 
                   return (
-                    <Link
-                      key={village.id}
-                      href={ROUTES.VILLAGE.HOME(village.id)}
-                      className={cn(
-                        "flex items-center justify-center w-10 h-10 rounded-full transition-colors relative group overflow-hidden",
-                        pathname.includes(ROUTES.VILLAGE.HOME(village.id))
-                          ? "bg-theme-clay/10 text-theme-accent border border-theme-clay/30"
-                          : "bg-theme-surface-high border border-theme-outline/10 hover:border-theme-outline/30"
-                      )}
-                    >
-                      <Image
-                        src={imageSrc}
-                        alt={village.name}
-                        fill
-                        sizes="40px"
-                        className="object-cover"
-                      />
-                      <span className="hidden group-hover:block absolute top-1/2 -translate-y-1/2 left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md animate-onrender --slide-right z-50 whitespace-nowrap">{village.name}</span>
-                    </Link>
+                    <SidebarTooltip key={village.id} label={village.name} isCollapsed={isCollapsed}>
+                      <Link
+                        href={ROUTES.VILLAGE.HOME(village.id)}
+                        className={cn(
+                          "flex items-center justify-center w-10 h-10 rounded-full transition-colors relative group overflow-hidden",
+                          pathname.includes(ROUTES.VILLAGE.HOME(village.id))
+                            ? "bg-theme-clay/10 text-theme-accent border border-theme-clay/30"
+                            : "bg-theme-surface-high border border-theme-outline/10 hover:border-theme-outline/30"
+                        )}
+                      >
+                        <Image
+                          src={imageSrc}
+                          alt={village.name}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </Link>
+                    </SidebarTooltip>
                   );
                 })}
               </div>
@@ -264,39 +274,44 @@ export default function AppSidebar() {
       <div className={cn("mt-auto border-t border-theme-outline/20 pt-6 ", isCollapsed ? "px-2" : "px-4")}>
         <div className="space-y-2">
           {isAuthenticated && (
-             <button onClick={() => openModal(MODALS.PRICING)} className={cn("flex w-full items-center text-sm font-bold text-theme-accent hover:bg-theme-accent/10 rounded-lg py-2 transition-colors cursor-pointer", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-              <CrownIcon size={18} className="fill-theme-accent/20" />
-              {!isCollapsed && <span>Upgrade Plan</span>}
-              {isCollapsed && <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Upgrade</span>}
-            </button>
+             <SidebarTooltip label="Upgrade" isCollapsed={isCollapsed}>
+               <button onClick={() => openModal(MODALS.PRICING)} className={cn("flex w-full items-center text-sm font-bold text-theme-accent hover:bg-theme-accent/10 rounded-lg py-2 transition-colors cursor-pointer", isCollapsed ? "justify-center" : "gap-3 px-2")}>
+                <CrownIcon size={18} className="fill-theme-accent/20" />
+                {!isCollapsed && <span>Upgrade Plan</span>}
+              </button>
+             </SidebarTooltip>
           )}
 
           {isAuthenticated ? (
-            <Link href={ROUTES.SETTINGS} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-              <SettingsIcon size={18} />
-              {!isCollapsed && <span>Settings</span>}
-              {isCollapsed && <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Settings</span>}
-            </Link>
+            <SidebarTooltip label="Settings" isCollapsed={isCollapsed}>
+              <Link href={ROUTES.SETTINGS} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-2")}>
+                <SettingsIcon size={18} />
+                {!isCollapsed && <span>Settings</span>}
+              </Link>
+            </SidebarTooltip>
           ) : (
-            <button onClick={() => handleAuthRedirect(ROUTES.SETTINGS)} className={cn("flex w-full items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors cursor-pointer", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-              <SettingsIcon size={18} />
-              {!isCollapsed && <span>Settings</span>}
-              {isCollapsed && <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Settings</span>}
-            </button>
+            <SidebarTooltip label="Settings" isCollapsed={isCollapsed}>
+              <button onClick={() => handleAuthRedirect(ROUTES.SETTINGS)} className={cn("flex w-full items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors cursor-pointer", isCollapsed ? "justify-center" : "gap-3 px-2")}>
+                <SettingsIcon size={18} />
+                {!isCollapsed && <span>Settings</span>}
+              </button>
+            </SidebarTooltip>
           )}
 
-          <Link href={ROUTES.SUPPORT} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-2")}>
-            <HelpCircleIcon size={18} />
-            {!isCollapsed && <span>Support</span>}
-            {isCollapsed && <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Support</span>}
-          </Link>
+          <SidebarTooltip label="Support" isCollapsed={isCollapsed}>
+            <Link href={ROUTES.SUPPORT} className={cn("flex items-center text-sm opacity-60 hover:opacity-100 hover:text-theme-accent py-2 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-2")}>
+              <HelpCircleIcon size={18} />
+              {!isCollapsed && <span>Support</span>}
+            </Link>
+          </SidebarTooltip>
 
           {!isAuthenticated && (
-            <Link href={ROUTES.AUTH} className={cn("flex items-center text-sm text-theme-accent font-bold py-2 mt-4 bg-theme-clay/10 rounded-lg hover:bg-theme-clay/20 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-4")}>
-              <LogInIcon size={18} />
-              {!isCollapsed && <span>Sign In</span>}
-              {isCollapsed && <span className="hidden group-hover:block absolute left-full ml-2 bg-theme-accent text-theme-parchment text-xs uppercase tracking-widest py-2 px-4 rounded-md z-50">Sign In</span>}
-            </Link>
+            <SidebarTooltip label="Sign In" isCollapsed={isCollapsed}>
+              <Link href={ROUTES.AUTH} className={cn("flex items-center text-sm text-theme-accent font-bold py-2 mt-4 bg-theme-clay/10 rounded-lg hover:bg-theme-clay/20 transition-colors", isCollapsed ? "justify-center" : "gap-3 px-4")}>
+                <LogInIcon size={18} />
+                {!isCollapsed && <span>Sign In</span>}
+              </Link>
+            </SidebarTooltip>
           )}
         </div>
       </div>
