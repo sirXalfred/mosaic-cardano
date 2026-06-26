@@ -97,6 +97,29 @@ export const useLinkWallet = () => {
   });
 }
 
+export const useGetBadges = () => {
+  return useXQuery({
+    queryKey: ['userBadges'],
+    queryFn: async () => fetchAPI('/api/badges') as Promise<{ badges: Array<{ id: string, type: string, status: string, policyId?: string, assetNameBase?: string, txHash?: string }> }>
+  });
+};
+
+export const useClaimBadge = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (badgeId: string) => {
+      return fetchAPI('/api/badges', {
+        method: 'POST',
+        data: { badgeId }
+      }) as Promise<{ txHash: string }>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userBadges'] });
+    }
+  });
+};
+
 export interface UsernameCheckResult {
   available: boolean;
   error?: Error;
