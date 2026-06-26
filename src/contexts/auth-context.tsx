@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             toast.success("You have been logged out successfully");
             
         }
-    }, [logoutMutation, router]);
+    }, [logoutMutation, router, authState?.isAuthenticated]);
 
     useEffect(() => {
         registerLogout(logout);
