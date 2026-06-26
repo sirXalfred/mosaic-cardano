@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { JoinCommunityRequestSchema, LeaveCommunityRequestSchema } from '@/types/api';
 import { CommunityNodeSchema, UserNodeSchema, type CommunityNode, type UserNode } from '@/types/schemas';
-import { cacheAside, cacheKey, invalidateCachePattern } from './cache';
+import { cacheAside, cacheAsideWithLock, cacheKey, invalidateCachePattern } from './cache';
 import { runRead, runWrite } from './shared';
 
 
@@ -75,6 +75,28 @@ export const villageService = {
 		await invalidateCachePattern(cacheKey('community', 'mine', parsedUserId, '*'));
 
 		return rows[0];
+	},
+
+	async deleteCommunity(userId: string, communityId: string): Promise<void> {
+		const parsedUserId = z.string().uuid().parse(userId);
+		const parsedCommunityId = z.string().uuid().parse(communityId);
+		const now = Date.now();
+
+		await runWrite(
+			`
+				MATCH (u:Mosaic_User {id: $userId})-[m:MEMBER_OF]->(c:Mosaic_Community {id: $communityId})
+				WHERE m.role = 'ADMIN'
+				SET c.isDeleted = true, c.deletedAt = $now
+			`,
+			{ userId: parsedUserId, communityId: parsedCommunityId, now },
+			() => {}
+		);
+
+		await Promise.all([
+			invalidateCachePattern(cacheKey('community', parsedCommunityId, '*')),
+			invalidateCachePattern(cacheKey('community', 'featured', '*')),
+			invalidateCachePattern(cacheKey('community', 'mine', parsedUserId, '*')),
+		]);
 	},
 
 	async checkCommunityMembership(userId: string, communityId: string): Promise<{ isMember: boolean; role: string | null; isCreator: boolean }> {
@@ -183,7 +205,7 @@ export const villageService = {
 				const rows = await runRead(
 					`
 						MATCH (c:Mosaic_Community)
-						WHERE c.id = $idOrSlug OR c.slug = $idOrSlug
+						WHERE (c.id = $idOrSlug OR c.slug = $idOrSlug) AND coalesce(c.isDeleted, false) = false
 						RETURN c AS community
 						LIMIT 1
 					`,
@@ -307,7 +329,7 @@ export const villageService = {
 				return runRead(
 					`
 						MATCH (c:Mosaic_Community)
-						WHERE c.id = $idOrSlug OR c.slug = $idOrSlug
+						WHERE (c.id = $idOrSlug OR c.slug = $idOrSlug) AND coalesce(c.isDeleted, false) = false
 						MATCH (u:Mosaic_User)-[:MEMBER_OF]->(c)
 						RETURN u AS user
 						ORDER BY u.createdAt DESC
@@ -328,12 +350,13 @@ export const villageService = {
 		const parsed = listVillagesInput.parse({ limit });
 		const key = cacheKey('community', 'featured', parsed.limit);
 
-		return cacheAside(
+		return cacheAsideWithLock(
 			key,
 			async () => {
 				return runRead(
 					`
 						MATCH (c:Mosaic_Community)
+						WHERE coalesce(c.isDeleted, false) = false
 						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
 						WITH c, count(DISTINCT member) AS memberCount
 						RETURN c AS community, memberCount AS memberCount
@@ -353,7 +376,7 @@ export const villageService = {
 					},
 				);
 			},
-			120,
+			172800,
 		);
 	},
 
@@ -368,6 +391,7 @@ export const villageService = {
 				return runRead(
 					`
 						MATCH (u:Mosaic_User {id: $userId})-[:MEMBER_OF]->(c:Mosaic_Community)
+						WHERE coalesce(c.isDeleted, false) = false
 						OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
 						WITH c, count(DISTINCT member) AS memberCount
 						RETURN c AS community, memberCount AS memberCount

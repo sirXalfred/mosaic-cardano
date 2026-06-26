@@ -46,3 +46,18 @@ export async function GET(
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+import { withAuth } from '@/lib/backend/request';
+
+export const DELETE = withAuth(async (request, context, userId) => {
+  try {
+    const { communityId } = await context.params;
+    
+    await villageService.deleteCommunity(userId, communityId);
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting village:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+});

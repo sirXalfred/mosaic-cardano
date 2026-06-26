@@ -150,6 +150,22 @@ export const useUpdateVillageSettings = (communityId: string) => {
   });
 };
 
+export const useDeleteVillage = (communityId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI(`/api/villages/${communityId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['featuredVillages'] });
+      queryClient.invalidateQueries({ queryKey: ['userVillages'] });
+    }
+  });
+};
+
 export const useGetVillageProjects = () => {
   return useXQuery({
     queryKey: ['villageProjects'],

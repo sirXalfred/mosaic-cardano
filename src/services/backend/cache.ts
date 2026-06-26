@@ -41,6 +41,41 @@ export const cacheAside = async <T>(
   return fresh;
 };
 
+export const cacheAsideWithLock = async <T>(
+  key: string,
+  queryFn: () => Promise<T>,
+  ttlSeconds: number = DEFAULT_CACHE_TTL_SECONDS,
+): Promise<T> => {
+  const cached = await getCacheJSON<T>(key);
+  if (cached !== null) return cached;
+
+  // Try to acquire lock
+  const lockKey = `lock:${key}`;
+  const acquired = await redis.set(lockKey, '1', 'EX', 15, 'NX');
+
+  if (acquired) {
+    try {
+      const fresh = await queryFn();
+      await setCacheJSON(key, fresh, ttlSeconds);
+      return fresh;
+    } finally {
+      await redis.del(lockKey);
+    }
+  }
+
+  // Lock not acquired, someone else is fetching. Wait briefly and retry reading from cache.
+  for (let i = 0; i < 15; i++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const newlyCached = await getCacheJSON<T>(key);
+    if (newlyCached !== null) return newlyCached;
+  }
+
+  // Fallback if the other request failed to populate cache
+  const fresh = await queryFn();
+  await setCacheJSON(key, fresh, ttlSeconds);
+  return fresh;
+};
+
 export const invalidateCacheKey = async (key: string): Promise<void> => {
   try {
     await redis.del(key);
