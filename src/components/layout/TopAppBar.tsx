@@ -127,7 +127,7 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
                       </Link>
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem onClick={() => openModal(MODALS.BADGES)} className="cursor-pointer">
                       <div className="flex items-center gap-3 w-full">
                         <Award size={16} className="text-theme-on-surface/60" />
                         <span>Badges</span>

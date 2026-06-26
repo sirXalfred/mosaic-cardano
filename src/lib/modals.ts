@@ -3,6 +3,7 @@ export const MODALS = {
   PRICING: 'PRICING',
   WALLET_CONNECT: 'WALLET_CONNECT',
   VERIFY_PAYMENT: 'VERIFY_PAYMENT',
+  BADGES: 'BADGES',
 } as const;
 
 export type ModalId = typeof MODALS[keyof typeof MODALS];
