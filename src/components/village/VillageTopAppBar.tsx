@@ -54,37 +54,18 @@ export default function VillageTopAppBar({ children }: { children?: React.ReactN
   );
 
   const rightContent = (
-    <div className="flex items-center gap-6 border-r border-theme-outline/20 pr-6 mr-2">
-      {/* <div className="hidden md:flex items-center gap-4 relative">
-        {isSearchOpen ? (
-          <div className="flex items-center bg-theme-surface border border-theme-outline/30 rounded-lg px-3 py-1.5 animate-in fade-in slide-in-from-right-4">
-            <Search size={16} className="text-theme-on-surface/50 mr-2" />
-            <input
-              type="text"
-              placeholder="Search village..."
-              className="bg-transparent border-none outline-none text-sm w-48"
-              autoFocus
-              onBlur={() => setIsSearchOpen(false)}
-            />
-          </div>
-        ) : (
-          <Search
-            size={20}
-            className="text-theme-on-surface/50 cursor-pointer hover:text-theme-forest transition-colors"
-            onClick={() => setIsSearchOpen(true)}
-          />
-        )}
-      </div> */}
-
+    <div className="flex items-center gap-3 md:gap-6 border-r border-theme-outline/20 pr-3 md:pr-6 mr-1 md:mr-2">
+      {/* ... */}
       {isMember && (
         <Button
           variant="outline" 
           size="sm"
+          className="px-2 md:px-3"
           onClick={handleShareInvite}
           disabled={isGeneratingInvite}
         >
           {isGeneratingInvite ? <Loader2 size={16} className="animate-spin" /> : <Share size={16} />}
-          INVITE
+          <span className="hidden md:inline-block ml-1">INVITE</span>
         </Button>
       )}
     </div>

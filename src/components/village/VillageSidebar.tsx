@@ -14,7 +14,8 @@ import {
   LogOut,
   Scale,
   PiggyBankIcon,
-  SquareIcon
+  SquareIcon,
+  XIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
@@ -22,6 +23,7 @@ import { useGetVillageDetails } from '@/services/villages';
 import AppSidebar from '../layout/AppSidebar';
 import { ROUTES } from '@/lib/routes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSidebar } from '@/contexts/sidebar-context';
 
 const SidebarTooltip = ({ children, label, isCollapsed }: { children: React.ReactNode; label: string; isCollapsed: boolean }) => {
   if (!isCollapsed) return <>{children}</>;
@@ -43,20 +45,22 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
   const communityId = propCommunityId || (params.community_id as string);
   const { data: village, isLoaded, isError } = useGetVillageDetails(communityId);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isMobileOpen, closeMobileSidebar } = useSidebar();
+  const [isCollapsedStored, setIsCollapsedStored] = useState(false);
+  const isCollapsed = isCollapsedStored && !isMobileOpen;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const storedState = localStorage.getItem('mosaic_village_sidebar_collapsed');
     if (storedState) {
-      setIsCollapsed(JSON.parse(storedState));
+      setIsCollapsedStored(JSON.parse(storedState));
     }
   }, []);
 
   const toggleSidebar = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
+    const newState = !isCollapsedStored;
+    setIsCollapsedStored(newState);
     localStorage.setItem('mosaic_village_sidebar_collapsed', JSON.stringify(newState));
   };
 
@@ -76,12 +80,25 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
   }
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 h-dvh overflow-auto scrollbar-hide flex flex-col py-8 bg-theme-parchment border-r border-theme-outline/20 z-50 transition-all duration-300",
-        isCollapsed ? "w-20 px-2" : "w-64 px-4"
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity" 
+          onClick={closeMobileSidebar} 
+        />
       )}
-    >
+
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-dvh overflow-auto scrollbar-hide flex flex-col py-8 bg-theme-parchment border-r border-theme-outline/20 z-50 transition-all duration-300",
+          "w-full px-4", 
+          isCollapsed ? "md:w-20 md:px-2" : "md:w-64",
+          // Mobile specific classes for drawer
+          "-translate-x-full md:translate-x-0",
+          isMobileOpen && "translate-x-0 shadow-2xl"
+        )}
+      >
       <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed && (
           <div className='flex items-center gap-3 overflow-hidden'>
@@ -108,10 +125,10 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggleSidebar}
+          onClick={isMobileOpen ? closeMobileSidebar : toggleSidebar}
           className="text-theme-forest opacity-50 hover:opacity-100 transition-opacity shrink-0"
         >
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {isMobileOpen ? <XIcon size={20} /> : (isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />)}
         </Button>
       </div>
 
@@ -159,5 +176,6 @@ export default function VillageSidebar({ communityId: propCommunityId }: { commu
         </div>
       </div>
     </aside>
+    </>
   );
 }

@@ -9,9 +9,26 @@ import { useGetUserSettings, useLinkWallet, getWalletNonce, useLoginWithWallet }
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { CardanoIcon } from '../ui/icons/CardanoLogo';
+import { ROUTES } from '@/lib/routes';
 
+type SpecialError = {
+  code?: number;
+  message?: string;
+  info?: string;
+}
 interface WalletStatusProps {
   className?: string;
+}
+
+export function WalletIndicatorBadge() {
+  const { connected } = useWallet();
+  if (!connected) return null;
+
+  return (
+    <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-[3px] border-2 border-theme-surface-high z-10" title="Wallet Connected">
+      <Wallet size={10} className="text-white" />
+    </div>
+  );
 }
 
 
@@ -98,7 +115,7 @@ export function WalletConnectedText() {
 }
 
 export function WalletLinkButton() {
-  const { connected, wallet } = useWallet();
+  const { connected, wallet, name, connect } = useWallet();
   const { data: settings } = useGetUserSettings();
   const { mutateAsync: linkWallet, isPending } = useLinkWallet();
 
@@ -119,9 +136,23 @@ export function WalletLinkButton() {
       });
       toast.success("Wallet linked successfully");
 
-    } catch (err: unknown) {
+    } catch (error) {
+      const err = error as SpecialError;
       console.error(err);
-      toast.error((err as Error).message || "Failed to link wallet");
+      if (err?.code === -4 || err?.message?.includes('account has changed') || err?.info?.includes('account has changed')) {
+        toast.loading("Reconnecting to wallet...", { id: 'wallet-link' });
+        if (name) {
+          try {
+            await connect(name);
+            toast.error("Account changed. Please try linking again.", { id: 'wallet-link' });
+          } catch {
+            toast.error("Failed to reconnect wallet.", { id: 'wallet-link' });
+          }
+        }
+        return;
+      }
+
+      toast.error(err?.info || err?.message || "Failed to link wallet", { id: 'wallet-link' });
     }
   };
 
@@ -146,14 +177,33 @@ export function WalletLinkButton() {
   );
 }
 
-export function WalletLoginButton() {
-  const { wallet, connected } = useWallet();
+export function WalletLoginButton({
+  onLoadingChange,
+  onError
+}: {
+  onLoadingChange?: (loading: boolean) => void;
+  onError?: (error: string | null) => void;
+}) {
+  const { wallet, connected, name, connect } = useWallet();
   const { mutateAsync: loginWithWallet, isPending } = useLoginWithWallet();
   const { openModal } = useModals();
   const [pendingLogin, setPendingLogin] = useState(false);
 
+  useEffect(() => {
+    if (onLoadingChange) {
+      onLoadingChange(pendingLogin || isPending);
+    }
+  }, [pendingLogin, isPending, onLoadingChange]);
+
+  const handleError = (msg: string) => {
+    if (onError) onError(msg);
+    else toast.error(msg, { id: 'wallet-login' });
+    toast.dismiss('wallet-login'); // dismiss any loading toast
+  };
+
   const executeLogin = async () => {
     try {
+      if (onError) onError(null);
       const activeWallet = wallet;
       if (!activeWallet) throw new Error("Wallet instance not found");
 
@@ -164,17 +214,38 @@ export function WalletLoginButton() {
       const { nonce } = await getWalletNonce();
       const signature = await activeWallet.signData(nonce, address);
 
+      toast.loading("Logging you in...", {id: 'wallet-login'});
+
       await loginWithWallet({
         signature,
         payload: nonce,
         address
       });
       toast.success("Logged in successfully via Wallet", { id: 'wallet-login' });
-      window.location.href = '/'; // Simple redirect to home
-    } catch (err) {
-      const errorMessage = (err as Error).message || "Wallet login failed";
-      console.error(errorMessage);
-      toast.error(errorMessage, { id: 'wallet-login' });
+      window.location.href = ROUTES.HOME; // Simple redirect to home
+
+    } catch (error) {
+      const err = error as SpecialError;
+      console.error(err);
+
+      if (err?.code === -4 || err?.message?.includes('account has changed') || err?.info?.includes('account has changed')) {
+        toast.loading("Reconnecting to wallet...", { id: 'wallet-login' });
+        if (name) {
+          try {
+            await connect(name);
+            // After re-connecting, we prompt the user to try again
+            handleError("Account changed. Please click login again.");
+            setPendingLogin(false);
+          } catch {
+            handleError("Failed to reconnect wallet.");
+            setPendingLogin(false);
+          }
+        }
+        return;
+      }
+
+      const errorMessage = err?.info || err?.message || "Wallet login failed";
+      handleError(errorMessage);
       setPendingLogin(false);
     }
   };

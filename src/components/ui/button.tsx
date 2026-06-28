@@ -43,6 +43,7 @@ function Button({
   size = "default",
   asChild = false,
   isLoading = false,
+  type = "button",
   children,
   ...props
 }: React.ComponentProps<"button"> &
@@ -59,6 +60,7 @@ function Button({
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={isLoading || props.disabled}
+      type={asChild ? undefined : type}
       {...props}
     >
       {asChild ? (

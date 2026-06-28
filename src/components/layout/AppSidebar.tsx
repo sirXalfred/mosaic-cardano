@@ -13,7 +13,8 @@ import {
   PlusIcon,
   ChevronDownIcon,
   LogInIcon,
-  CrownIcon
+  CrownIcon,
+  XIcon
 } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ import { useGetMyVillages } from '@/services/villages';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSidebar } from '@/contexts/sidebar-context';
 
 const SidebarTooltip = ({ children, label, isCollapsed }: { children: React.ReactNode; label: string; isCollapsed: boolean }) => {
   if (!isCollapsed) return <>{children}</>;
@@ -43,7 +45,9 @@ const SidebarTooltip = ({ children, label, isCollapsed }: { children: React.Reac
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isMobileOpen, closeMobileSidebar } = useSidebar();
+  const [isCollapsedStored, setIsCollapsedStored] = useState(false);
+  const isCollapsed = isCollapsedStored && !isMobileOpen;
   const [mounted, setMounted] = useState(false);
   const [villagesExpanded, setVillagesExpanded] = useState(true);
 
@@ -58,13 +62,13 @@ export default function AppSidebar() {
     setMounted(true);
     const storedState = localStorage.getItem('mosaic_sidebar_collapsed');
     if (storedState) {
-      setIsCollapsed(JSON.parse(storedState));
+      setIsCollapsedStored(JSON.parse(storedState));
     }
   }, []);
 
   const toggleSidebar = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
+    const newState = !isCollapsedStored;
+    setIsCollapsedStored(newState);
     localStorage.setItem('mosaic_sidebar_collapsed', JSON.stringify(newState));
   };
 
@@ -75,12 +79,25 @@ export default function AppSidebar() {
   if (!mounted) return null; // Avoid hydration mismatch
 
   return (
-    <aside
-      className={cn(
-        "group/sidebar fixed left-0 top-0 h-dvh overflow-auto scrollbar-hide flex flex-col py-8 bg-theme-parchment border-r border-theme-outline/20 z-50 transition-all duration-300",
-        isCollapsed ? "w-20 px-2" : "w-64 px-4"
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity" 
+          onClick={closeMobileSidebar} 
+        />
       )}
-    >
+
+      <aside
+        className={cn(
+          "group/sidebar fixed left-0 top-0 h-dvh overflow-auto scrollbar-hide flex flex-col py-8 bg-theme-parchment border-r border-theme-outline/20 z-50 transition-all duration-300",
+          "w-full px-4", 
+          isCollapsed ? "md:w-20 md:px-2" : "md:w-64",
+          // Mobile specific classes for drawer
+          "-translate-x-full md:translate-x-0",
+          isMobileOpen && "translate-x-0 shadow-2xl"
+        )}
+      >
       <div className={cn("mb-10 flex items-center justify-between", isCollapsed ? "justify-center" : "")}>
         {!isCollapsed && (
           <Link href="/" className='flex items-center gap-1'>
@@ -91,10 +108,10 @@ export default function AppSidebar() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggleSidebar}
+          onClick={isMobileOpen ? closeMobileSidebar : toggleSidebar}
           className="opacity-50 hover:opacity-100 transition-opacity"
         >
-          {isCollapsed ? <ChevronRightIcon size={20} /> : <ChevronLeftIcon size={20} />}
+          {isMobileOpen ? <XIcon size={20} /> : (isCollapsed ? <ChevronRightIcon size={20} /> : <ChevronLeftIcon size={20} />)}
         </Button>
 
         {isCollapsed && (
@@ -316,5 +333,6 @@ export default function AppSidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

@@ -6,10 +6,19 @@ import { StatePanel } from '@/components/ui/StatePanel';
 import { Loader2 } from 'lucide-react';
 import { PostCard } from '@/components/post/PostCard';
 import AppPageContainer from '@/components/layout/AppPageContainer';
+import { MemberGuard } from '@/contexts/member-guard';
 
 const FILTERS = ['All', 'Pieces', 'Publications', 'Projects'];
 
 export default function VillageLibraryPage() {
+  return (
+    <MemberGuard>
+      <VillageLibraryPageContent />
+    </MemberGuard>
+  )
+}
+
+function VillageLibraryPageContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const [activeFilter, setActiveFilter] = useState('All');
