@@ -38,6 +38,9 @@ export default function AuthView() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const router = useRouter();
 
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState<AuthFormData>(initialData);
   const debouncedUsername = useDebounce(formData.username, 500);
   const { available: isUsernameValid, error: usernameCheckError, isLoading: isLoadingUsername } = useUsernameCheck(debouncedUsername, mode === 'signup');
@@ -185,7 +188,7 @@ export default function AuthView() {
 
             <FormError message={isError ? error?.message || "An unknown error occurred" : ''} />
 
-            <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
+            <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || walletLoading || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
               {mode === 'signup' ? 'Join the Village' : 'Sign In'}
             </Button>
             
@@ -199,7 +202,12 @@ export default function AuthView() {
                     <span className="bg-[#FAF9F6] px-2 text-theme-on-surface/40">Or continue with</span>
                   </div>
                 </div>
-                <WalletLoginButton />
+                <WalletLoginButton 
+                  onLoadingChange={setWalletLoading}
+                  onError={setWalletError}
+                />
+
+              <FormError message={walletError ? walletError || "An unknown error occurred" : ''} />
               </div>
             )}
           </form>
