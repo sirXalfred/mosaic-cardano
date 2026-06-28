@@ -7,8 +7,19 @@ import VillageStream from '@/components/village/VillageStream';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckCircle2 } from 'lucide-react';
+import { MemberGuard } from '@/contexts/member-guard';
+
+
 
 export default function VillageFeedPage() {
+  return (
+    <MemberGuard>
+      <VillageFeedPageContent />
+    </MemberGuard>
+  )
+}
+
+function VillageFeedPageContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const { data: village, isLoading } = useGetVillageDetails(communityId);

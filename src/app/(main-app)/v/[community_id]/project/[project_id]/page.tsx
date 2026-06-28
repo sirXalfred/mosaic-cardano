@@ -21,10 +21,21 @@ import { ROUTES } from '@/lib/routes';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TexturedCard } from '@/components/ui/textured-card';
+import { MemberGuard } from '@/contexts/member-guard';
 
 type Tab = 'overview' | 'contributors' | 'tasks' | 'artifacts' | 'discussions' | 'references' | 'deadlines';
 
+
 export default function ProjectWorkspacePage() {
+  return (
+    <MemberGuard>
+      <ProjectWorkspaceContent />
+    </MemberGuard>
+  )
+}
+
+
+function ProjectWorkspaceContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const projectId = params.project_id as string;
