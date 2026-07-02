@@ -6,6 +6,7 @@ import { MODALS } from '@/lib/modals';
 import CreateProjectModal from '../project/CreateProjectModal';
 import PricingModal from '../modals/PricingModal';
 import VerifyPaymentModal from '../modals/VerifyPaymentModal';
+import FeedbackModal from '../modals/FeedbackModal';
 import dynamic from 'next/dynamic';
 
 const WalletConnectModal = dynamic(() => import('@/components/modals/WalletConnectModal'),
@@ -33,6 +34,10 @@ export const ModalsContainer = () => {
       <VerifyPaymentModal
         isOpen={isOpen(MODALS.VERIFY_PAYMENT)}
         onClose={() => closeModal(MODALS.VERIFY_PAYMENT)}
+      />
+      <FeedbackModal
+        isOpen={isOpen(MODALS.FEEDBACK)}
+        onClose={() => closeModal(MODALS.FEEDBACK)}
       />
     </>
   );
