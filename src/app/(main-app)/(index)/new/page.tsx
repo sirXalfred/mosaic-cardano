@@ -11,6 +11,7 @@ import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { createVillageProfileImage } from '@/lib/create-village-profile-image';
+import { toast } from 'sonner';
 
 export default function CreateCommunityPage() {
   const router = useRouter();
@@ -60,6 +61,14 @@ export default function CreateCommunityPage() {
 
       // We expect the backend to return the created CommunityNode
       const newVillageId = response.id;
+
+      toast.message('Give a feedback on your experience?', {
+        action: {
+          label: 'Feedback',
+          onClick: () => openModal(MODALS.FEEDBACK),
+        },
+        duration: 10000,
+      });
 
       router.push(ROUTES.VILLAGE.HOME(newVillageId));
 

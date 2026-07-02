@@ -6,6 +6,9 @@ import { useCreatePost } from '@/services/posts';
 import { useGetAuthState } from '@/services/auth';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
 
 interface PostComposerProps {
   communityId: string;
@@ -19,6 +22,7 @@ export function PostComposer({ communityId, replyToId, isInline, onSuccessCallba
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { data: authState } = useGetAuthState();
   const { mutate: createPost, isPending } = useCreatePost(communityId);
+  const { openModal } = useModals();
 
 
   const user = authState?.user;
@@ -34,6 +38,19 @@ export function PostComposer({ communityId, replyToId, isInline, onSuccessCallba
     createPost({ content, replyToId }, {
       onSuccess: () => {
         setContent(''); // Reset on success
+        
+        const hasPostedBefore = localStorage.getItem('mosaic_has_posted');
+        if (!hasPostedBefore) {
+          localStorage.setItem('mosaic_has_posted', 'true');
+          toast.message('Give a feedback on your experience?', {
+            action: {
+              label: 'Feedback',
+              onClick: () => openModal(MODALS.FEEDBACK),
+            },
+            duration: 10000,
+          });
+        }
+        
         if (onSuccessCallback) onSuccessCallback();
       }
     });
