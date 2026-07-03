@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { InviteNodeSchema, CommunityNodeSchema, UserNodeSchema, type InviteNode, type CommunityNode, type UserNode } from '@/types/schemas';
 import { runRead, runWrite } from './shared';
+import { badgeService } from './badge.service';
 
 export const inviteService = {
 	async createInvite(userId: string, communityId: string): Promise<InviteNode> {
@@ -34,6 +35,8 @@ export const inviteService = {
 		);
 
 		if (!rows[0]) throw new Error('Failed to create invite');
+
+		badgeService.createUnclaimedBadge(parsedUserId, 'first-invite', `fi-${parsedUserId}`).catch(console.error);
 
 		return rows[0];
 	},

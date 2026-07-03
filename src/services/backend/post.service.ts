@@ -1,4 +1,5 @@
 import { runRead, runWrite } from './shared';
+import { badgeService } from './badge.service';
 
 export type PostResponse = {
   id: string;
@@ -54,6 +55,9 @@ export const postService = {
 
     const post = rows[0].post as Record<string, unknown>;
     const author = rows[0].author as Record<string, unknown>;
+
+    // Asynchronously award the first-post badge (idempotent in DB)
+    badgeService.createUnclaimedBadge(authorId, 'first-post', `fp-${authorId}`).catch(console.error);
 
     return {
       id: post.id as string,

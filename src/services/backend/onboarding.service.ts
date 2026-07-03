@@ -1,6 +1,7 @@
 import { OnboardingRequestSchema, type OnboardingRequest } from '@/types/api';
 import { type UserNode } from '@/types/schemas';
 import { authService } from './auth.service';
+import { badgeService } from './badge.service';
 import { invalidateCacheKey, invalidateCachePattern, cacheKey } from './cache';
 import { runWrite } from './shared';
 
@@ -62,6 +63,10 @@ export const onboardingService = {
 		const user = await authService.getUserById(parsed.userId);
 		if (!user) {
 			throw new Error('User not found while completing onboarding');
+		}
+
+		if (process.env.NEXT_PUBLIC_APP_STAGE !== 'production') {
+			badgeService.createUnclaimedBadge(parsed.userId, 'early-user', `eu-${parsed.userId}`).catch(console.error);
 		}
 
 		await Promise.all([

@@ -80,10 +80,12 @@ export const villageService = {
 		await invalidateCachePattern(cacheKey('community', 'featured', '*'));
 		await invalidateCachePattern(cacheKey('community', 'mine', parsedUserId, '*'));
 
-		// Award Pioneer badge asynchronously
-		import('./badge.service').then(({ badgeService }) => {
-			badgeService.createUnclaimedBadge(parsedUserId, 'Pioneer', `pioneer-${parsedUserId}`).catch(console.error);
-		}).catch(console.error);
+		// Award early-adopter badge asynchronously if in beta
+		if (process.env.NEXT_PUBLIC_APP_STAGE !== 'production') {
+			import('./badge.service').then(({ badgeService }) => {
+				badgeService.createUnclaimedBadge(parsedUserId, 'early-adopter', `ea-${parsedUserId}`).catch(console.error);
+			}).catch(console.error);
+		}
 
 		return rows[0];
 	},

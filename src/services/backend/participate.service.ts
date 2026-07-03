@@ -9,6 +9,7 @@ import {
 import { PieceNodeSchema, ProjectNodeSchema, type PieceNode, type ProjectNode } from '@/types/schemas';
 import { cacheKey, invalidateCachePattern } from './cache';
 import { runWrite } from './shared';
+import { badgeService } from './badge.service';
 
 const ContributeInputSchema = z.object({
 	userId: z.string().uuid(),
@@ -98,6 +99,8 @@ export const participateService = {
 			invalidateCachePattern(cacheKey('community', '*')),
 			invalidateCachePattern(cacheKey('derived', 'trending', '*')),
 		]);
+
+		badgeService.createUnclaimedBadge(parsed.userId, 'first-document', `fd-${parsed.userId}`).catch(console.error);
 
 		return piece;
 	},
