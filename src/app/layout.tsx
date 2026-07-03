@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: 'Mosaic',
     images: [
       {
-        url: '/banner-image.png',
+        url: '/assets/images/banner-image.png',
         width: 1200,
         height: 630,
         alt: 'Mosaic - Every community. Every passion. One home.',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mosaic',
     description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
-    images: ['/banner-image.png'],
+    images: ['/assets/images/banner-image.png'],
   },
 };
 
