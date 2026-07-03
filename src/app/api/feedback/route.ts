@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { driver } from '@/lib/backend/neo4j';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { cookies } from 'next/headers';
+import { getAuthSessionByToken } from '@/lib/backend/session';
+import { badgeService } from '@/services/backend/badge.service';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -17,6 +20,13 @@ export async function POST(request: Request) {
 
     const feedbackId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get('mosaic_session')?.value;
+    let session = null;
+    if (token) {
+      session = await getAuthSessionByToken(token);
+    }
 
     const saveToDb = async () => {
       const session = driver.session();
@@ -69,6 +79,10 @@ export async function POST(request: Request) {
 
     // Execute both tasks concurrently
     await Promise.allSettled([saveToDb(), sendEmail()]);
+
+    if (session && name && email) {
+      badgeService.createUnclaimedBadge(session.userId, 'first-feedback', `ff-${session.userId}`).catch(console.error);
+    }
 
     return NextResponse.json({ success: true, id: feedbackId });
   } catch (error) {
