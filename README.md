@@ -284,13 +284,13 @@ WEEK 5  ████████████████████  ✓ DONE
             Creative studio (editor)
             Cardano wallet connect
 
-WEEK 6  ████████████░░░░░░░░  NOW
+WEEK 6  ████████████████████  NOW
         Backend Build
         └── Cardano smart contracts (testnet)
             Badge minting flow
             ADA subscription and payout logic
 
-WEEK 7  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 7  ███████████████░░░░░  UPCOMING
           Beta Testing
         └── First real community onboarded
             Bug fixing and friction removal
