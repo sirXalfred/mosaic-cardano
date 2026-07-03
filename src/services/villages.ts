@@ -92,6 +92,7 @@ const mapVillageToCard = (village: VillageSummary) => ({
   desc: village.description ?? '',
   members: village.memberCount ?? 0,
   icon: village.icon ?? '🏛️',
+  profileImageUrl: village.profileImageUrl,
 });
 
 const unwrapVillageList = <T>(response: unknown): T[] => {
@@ -136,7 +137,7 @@ export const useUpdateVillageSettings = (communityId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { description?: string; logoUrl?: string; isPublic?: boolean }) => {
+    mutationFn: async (data: { description?: string; profileImageUrl?: string; isPublic?: boolean }) => {
       return fetchAPI(API.VILLAGE.SETTINGS(communityId), {
         method: 'PATCH',
         data: data,
@@ -146,6 +147,22 @@ export const useUpdateVillageSettings = (communityId: string) => {
       queryClient.invalidateQueries({ queryKey: ['villageSettings', communityId] });
       queryClient.invalidateQueries({ queryKey: ['villageDetails', communityId] });
       queryClient.invalidateQueries({ queryKey: ['villageActivityLog', communityId] });
+    }
+  });
+};
+
+export const useDeleteVillage = (communityId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI(`/api/villages/${communityId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['featuredVillages'] });
+      queryClient.invalidateQueries({ queryKey: ['userVillages'] });
     }
   });
 };
@@ -213,7 +230,7 @@ export const useCreateVillage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { name: string; description: string; tags: string[] }) => {
+    mutationFn: async (data: { name: string; description: string; tags: string[]; profileImageUrl?: string | null }) => {
       return fetchAPI('/api/villages', {
         method: 'POST',
         data: data,

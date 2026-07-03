@@ -62,6 +62,18 @@ export async function POST(request: Request) {
       row => row.user as any
     );
 
+    const rows2 = await runRead(
+      `
+        MATCH (u:Mosaic_User)
+        RETURN u
+      `,
+      {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      row => row.u as any
+    );
+
+    console.log(rows2);
+
     const user = rows[0];
 
     if (!user) {

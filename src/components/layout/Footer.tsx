@@ -1,15 +1,26 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
 import MosaicBrand from '../ui/icons/MosaicBrand';
 import { Github, Twitter } from 'lucide-react';
 import { CardanoIcon } from '../ui/icons/CardanoLogo';
 
-const SITEMAP = {
+type SitemapLink = {
+  label: string;
+  href?: string;
+  action?: string;
+};
+
+const SITEMAP: Record<string, SitemapLink[]> = {
   Platform: [
     { label: 'Explore Villages', href: '/explore' },
     { label: 'Global Archive', href: '#' },
     { label: 'The Studio', href: '/studio' },
     { label: 'Governance', href: '/docs/governance' },
+    { label: 'Support & Feedback', action: 'FEEDBACK_MODAL' },
   ],
   Resources: [
     { label: 'Documentation', href: '/docs' },
@@ -25,6 +36,8 @@ const SITEMAP = {
 };
 
 export default function Footer() {
+  const { openModal } = useModals();
+
   return (
     <footer className="w-full bg-[#0a0f0d] text-theme-parchment py-24 px-6 md:px-12 lg:px-24 border-t border-theme-outline/10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-16">
@@ -55,9 +68,15 @@ export default function Footer() {
               <ul className="space-y-4 font-sans text-sm">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="text-theme-parchment/80 hover:text-theme-accent transition-colors">
-                      {link.label}
-                    </Link>
+                    {link.href ? (
+                      <Link href={link.href} className="text-theme-parchment/80 hover:text-theme-accent transition-colors">
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <button onClick={() => link.action === 'FEEDBACK_MODAL' && openModal(MODALS.FEEDBACK)} className="text-theme-parchment/80 hover:text-theme-accent cursor-pointer transition-colors text-left w-full">
+                        {link.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

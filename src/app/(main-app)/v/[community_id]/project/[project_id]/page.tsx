@@ -21,10 +21,21 @@ import { ROUTES } from '@/lib/routes';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TexturedCard } from '@/components/ui/textured-card';
+import { MemberGuard } from '@/contexts/member-guard';
 
 type Tab = 'overview' | 'contributors' | 'tasks' | 'artifacts' | 'discussions' | 'references' | 'deadlines';
 
+
 export default function ProjectWorkspacePage() {
+  return (
+    <MemberGuard>
+      <ProjectWorkspaceContent />
+    </MemberGuard>
+  )
+}
+
+
+function ProjectWorkspaceContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const projectId = params.project_id as string;
@@ -67,7 +78,7 @@ export default function ProjectWorkspacePage() {
       {/* Header / Hero */}
       <header className="px-6 md:px-12 lg:px-24 py-12 bg-theme-surface-low border-b border-theme-outline/20">
         <div className="max-w-6xl mx-auto">
-          <Button asChild variant="link" size="sm" className="pl-0 text-theme-on-surface/60 hover:text-theme-forest font-sans uppercase tracking-widest text-[10px] font-bold mb-4">
+          <Button asChild variant="link" size="none">
             <Link href={ROUTES.VILLAGE.PROJECTS(communityId)}>
               <ChevronLeftIcon size={14} className="mr-1" />
               Back to Projects

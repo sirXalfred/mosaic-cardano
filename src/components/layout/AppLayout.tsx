@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import AppSidebar from './AppSidebar';
 import { cn } from '@/lib/utils';
 import { TopAppBarWrapper } from './TopAppBar';
+import { SidebarProvider } from '@/contexts/sidebar-context';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -26,17 +27,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!mounted) return <div className="min-h-screen bg-theme-surface" />;
 
   return (
-    <div className="h-screen flex flex-col bg-theme-surface text-theme-forest font-sans overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuC9QuQNM5A8ulD-usGL7WPxprHWmeC1zp2nhD8CF6pluhdSTFuGFuDybp4W_4FJrvqFXLHILme-ekFljqjyy1t27hqsnYO2PUlSGsXUH1BfWcy0l0MKNAy2jiO3HvfNGyioojpRvp8bVSINIT5kfC9L4YKawElG2iVn_euP7Vj-dA-gIgOS9mvtepudjtKzCEPea5dqpIe5HBeRa1_s6b3zisR-w8wf7EZ1vl74rUcdHioIx5gkTk5zqs3kBht290neCZWMfeVva1U)' }} />
+    <SidebarProvider>
+      <div className="h-screen flex flex-col bg-theme-surface text-theme-forest font-sans overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuC9QuQNM5A8ulD-usGL7WPxprHWmeC1zp2nhD8CF6pluhdSTFuGFuDybp4W_4FJrvqFXLHILme-ekFljqjyy1t27hqsnYO2PUlSGsXUH1BfWcy0l0MKNAy2jiO3HvfNGyioojpRvp8bVSINIT5kfC9L4YKawElG2iVn_euP7Vj-dA-gIgOS9mvtepudjtKzCEPea5dqpIe5HBeRa1_s6b3zisR-w8wf7EZ1vl74rUcdHioIx5gkTk5zqs3kBht290neCZWMfeVva1U)' }} />
 
-      <div className='size-full flex overflow-y-hidden'>
-        <AppSidebar />
-        <main className={cn("flex-1 flex flex-col transition-all duration-300 overflow-y-auto w-full", isCollapsed ? "ml-20" : "ml-64")}>
-          <TopAppBarWrapper>
-            {children}
-          </TopAppBarWrapper>
-        </main>
+        <div className='size-full flex overflow-y-hidden'>
+          <AppSidebar />
+          <main className={cn("flex-1 flex flex-col transition-all duration-300 overflow-y-auto w-full ml-0", isCollapsed ? "md:ml-20" : "md:ml-64")}>
+            <TopAppBarWrapper>
+              {children}
+            </TopAppBarWrapper>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

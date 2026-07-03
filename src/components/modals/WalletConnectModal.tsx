@@ -2,10 +2,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { useWalletList, useWallet } from '@meshsdk/react';
+import { useWalletList, useWallet, useAddress } from '@meshsdk/react';
 import Image from 'next/image';
+import { truncateWalletAddress } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { CloseButton } from '../ui/close-button';
+import { InteractiveCopy } from '../ui/interactive-copy';
 
 interface WalletConnectModalProps {
   onClose: () => void;
@@ -14,6 +16,7 @@ interface WalletConnectModalProps {
 export default function WalletConnectModal({ onClose }: WalletConnectModalProps) {
   const wallets = useWalletList();
   const { connect, connected, connecting, name, disconnect, error, wallet } = useWallet();
+  const address = useAddress();
   const [networkWarning, setNetworkWarning] = useState(false);
   const justConnected = useRef(false);
 
@@ -65,8 +68,18 @@ export default function WalletConnectModal({ onClose }: WalletConnectModalProps)
       <div className="bg-theme-surface w-full max-w-md rounded-3xl p-6 shadow-2xl border border-theme-outline/20 relative animate-in zoom-in-95 duration-200">
         <CloseButton onClick={onClose} />
 
-        <h2 className="text-2xl font-serif text-theme-forest mb-2">Connect Wallet</h2>
-        <p className="text-sm text-theme-on-surface/60 mb-6">Select your preferred Cardano wallet provider to continue.</p>
+        <h2 className="text-2xl font-serif text-theme-forest mb-2">
+          {
+            connected ? 'Connected Wallet' : 'Connect Wallet'
+          }
+        </h2>
+        {
+          connected ? (
+            <p className="text-sm text-theme-on-surface/60 mb-6">Your wallet is connected.</p>
+          ) : (
+            <p className="text-sm text-theme-on-surface/60 mb-6">Select your preferred Cardano wallet provider to continue.</p>
+          )
+        }
 
         {networkWarning && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
@@ -119,7 +132,13 @@ export default function WalletConnectModal({ onClose }: WalletConnectModalProps)
         </div>
 
         {connected && 
-        <div className="flex w-full mt-6">
+        <div className="flex flex-col w-full mt-6 gap-3">
+          {address && (
+            <div className="bg-theme-surface-high border border-theme-outline/20 p-3 rounded-xl flex flex-col items-center justify-center gap-1">
+              <span className="text-xs text-theme-on-surface/50 uppercase tracking-widest font-bold">Connected Address</span>
+              <span className="font-mono text-sm text-theme-forest">{truncateWalletAddress(address, 8) } <InteractiveCopy textToCopy={address} /></span>
+            </div>
+          )}
           <Button
             variant="destructive"
             onClick={handleDisconnect}

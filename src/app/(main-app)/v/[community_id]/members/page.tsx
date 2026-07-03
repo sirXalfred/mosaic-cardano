@@ -9,9 +9,18 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { Button } from '@/components/ui/button';
+import { MemberGuard } from '@/contexts/member-guard';
 
 
 export default function VillageMembersPage() {
+  return (
+    <MemberGuard>
+      <VillageMembersPageContent />
+    </MemberGuard>
+  )
+}
+
+function VillageMembersPageContent() {
   const params = useParams();
   const communityId = params.community_id as string;
 

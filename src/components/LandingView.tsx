@@ -6,6 +6,8 @@ import Link from 'next/link';
 import MosaicBrand from './ui/icons/MosaicBrand';
 import { MOSAIC_EASE } from '../lib/data';
 import Footer from './layout/Footer';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
 
 // Extracted Components
 import { HeroSection } from './landing/HeroSection';
@@ -15,8 +17,10 @@ import { LivingLibrarySection } from './landing/LivingLibrarySection';
 import { TrustSection } from './landing/TrustSection';
 import { CTASection } from './landing/CTASection';
 import { PricingSection } from './landing/PricingSection';
+import { Button } from './ui/button';
 
 export default function LandingView() {
+  const { openModal } = useModals();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -41,9 +45,14 @@ export default function LandingView() {
           <div className="flex items-center gap-3">
             <MosaicBrand size="medium" />
           </div>
-          <Link href="/auth" className="font-sans text-xs uppercase tracking-widest font-bold text-theme-accent hover:text-theme-forest transition-colors">
-            Sign In
-          </Link>
+          <div className="flex items-center gap-6">
+            <Button variant="link" onClick={() => openModal(MODALS.FEEDBACK)} className="text-theme-forest/60 hover:text-theme-forest">
+              SUPPORT & FEEDBACK
+            </Button>
+            <Link href="/auth" className="font-sans text-xs uppercase tracking-widest font-bold text-theme-accent hover:text-theme-forest transition-colors">
+              Sign In
+            </Link>
+          </div>
         </div>
       </nav>
 

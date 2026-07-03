@@ -3,7 +3,8 @@ import { ShieldCheckIcon, CalendarDaysIcon, Edit2Icon } from 'lucide-react';
 import { type UserProfile } from '@/services/users';
 import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
-
+import { truncateWalletAddress } from '@/lib/utils';
+import { InteractiveCopy } from '@/components/ui/interactive-copy';
 export const ProfileHeader = ({ profile, isLoading }: { profile?: UserProfile, isLoading: boolean }) => {
   const { userId } = useAuth();
 
@@ -57,8 +58,9 @@ export const ProfileHeader = ({ profile, isLoading }: { profile?: UserProfile, i
             <span className="font-bold">{profile.handle}</span>
             <span className="flex items-center gap-1"><CalendarDaysIcon size={14} /> Joined {profile.joinedDate}</span>
             {profile.walletAddress && (
-              <span className="px-2 py-0.5 rounded bg-theme-surface-high border border-theme-outline/20 font-mono text-xs uppercase tracking-widest">
-                {profile.walletAddress}
+              <span className="px-2 py-0.5 rounded bg-theme-surface-high border border-theme-outline/20 font-mono text-xs uppercase tracking-widest flex items-center gap-2">
+                {truncateWalletAddress(profile.walletAddress)}
+                <InteractiveCopy textToCopy={profile.walletAddress} />
               </span>
             )}
           </div>

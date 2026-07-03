@@ -5,9 +5,9 @@
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║      M  O  S  A  I  C                                           ║
+║      M  O  S  A  I  C                                            ║
 ║                                                                  ║
-║      Every community. Every passion. One home.                  ║
+║      Every community. Every passion. One home.                   ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
@@ -17,7 +17,7 @@
 [![Build Status](https://img.shields.io/badge/status-building%20in%20public-blueviolet?style=for-the-badge&logo=github)](https://github.com/sirXalfred/mosaic-cardano)
 [![Hackathon](https://img.shields.io/badge/Gimbalabs-Piece%20of%20Pie%202026-orange?style=for-the-badge)](https://www.gimbalabs.com/piece-of-pie)
 [![Built on](https://img.shields.io/badge/Built%20on-Cardano-0033AD?style=for-the-badge&logo=cardano)](https://cardano.org)
-[![Week](https://img.shields.io/badge/Week-2%20of%2012-yellow?style=for-the-badge)](#roadmap)
+[![Week](https://img.shields.io/badge/Week-7%20of%2012-yellow?style=for-the-badge)](#roadmap)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -27,7 +27,7 @@
 
 <br/>
 
-[✦ The Story](#-the-story) · [✦ The Problem](#-the-problem) · [✦ Who This Is For](#-who-this-is-for) · [✦ What Mosaic Does](#-what-mosaic-does) · [✦ The Roadmap](#-the-roadmap) · [✦ Follow Along](#-follow-along)
+[✦ The Story](#-the-story) · [✦ The Problem](#-the-problem) · [✦ Who This Is For](#-who-this-is-for) · [✦ What Mosaic Does](#-what-mosaic-does) · [✦ Technical Breakdown](docs.md) · [✦ The Roadmap](#-the-roadmap) · [✦ Follow Along](#-follow-along)
 
 </div>
 
@@ -91,11 +91,8 @@ Here is what they told us, in their own words:
 > *"I contribute to the newsletter every month. One person earns. The rest of us just... contribute."*
 > — Writer
 
-> *"I've been documenting trails in this region for five years. That knowledge belongs to no one and lives nowhere."*
-> — Trail documenter
-
 > *"We are eight musicians. We split revenue over bank transfers. Someone always feels they didn't get their fair share."*
-> — Music collective founder
+> — Music band founder
 
 <br/>
 
@@ -119,31 +116,19 @@ These are not edge cases. These are the default conditions for creative and comm
 
 ## ✦ Who This Is For
 
-Mosaic is not for a niche. It is for the enormous, underserved universe of people who love something together.
+Mosaic serves any group of people working together toward a shared passion:
 
-Our preliminary thinking on who this serves — and we expect this to evolve as we talk to more people:
+### 🎭 Creative Collectives
+Writers, poets, musicians, designers, filmmakers, and publishing collectives.
 
-<br/>
+### 🥾 Explorer Groups
+Hikers, urban explorers, nature documenters, and conservation groups.
 
-### 🎭 Creative communities
-Writers · Poets · Spoken word artists · Book clubs · Musicians · Composers · Producers · Painters · Illustrators · Photographers · Filmmakers · Animators · Dancers · Designers · Architects · Craft makers · Literary journals · Publishing collectives
+### 🌍 Cultural Communities
+Study groups, debate societies, diaspora communities, and oral historians.
 
-### 🥾 Explorer communities
-Hikers · Trail runners · Urban explorers · Cyclists · Nature documenters · Birdwatchers · Heritage walkers · Citizen scientists · Foragers · Conservation groups
-
-### 🌍 Communities of interest and culture
-Philosophy circles · Study groups · Language learners · Debate societies · Cooking clubs · Food writers · Cultural preservation groups · Diaspora communities · Oral historians · Language keepers
-
-### 🏗️ Making and building communities
-Hardware makers · 3D printing groups · Woodworkers · DIY communities · Craft circles · Game groups
-
-<br/>
-
-> The common thread is not the category. It is the structure: **people who share a passion and want somewhere to build something together.**
-
-<br/>
-
-**Our primary market is Africa** — and within that, Nigeria first. Not because we are limiting ourselves, but because we are starting where the need is greatest, where we are closest to the people we are building for, and where an underserved creative ecosystem is growing faster than anywhere else. From there, we build outward.
+### 🏗️ Makers and Builders
+Hardware makers, open-source developers, and craft circles.
 
 <br/>
 
@@ -160,28 +145,20 @@ Hardware makers · 3D printing groups · Woodworkers · DIY communities · Craft
 ### 🏡 The Village — Community Home
 Every community on Mosaic gets a unified, permanent home. Not a chat room. Not a folder of documents. A real workspace where everything lives together: collaborative work, community discussions, events, operational records, history, and governance. The community owns what it builds. Nothing gets lost when someone changes their phone or a platform shuts down.
 
-### ✍️ The Studio — Create Together
-Communities create things together and publish them — newsletters, collaborative articles, story chapters, anthologies, research summaries, playlists, field journals, recipe collections. Multiple contributors, all attributed, all earning from what they build collectively. We are also building a space for the *process* — the messy drafts, the iterations, the making — because in the age of AI, showing how something was made is becoming as valuable as the thing itself.
+### ✍️ The Studio
+A real-time collaborative space where members can draft, review, and publish shared work (articles, anthologies, research, etc.). All contributors are tracked and attributed.
 
-### 🏆 Challenges
-Communities run challenges together. A writing circle does 30 poems in 30 days. A hiking group completes all seven trails in a national park. A food community cooks through a regional cuisine. Challenges have deadlines, submissions, community validation, and completion badges. They keep communities alive and progressing between publication cycles.
+### 🏆 Community Challenges
+Organizers can run challenges (e.g., 30 poems in 30 days) with deadlines, submissions, and completion badges to keep engagement high.
 
-### 💰 Bounties
-Communities post funded tasks — open to members or the public — with ADA rewards from their treasury. Skill gaps get filled. Specific work gets done. The community decides what it needs, funds it from its own treasury, and recognises the person who delivers it.
+### 💰 Bounties & Tasks
+Communities can post funded tasks using their shared treasury. Members can claim and complete tasks to earn rewards directly to their Cardano wallets.
 
-### 📡 The Explore Page and Activity Feed
-Communities have a public-facing presence. Audiences can discover communities on an Explore page, follow without joining, subscribe in ADA, and engage with community activity through a chronological feed. Not algorithm-ranked. Not engagement-optimised. A genuine public record of what communities are doing and creating.
-
-### 🔗 Cross-posting
-When a community finishes a collaborative work and publishes it, it appears on Mosaic and simultaneously posts to connected external channels — Substack, Medium, X, LinkedIn, email lists. The work travels. The attribution travels with it. The IP and fair-pay infrastructure stays on Mosaic.
-
-### 📊 Multi-Value Signals
-Financial income is one signal. But a poetry circle that changes members' lives, a hiking group that documents vanishing trails, or a book club that builds genuine human connection — these generate real value that a single number never captures. Mosaic surfaces four value signals for every community: creative capital, social capital, cultural capital, and ecological capital. Because communities are worth more than their follower count.
+### 🔗 Verifiable Attribution
+When a community finishes collaborative work, Mosaic ensures transparent attribution for every member involved. 
 
 ### ⛓️ Built on Cardano
-The economic infrastructure — community treasuries, proportional revenue splitting, Proof of Activity badges, on-chain copyright registration — is built on Cardano. Not because blockchain is interesting, but because it solves specific problems that no other infrastructure solves: trustless multi-contributor revenue distribution, verifiable proof of creative participation, and immutable proof of original authorship.
-
-*The blockchain is the pipes. The community is the water.*
+We leverage Cardano for trustless revenue distribution, verifiable proof of creative participation, and immutable proof of authorship. We use MeshSDK to seamlessly connect wallets and handle transactions, ensuring the blockchain works quietly in the background.
 
 <br/>
 
@@ -200,19 +177,16 @@ Audience/supporters
       │
       │ subscribe in ADA
       ▼
-Community Treasury (Cardano smart contract)
+Community Treasury (Cardano integration)
       │
-      ├─── 10% → Protected Creator Pool
-      │          (reserved for new and emerging members)
+      ├─── 10% → Protected Creator Pool (reserved for new/emerging members)
       │
-      ├─── 85% → Contributors
-      │          (split proportionally by verified contribution)
+      ├─── 85% → Contributors (split proportionally by verified contribution)
       │
       └─── 5%  → Mosaic platform fee
 ```
 
-Every contributor earns. Not the one who owns the account. Everyone who showed up, created something, and can prove it. The Cardano smart contract handles the distribution automatically — no manual splitting, no trust required, no one getting left out.
-
+This ensures everyone who contributes receives their fair share, managed securely via Cardano's robust infrastructure.
 The 10% protected pool is something we feel strongly about. New communities need space for new voices. Established members should not capture all the value just because they have more badges. A percentage of every treasury is reserved for the people who are just beginning.
 
 *These numbers are not final. We will adjust based on what communities actually need.*
@@ -235,7 +209,7 @@ Mosaic uses Cardano as its financial and IP infrastructure layer. This means:
 
 The rest of the platform is a web application — fast, mobile-first, and designed to work on mid-range devices with 4G connections, because most of our users are in Africa.
 
-*Technical architecture, stack, and implementation details live in [`/docs`](./docs) — maintained by our technical lead.*
+*Technical architecture, stack, and implementation details live in [`docs.md`](./docs.md) — maintained by our technical lead.*
 
 <br/>
 
@@ -277,7 +251,7 @@ We think it is important to be honest about what we know, what we are assuming, 
 
 ## ✦ The Roadmap
 
-*We are currently in Week 2 of 12 for the Gimbalabs Piece of Pie Hackathon. This roadmap reflects our plan at this moment — it will change, and we will document those changes here.*
+*We are currently in Week 7 of 12 for the Gimbalabs Piece of Pie Hackathon. This roadmap reflects our plan at this moment — it will change, and we will document those changes here.*
 
 <br/>
 
@@ -287,37 +261,37 @@ WEEK 1  ████████████████████  ✓ DONE
         └── Project registered · Repo created · Team aligned
             PRD written · Vision finalised · Week 1 tweet posted
 
-WEEK 2  ████████████████████  ◉ NOW
+WEEK 2  ████████████████████  ✓ DONE
         Ideation & Design Principles
         └── Finalising design philosophy · README updated
             Design principles being agreed · Team discussions ongoing
 
-WEEK 3  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 3  ████████████████████  ✓ DONE
         Design Begins
         └── Wireframes for all key screens
             User interviews with 2 community founders
             Design system foundations
 
-WEEK 4  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 4  ████████████████████  ✓ DONE
         Design Complete + Development Starts
         └── Hi-fi designs complete
             Frontend scaffolding begins
             First design handoff to engineering
 
-WEEK 5  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 5  ████████████████████  ✓ DONE
         Frontend Build
         └── Community workspace
             Creative studio (editor)
             Cardano wallet connect
 
-WEEK 6  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
+WEEK 6  ████████████░░░░░░░░  NOW
         Backend Build
         └── Cardano smart contracts (testnet)
             Badge minting flow
             ADA subscription and payout logic
 
 WEEK 7  ░░░░░░░░░░░░░░░░░░░░  UPCOMING
-        Beta Testing
+          Beta Testing
         └── First real community onboarded
             Bug fixing and friction removal
             Pilot community feedback collected
@@ -413,7 +387,7 @@ This is a public build. Everything we are doing, we are doing in the open.
 | Where | What you'll find |
 |---|---|
 | **This README** | The story, the vision, and the roadmap — updated weekly |
-| **[/docs](./docs)** | Technical documentation, architecture decisions, and engineering notes |
+| **[docs.md](./docs.md)** | Technical documentation, architecture decisions, and engineering notes |
 | **[Issues](https://github.com/sirXalfred/mosaic-cardano/issues)** | Feature discussions, bugs, and open questions |
 | **[X / Twitter](https://x.com/DavidTimi_1)** | Weekly build updates — every Sunday |
 | **[Gimbalabs Discord](https://discord.gg/jJcwaqJHPV)** | Hackathon community, feedback, and conversation |
@@ -474,10 +448,9 @@ We are not open for external code contributions yet — we are too early in the 
 
 [![GitHub](https://img.shields.io/badge/github-sirXalfred%2Fmosaic--cardano-black?style=flat-square&logo=github)](https://github.com/sirXalfred/mosaic-cardano)
 [![Cardano](https://img.shields.io/badge/cardano-mainnet-0033AD?style=flat-square)](https://cardano.org)
-[![Status](https://img.shields.io/badge/status-week%202%20of%2012-blueviolet?style=flat-square)](#roadmap)
 
 <br/>
 
-*Last updated: Week 2 · May 2026*
+*Last updated: Week 7 · June 2026*
 
 </div>

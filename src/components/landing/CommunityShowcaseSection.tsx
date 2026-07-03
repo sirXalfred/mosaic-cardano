@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Users } from 'lucide-react';
+import Image from 'next/image';
 import { TexturedCard } from '../ui/textured-card';
 import { useGetFeaturedVillages } from '@/services/villages';
 
@@ -28,7 +29,7 @@ export const CommunityShowcaseSection = ({ itemVariants, containerVariants }: { 
               ))}
             </>
           ) : (
-            featuredVillages?.map((village, i) => (
+            featuredVillages?.slice(0, 3).map((village, i) => (
               <motion.div key={village.id} variants={itemVariants} className="group cursor-pointer h-full">
                 <TexturedCard 
                   patternId={((i % 5) + 1) as 1 | 2 | 3 | 4 | 5} 
@@ -37,7 +38,15 @@ export const CommunityShowcaseSection = ({ itemVariants, containerVariants }: { 
                   className="bg-theme-surface-high p-10 rounded-2xl border border-theme-outline/20 hover:border-theme-clay/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl h-full flex flex-col justify-between"
                 >
                   <div>
-                    <div className="text-4xl mb-8 group-hover:scale-110 transition-transform duration-500 origin-left">{village.icon}</div>
+                    <div className="w-16 h-16 mb-6 rounded-2xl overflow-hidden relative border border-theme-outline/20 group-hover:scale-110 transition-transform duration-500 origin-left">
+                      <Image 
+                        src={village.profileImageUrl || '/assets/images/village-placeholder.png'} 
+                        alt={village.name} 
+                        fill 
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
                     <h3 className="font-serif text-2xl mb-4 group-hover:text-theme-clay transition-colors">{village.name}</h3>
                     <p className="font-sans text-sm text-theme-on-surface/70 leading-relaxed">{village.desc}</p>
                   </div>

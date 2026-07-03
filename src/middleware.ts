@@ -16,14 +16,24 @@ NO_FORCED_REDIRECT = [
   ...NO_FORCED_REDIRECT
 ]
 
+const NO_FORCED_REDIRECT_PREFIXES = [
+  '/invite/',
+  '/post/',
+  '/u/',
+  '/v/',
+];
+
 
 export function middleware(req: NextRequest) {
   const isLoggingOut = req.cookies.has('mosaic_logging_out');
   const token = isLoggingOut ? undefined : req.cookies.get(SESSION_COOKIE_NAME)?.value;
   
-  const isAuthPage = req.nextUrl.pathname.startsWith(ROUTES.AUTH);
+  const pathname = req.nextUrl.pathname;
+  const isAuthPage = pathname.startsWith(ROUTES.AUTH);
 
-  const noRedirect = NO_FORCED_REDIRECT.some((route) => req.nextUrl.pathname === route);
+  const noRedirectExact = NO_FORCED_REDIRECT.some((route) => pathname === route);
+  const noRedirectPrefix = NO_FORCED_REDIRECT_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const noRedirect = noRedirectExact || noRedirectPrefix;
 
   if (!noRedirect) {
     if (!token && !isAuthPage) {

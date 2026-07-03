@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangleIcon, RotateCcw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/lib/routes';
 
 export type PageErrorProps = {
   title?: string;
@@ -49,7 +50,7 @@ export function PageError({
             </Button>
           )}
           {showHomeButton && (
-            <Button onClick={() => router.push('/')} variant="outline" className="rounded-full px-8 py-5 w-full sm:w-auto bg-transparent border-theme-outline/20">
+            <Button onClick={() => router.push(ROUTES.HOME)} variant="outline" className="rounded-full px-8 py-5 w-full sm:w-auto bg-transparent border-theme-outline/20">
               <Home size={18} className="mr-2" />
               Return Home
             </Button>

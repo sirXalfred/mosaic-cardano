@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useSearchParams, usePathname, useRouter } from 'next/navigation';
 import {
   ChevronRightIcon,
@@ -68,8 +69,20 @@ export default function CommunityPublicProfile() {
             </div>
           ) : (
             <>
-              <div className="w-24 h-24 mx-auto rounded-xl bg-theme-clay flex items-center justify-center font-serif text-4xl text-theme-parchment shadow-2xl mb-8 transform rotate-3">
-                {villageDetails?.name ? villageDetails.name.charAt(0).toUpperCase() : 'S'}
+              <div className="w-24 h-24 mx-auto rounded-xl flex items-center justify-center font-serif text-4xl text-theme-parchment shadow-2xl mb-8 transform rotate-3 overflow-hidden bg-theme-surface-high border border-theme-outline/20 relative">
+                {villageDetails?.profileImageUrl ? (
+                <Image
+                    src={villageDetails.profileImageUrl} 
+                    alt={villageDetails.name || 'Village'} 
+                    fill 
+                    className="object-cover" 
+                    unoptimized 
+                  />
+                ) : (
+                  <div className="w-full h-full bg-theme-clay flex items-center justify-center">
+                    {villageDetails?.name ? villageDetails.name.charAt(0).toUpperCase() : 'S'}
+                  </div>
+                )}
               </div>
               <h1 className="font-serif text-5xl md:text-7xl font-medium tracking-tight capitalize">
                 {villageDetails?.name || communityId.replace(/-/g, ' ')}

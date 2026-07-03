@@ -5,7 +5,7 @@ export type ExploreCard = {
   id: string;
   name: string;
   description?: string;
-  image?: string | null;
+  profileImageUrl?: string | null;
   members?: number;
   link: string;
   communityId: string;
@@ -91,7 +91,7 @@ export const exploreService = {
         id: community.id,
         name: community.name ?? community.id,
         description: community.description ?? '',
-        image: community.avatarUrl ?? null,
+        profileImageUrl: community.profileImageUrl ?? null,
         members: typeof row.memberCount === 'number' ? row.memberCount : undefined,
         link: ROUTES.VILLAGE.HOME(community.id as string),
         communityId: community.id,
@@ -129,7 +129,7 @@ export const exploreService = {
       id: community.id,
       name: community.name ?? community.id,
       description: community.description ?? '',
-      image: community.avatarUrl ?? null,
+      profileImageUrl: community.profileImageUrl ?? null,
       members: typeof community.memberCount === 'number' ? community.memberCount : undefined,
       link: ROUTES.VILLAGE.HOME(community.id as string),
       communityId: community.id,

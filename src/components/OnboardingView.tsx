@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { getAIOnboardingInsights, useSetOnboardingInfo } from '@/services/onboarding';
 import { useGetCommunitiesForTopics, useGetPopularCommunities } from '@/services/communities';
 import type { CommunityNode } from '@/types/schemas';
+import { ROUTES } from '@/lib/routes';
 
 export default function OnboardingView() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function OnboardingView() {
         communities: joined,
       });
 
-      router.push('/explore');
+      router.push(ROUTES.EXPLORE);
     } catch (err) {
       console.error('Onboarding failed', err);
     }
@@ -80,7 +81,7 @@ export default function OnboardingView() {
         communities: joined,
       });
 
-      router.push('/new');
+      router.push(ROUTES.NEW_COMMUNITY);
     } catch (err) {
       console.error('Onboarding failed', err);
     }
