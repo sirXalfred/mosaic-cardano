@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 
 export const useSubmitFeedback = () => {
   return useMutation({
-    mutationFn: async ({ type, message }: { type: string; message: string }) => {
+    mutationFn: async ({ type, message, name, email }: { type: string; message: string; name?: string; email?: string }) => {
       const res = await fetchAPI('/api/feedback', {
         method: 'POST',
-        data: { type, message }
+        data: { type, message, name, email }
       });
       return res;
     },

@@ -6,6 +6,7 @@ import { useSubmitFeedback } from '@/services/feedback';
 import { Loader2, MessageSquare, Wallet, ArrowLeft } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { InteractiveCopy } from '../ui/interactive-copy';
+import { Button } from '../ui/button';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -16,6 +17,9 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [view, setView] = useState<'feedback' | 'support'>('feedback');
   const [type, setType] = useState('General');
   const [message, setMessage] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   
   const { mutateAsync: submitFeedback, isPending } = useSubmitFeedback();
 
@@ -28,8 +32,15 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     if (!message) return;
 
     try {
-      await submitFeedback({ type, message });
+      await submitFeedback({ 
+        type, 
+        message,
+        name: isAnonymous ? undefined : name,
+        email: isAnonymous ? undefined : email
+      });
       setMessage('');
+      setName('');
+      setEmail('');
       onClose();
     } catch (error) {
       console.error("Feedback submission failed", error);
@@ -43,23 +54,27 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-theme-forest/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-theme-parchment w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-parchment/40 backdrop-blur-sm">
+      
+  
+      <div className="relative bg-theme-parchment w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         
+          <CloseButton disabled={isPending} onClick={handleClose} />
+
         <div className="px-6 py-4 border-b border-theme-outline/20 flex justify-between items-center bg-theme-surface-low">
           {view === 'support' ? (
-            <button 
+            <Button 
+              variant="link"
+              size="none"
               onClick={() => setView('feedback')}
-              className="flex items-center gap-2 text-theme-forest hover:text-theme-accent transition-colors font-serif text-lg font-medium"
             >
               <ArrowLeft size={18} /> Support Project
-            </button>
+            </Button>
           ) : (
             <h2 className="font-serif text-xl font-medium text-theme-forest flex items-center gap-2">
               <MessageSquare size={18} /> Support & Feedback
             </h2>
           )}
-          <CloseButton disabled={isPending} onClick={handleClose} />
         </div>
 
         {view === 'feedback' ? (
@@ -80,6 +95,50 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </select>
             </div>
 
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="anonymous"
+                checked={isAnonymous}
+                onChange={(e) => setIsAnonymous(e.target.checked)}
+                className="w-4 h-4 accent-theme-accent cursor-pointer"
+              />
+              <label htmlFor="anonymous" className="text-xs font-bold uppercase tracking-widest text-theme-forest cursor-pointer select-none">
+                Stay anonymous
+              </label>
+            </div>
+
+            {!isAnonymous && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-theme-forest">
+                    Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={isPending}
+                    className="w-full bg-white border border-theme-outline/20 rounded-xl px-4 py-3 text-sm text-theme-forest focus:outline-none focus:ring-2 focus:ring-theme-accent/50 transition-all placeholder:text-theme-on-surface/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-theme-forest">
+                    Email (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isPending}
+                    className="w-full bg-white border border-theme-outline/20 rounded-xl px-4 py-3 text-sm text-theme-forest focus:outline-none focus:ring-2 focus:ring-theme-accent/50 transition-all placeholder:text-theme-on-surface/30"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-theme-forest">
                 Message
@@ -95,22 +154,20 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             </div>
 
             <div className="pt-4 flex justify-between items-center border-t border-theme-outline/10">
-              <button
-                type="button"
+              <Button
+                variant="link"
+                size="none"
                 onClick={() => setView('support')}
-                className="text-xs font-bold text-theme-accent hover:text-theme-forest transition-colors flex items-center gap-1.5"
               >
                 <Wallet size={14} /> Or support this project
-              </button>
+              </Button>
 
-              <button
-                type="submit"
+              <Button
                 disabled={isPending || !message}
-                className="bg-theme-forest text-theme-parchment px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {isPending && <Loader2 size={14} className="animate-spin" />}
                 {isPending ? 'Sending...' : 'Send Feedback'}
-              </button>
+              </Button>
             </div>
           </form>
         ) : (
