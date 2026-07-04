@@ -12,7 +12,6 @@ import { useGetExploreItem } from '@/services/explore';
 import {
   useGetVillageDetails,
   useGetVillageFeaturedWorks,
-  useGetVillageTreasuryAllocations,
   useGetVillageMembers
 } from '@/services/villages';
 import { ROUTES } from '@/lib/routes';
@@ -36,7 +35,6 @@ export default function CommunityPublicProfile() {
   // Load village profile data using React Query hooks
   const { data: villageDetails, isError: isVillageError, is404Error: isVillage404Error, error: villageError, isLoading: isLoadingDetails } = useGetVillageDetails(communityId);
   const { data: featuredWorks, isLoading: isLoadingWorks } = useGetVillageFeaturedWorks(communityId);
-  const { data: treasuryAllocations, isLoading: isLoadingTreasury } = useGetVillageTreasuryAllocations(communityId);
   const { data: members, isLoading: isLoadingMembers } = useGetVillageMembers(communityId);
 
   // Function to dismiss the modal overlay
@@ -111,16 +109,8 @@ export default function CommunityPublicProfile() {
       {/* Main Content Grid */}
       <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-20 grid grid-cols-1 md:grid-cols-12 gap-16">
 
-        {/* Left Column: Mission & Works */}
-        <div className="md:col-span-8 space-y-20">
-          <div>
-            <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent mb-4 font-bold">The Mission</h3>
-            <p className="font-serif text-2xl md:text-3xl leading-normal text-theme-on-surface">
-              We are a decentralized collective of linguists, historians, and technologists. Our mandate is to weave fragmented local memoirs, ancient lineage guides, and ecological mappings into an immutable, accessible digital tapestry.
-            </p>
-          </div>
-
-          <div>
+        {/* Left Column: Works */}
+        <div className="md:col-span-8">
             <div className="flex items-center justify-between border-b border-theme-outline/20 pb-4 mb-8">
               <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent font-bold">Featured Works</h3>
 
@@ -174,42 +164,10 @@ export default function CommunityPublicProfile() {
                 )}
               </div>
             )}
-          </div>
         </div>
 
-        {/* Right Column: Transparency & Stats */}
+        {/* Right Column: Stats */}
         <div className="md:col-span-4 space-y-12">
-          {isLoadingTreasury ? (
-            <div className="bg-theme-surface-high p-8 rounded-2xl border border-theme-outline/20 shadow-lg animate-pulse h-48"></div>
-          ) : (
-            <div className="bg-theme-surface-high p-8 rounded-2xl border border-theme-outline/20 shadow-lg">
-              <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent mb-6 font-bold">Treasury Transparency</h3>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm text-theme-on-surface/60 mb-1">Communal Funds</p>
-                  <p className="font-mono text-3xl text-theme-forest">
-                    {treasuryAllocations?.balance}
-                  </p>
-                </div>
-                <div className="h-px w-full bg-theme-outline/20"></div>
-                <div>
-                  <p className="text-sm text-theme-on-surface/60 mb-3">Recent Allocations</p>
-                  <div className="space-y-2 text-sm font-mono">
-                    {treasuryAllocations?.recentAllocations?.length === 0 ? (
-                      <div className="text-theme-on-surface/50 text-xs py-2 text-center border border-dashed border-theme-outline/20 rounded-lg">No recent allocations.</div>
-                    ) : (
-                      treasuryAllocations?.recentAllocations?.map((alloc: { label: string; amount: string }, i: number) => (
-                        <div key={i} className="flex justify-between">
-                          <span>{alloc.label}</span>
-                          <span className="text-theme-clay">{alloc.amount}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {isLoadingMembers ? (
             <div className="animate-pulse space-y-4">

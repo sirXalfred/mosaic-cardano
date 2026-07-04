@@ -689,15 +689,17 @@ export const MOCK_VILLAGE_DETAILS: Record<string, {
 export const MOCK_VILLAGE_PROJECTS = [
   {
     id: '1',
-    title: 'West African Oral History Archive',
-    description: 'A cumulative effort to digitize and preserve the oral lineages of the Niger River basin elders.',
+    title: 'Community Documentation',
+    description:
+      'Create a complete knowledge base covering governance, onboarding, workflows, and best practices.',
     progress: 74,
     contributors: 15,
   },
   {
     id: '2',
-    title: 'Poetry Translation Cycle',
-    description: 'Iterative translations of the \'Timbuktu Manuscripts\' poetry into modern French and English.',
+    title: 'Website Redesign',
+    description:
+      'Refresh the public website with a new landing page, documentation hub, and contributor showcase.',
     progress: 42,
     contributors: 7,
   },
@@ -706,42 +708,112 @@ export const MOCK_VILLAGE_PROJECTS = [
 export const MOCK_VILLAGE_STREAM = [
   {
     id: '1',
-    author: 'Amina Diallo',
-    topic: 'On Archive Ethics',
+    author: 'Sarah Kim',
+    topic: 'Contributor Onboarding',
     timeAgo: '2 hours ago',
-    content: 'I’ve been reflecting on the permissions for the Songhai genealogy records. Should we consider a gated tier for specific family lineages, or maintain the open common mandate?',
+    content:
+      'I\'ve finished the first draft of the onboarding guide. Could everyone review the "First Contribution" section before we publish it?',
     contributions: 8,
     lastUpdated: '12m ago',
   },
   {
     id: '2',
-    author: 'Kofi Mensah',
-    topic: 'Technical Mapping',
+    author: 'David Chen',
+    topic: 'API Documentation',
     timeAgo: '5 hours ago',
-    content: 'The metadata schema for the pottery shards is now live in the Studio. Please review the \'Spatial Anchors\' section before we finalize the commit.',
+    content:
+      'Authentication examples have been updated. Please verify the code samples before we merge them into the main documentation.',
     contributions: 3,
     lastUpdated: null,
   },
 ] as const;
 
 export const MOCK_VILLAGE_NEEDS = [
-  { id: '1', role: 'Yoruba Translator', project: 'Oral Histories' },
-  { id: '2', role: 'Archival Mentor', project: 'Village Onboarding' },
-  { id: '3', role: 'GIS Mapping Lead', project: 'Sacred Sites' },
+  {
+    id: '1',
+    role: 'Frontend Developer',
+    project: 'Website Redesign',
+  },
+  {
+    id: '2',
+    role: 'Technical Writer',
+    project: 'Documentation',
+  },
+  {
+    id: '3',
+    role: 'UI/UX Designer',
+    project: 'Design System',
+  },
 ] as const;
 
 export const MOCK_VILLAGE_TIMELINE = [
-  { id: '1', date: 'August, 2023', title: 'The Great Confluence', description: 'First gathering of Sahelian scribes in the digital settlement. 42 founding members established the ethical charter.', dotColor: 'bg-theme-accent' },
-  { id: '2', date: 'April, 2023', title: 'First Fragment Cataloged', description: 'The initial digital record of the Gao manuscripts was successfully archived.', dotColor: 'bg-theme-outline' },
-  { id: '3', date: 'December, 2022', title: 'Settlement Foundation', description: 'The architecture of \'The Scribes of the Sahel\' was carved into the Village Layer.', dotColor: 'bg-theme-outline' },
+  {
+    id: '1',
+    date: 'June 2026',
+    title: 'Community Created',
+    description:
+      'The community was launched with its founding members and governance rules.',
+    dotColor: 'bg-theme-accent',
+  },
+  {
+    id: '2',
+    date: 'July 2026',
+    title: 'First Project Completed',
+    description:
+      'The first collaborative documentation project reached 100% completion.',
+    dotColor: 'bg-theme-outline',
+  },
+  {
+    id: '3',
+    date: 'August 2026',
+    title: '100 Contributors',
+    description:
+      'The community welcomed its 100th contributor and published its first public knowledge base.',
+    dotColor: 'bg-theme-outline',
+  },
 ] as const;
 
 export const MOCK_FEATURED_ARTIFACTS = [
-  { id: '1', title: "The Griot's Echo", community: 'Scribes of the Sahel', type: 'Poetry', description: 'An epic poem transcribed collaboratively by 15 scholars over 3 months, translating ancient dialects into a unified digital volume.' },
-  { id: '2', title: 'Protocol Governance Draft v2', community: 'Syntactic Weavers', type: 'Technical', description: 'The foundational draft for the decentralized node architecture, outlining consensus rules and penalty slashing for bad actors.' },
-  { id: '3', title: 'On the Ethics of Archives', community: 'Neo-Classical Agora', type: 'Essay', description: 'A profound essay discussing the moral implications of digitizing artifacts that were originally meant to decay.' },
-  { id: '4', title: 'Sahara Topography Maps', community: 'Scribes of the Sahel', type: 'Visual', description: 'High-resolution geospatial data mapping the shifting dunes over the past two decades, crucial for historical preservation.' },
-  { id: '5', title: 'Zero-Knowledge Rollup Spec', community: 'Syntactic Weavers', type: 'Technical', description: 'A detailed mathematical specification outlining the ZK circuit constraints for scaling transactions without compromising privacy.' },
+  {
+    id: '1',
+    title: 'Community Constitution',
+    community: 'Open Builders',
+    type: 'Governance',
+    description:
+      'The living constitution that defines membership, voting rules, and decision-making processes for the community.',
+  },
+  {
+    id: '2',
+    title: 'Hackathon Playbook',
+    community: 'Campus Innovators',
+    type: 'Guide',
+    description:
+      'A collaboratively maintained handbook covering planning, judging criteria, sponsorship, and event logistics.',
+  },
+  {
+    id: '3',
+    title: 'Open Design System',
+    community: 'Pixel Collective',
+    type: 'Design',
+    description:
+      'Shared UI components, branding guidelines, and reusable assets contributed by designers across the community.',
+  },
+  {
+    id: '4',
+    title: 'Developer Knowledge Base',
+    community: 'Backend Guild',
+    type: 'Documentation',
+    description:
+      'Technical documentation, coding standards, onboarding guides, and architectural decisions maintained by contributors.',
+  },
+  {
+    id: '5',
+    title: 'Research Repository',
+    community: 'Green Energy Lab',
+    type: 'Research',
+    description:
+      'A collection of research notes, datasets, experiment results, and peer-reviewed findings with transparent contribution history.',
+  },
 ] as const;
 
 export const MOCK_VILLAGE_FEATURED_WORKS = [

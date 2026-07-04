@@ -95,7 +95,7 @@ export function PostCard({ post, communityId, autoExpandDepth = 0, focusedChildI
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Post by ${post.author.name} on Mosaic`,
+          title: `Piece by ${post.author.name} on Mosaic`,
           text: post.content,
           url: url
         });
@@ -201,7 +201,7 @@ export function PostCard({ post, communityId, autoExpandDepth = 0, focusedChildI
                   villageDetails?.role === 'ADMIN' ? "hover:bg-theme-outline/10 cursor-pointer" : "cursor-default",
                   post.isPinned ? "text-theme-forest" : "text-theme-on-surface/30 hover:text-theme-forest opacity-0 group-hover:opacity-100 focus:opacity-100"
                 )}
-                title={post.isPinned ? "Unpin Post" : "Pin Post"}
+                title={post.isPinned ? "Unpin Piece" : "Pin Piece"}
               >
                 <Pin size={16} className={cn(post.isPinned && "fill-current")} />
               </button>

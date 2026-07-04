@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: 'Mosaic',
     images: [
       {
-        url: '/banner-image.png',
+        url: '/assets/images/banner-image.png',
         width: 1200,
         height: 630,
         alt: 'Mosaic - Every community. Every passion. One home.',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mosaic',
     description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
-    images: ['/banner-image.png'],
+    images: ['/assets/images/banner-image.png'],
   },
 };
 
@@ -63,6 +63,96 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={cn("font-sans", figtree.variable)}>
       <body>
+        <div
+          id="global-loader"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: '#FFFBF5',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'opacity 0.5s ease-out',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+              color: '#8e4d30',
+            }}
+          >
+            <svg
+              viewBox="0 0 100 100"
+              width="72"
+              height="72"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 20H50V50H20V20Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                pathLength="1"
+                style={{
+                  strokeDasharray: 1,
+                  strokeDashoffset: 1,
+                  animation: 'draw 3s ease-in-out infinite',
+                }}
+              />
+
+              <path
+                d="M50 20H80V50H50V20Z"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+              />
+
+              <path
+                d="M20 50H50V80H20V50Z"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
+
+              <path
+                d="M50 50L80 80M80 50L50 80"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
+
+            <p>Loading...</p>
+          </div>
+
+          <style>{`
+    @keyframes draw {
+      from {
+        stroke-dashoffset: 1;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  `}</style>
+
+          <script dangerouslySetInnerHTML={{
+            __html: `
+            window.addEventListener('load', function() {
+              var loader = document.getElementById('global-loader');
+              if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(function() {
+                  loader.style.display = 'none';
+                }, 500);
+              }
+            });
+          `
+          }} />
+        </div>
+
         <QueryProvider>
           <AuthProvider>
             <ModalsProvider>
