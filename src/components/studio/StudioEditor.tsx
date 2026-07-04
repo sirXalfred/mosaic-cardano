@@ -15,24 +15,22 @@ import CharacterCount from '@tiptap/extension-character-count';
 import Image from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
 import Typography from '@tiptap/extension-typography';
-import { useCreateArtifact, useUpdateArtifact } from '@/services/projects'; // Note: will rename hook later
+import { useCreateDocument, useUpdateDocument } from '@/services/documents';
 import { saveLocalDocument } from '@/lib/indexeddb';
 
 export default function StudioEditor({ 
   setPublishStep,
-  projectId,
-  artifactId
+  documentId
 }: { 
   setPublishStep: (val: 'draft') => void,
-  projectId: string,
-  artifactId: string | null,
+  documentId: string | null,
 }) {
-  const { mutateAsync: createArtifact, isPending: isCreating } = useCreateArtifact();
-  const { mutateAsync: updateArtifact, isPending: isUpdating } = useUpdateArtifact();
+  const { mutateAsync: createDocument, isPending: isCreating } = useCreateDocument();
+  const { mutateAsync: updateDocument, isPending: isUpdating } = useUpdateDocument();
   const isSaving = isCreating || isUpdating;
   
   const [title, setTitle] = useState('');
-  const [currentPieceId, setCurrentPieceId] = useState<string | null>(artifactId);
+  const [currentPieceId, setCurrentPieceId] = useState<string | null>(documentId);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const editor = useEditor({
@@ -58,7 +56,7 @@ export default function StudioEditor({
       }),
       Typography,
     ],
-    content: artifactId ? `
+    content: documentId ? `
       <p>The translation of the Songhai lineage records requires a careful balance between literal meaning and poetic rhythm.</p>
       <p>The original chants were performed by the Griots during the harvest festival, accompanied by the slow beating of the talking drum.</p>
       <blockquote>"The river does not forget its source, nor does the tree forget its roots."</blockquote>
@@ -71,10 +69,10 @@ export default function StudioEditor({
   });
 
   useEffect(() => {
-    if (artifactId) {
+    if (documentId) {
       setTitle('Songhai Lineage Translation Draft');
     }
-  }, [artifactId]);
+  }, [documentId]);
 
   const handleSave = async () => {
     if (!editor) return;
@@ -82,18 +80,16 @@ export default function StudioEditor({
     try {
       let savedId = currentPieceId;
       if (!currentPieceId) {
-        const newId = await createArtifact({
-          projectId,
+        const { id: newId } = await createDocument({
           title: title || 'Untitled Draft',
           content: editor.getHTML()
         });
         setCurrentPieceId(newId);
         savedId = newId;
       } else {
-        await updateArtifact({
-          projectId,
-          artifactId: currentPieceId,
-          updates: { title: title || 'Untitled Draft' }
+        await updateDocument({
+          documentId: currentPieceId,
+          updates: { title: title || 'Untitled Draft', content: editor.getHTML() }
         });
       }
       

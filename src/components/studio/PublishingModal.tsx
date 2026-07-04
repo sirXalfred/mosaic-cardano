@@ -1,30 +1,32 @@
 import React from 'react';
 import { CheckCircle, FileText, Share2, Users, PlayCircle, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ProjectDetail } from '@/services/projects';
 import { ROUTES } from '@/lib/routes';
 import { CloseButton } from '../ui/close-button';
 
-export type PublishStep = 'draft' | 'review' | 'attribution' | 'revenue' | 'signing' | 'success';
+import { usePublishDocument } from '@/services/documents';
+
+export type PublishStep = 'draft' | 'community' | 'review' | 'attribution' | 'revenue' | 'signing' | 'success';
 
 export default function PublishingModal({
   publishStep,
   setPublishStep,
-  project,
-  communityId,
-  projectId,
-  artifactId,
+  documentId,
+  documentTitle,
+  communities,
   nextPublishStep
 }: {
   publishStep: PublishStep;
   setPublishStep: (val: PublishStep | null) => void;
-  project: ProjectDetail | null;
-  communityId: string;
-  projectId: string;
-  artifactId: string | null;
+  documentId: string;
+  documentTitle?: string;
+  communities: { id: string, name: string }[];
   nextPublishStep: (current: PublishStep) => void;
 }) {
   const router = useRouter();
+  const [selectedCommunity, setSelectedCommunity] = React.useState<string>('');
+  const { mutateAsync: publishDocument } = usePublishDocument();
+  const [pieceId, setPieceId] = React.useState<string>('');
 
   if (!publishStep) return null;
 
@@ -53,7 +55,39 @@ export default function PublishingModal({
               <div className="bg-white p-5 rounded-xl border border-theme-outline/20 space-y-3">
                 <div className="flex items-center gap-3 text-sm"><CheckCircle size={16} className="text-green-600" /> Title & Metadata complete</div>
                 <div className="flex items-center gap-3 text-sm"><CheckCircle size={16} className="text-green-600" /> 0 Unresolved comments</div>
-                <div className="flex items-center gap-3 text-sm"><CheckCircle size={16} className="text-green-600" /> Connected to Project: <strong>{project?.title}</strong></div>
+                <div className="flex items-center gap-3 text-sm"><CheckCircle size={16} className="text-green-600" /> Connected to Personal Workspace</div>
+              </div>
+            </div>
+          )}
+
+          {publishStep === 'community' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8">
+              <div>
+                <h3 className="font-bold text-lg mb-1">Select Target Community</h3>
+                <p className="text-sm text-theme-on-surface/70 mb-4">Choose which community you want to publish this piece to.</p>
+              </div>
+              <div className="space-y-3">
+                {communities.length === 0 ? (
+                  <p className="text-sm text-theme-on-surface/50">You are not a member of any communities.</p>
+                ) : (
+                  communities.map(c => (
+                    <label key={c.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-theme-outline/20 cursor-pointer hover:border-theme-clay">
+                      <div className="flex items-center gap-3">
+                        <input 
+                          type="radio" 
+                          name="community"
+                          value={c.id}
+                          checked={selectedCommunity === c.id}
+                          onChange={(e) => setSelectedCommunity(e.target.value)}
+                          className="w-4 h-4 text-theme-accent rounded border-theme-outline/30" 
+                        />
+                        <div>
+                          <p className="font-bold text-sm text-theme-forest">{c.name}</p>
+                        </div>
+                      </div>
+                    </label>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -65,18 +99,8 @@ export default function PublishingModal({
                 <p className="text-sm text-theme-on-surface/70 mb-4">Choose project stewards to cryptographically sign off on this publication.</p>
               </div>
               <div className="space-y-3">
-                {project?.contributors.filter(c => c.id !== 'user_123').map(c => (
-                  <label key={c.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-theme-outline/20 cursor-pointer hover:border-theme-clay">
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" className="w-4 h-4 text-theme-accent rounded border-theme-outline/30" defaultChecked />
-                      <div>
-                        <p className="font-bold text-sm text-theme-forest">{c.name}</p>
-                        <p className="text-xs text-theme-on-surface/60">{c.role}</p>
-                      </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-theme-clay text-white flex items-center justify-center text-xs font-bold">{c.initials}</div>
-                  </label>
-                ))}
+                {/* Replaced real collaborators with placeholders for now */}
+                <p className="text-sm italic text-theme-on-surface/50">Only you are a contributor on this draft.</p>
               </div>
             </div>
           )}
@@ -97,16 +121,8 @@ export default function PublishingModal({
                 
                 <div className="flex-1 space-y-3">
                   <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-400 rounded"></div> <span className="font-bold">Amina Diallo</span></div>
-                    <span className="font-mono text-theme-on-surface/70">45%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-400 rounded"></div> <span className="font-bold">David Adeleke (You)</span></div>
-                    <span className="font-mono text-theme-on-surface/70">30%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-400 rounded"></div> <span className="font-bold">Kofi Mensah</span></div>
-                    <span className="font-mono text-theme-on-surface/70">25%</span>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-400 rounded"></div> <span className="font-bold">You</span></div>
+                    <span className="font-mono text-theme-on-surface/70">100%</span>
                   </div>
                 </div>
               </div>
@@ -157,10 +173,10 @@ export default function PublishingModal({
               </div>
               <h3 className="font-serif text-3xl text-theme-forest">Piece Sealed</h3>
               <p className="text-sm text-theme-on-surface/70 max-w-sm">
-                &quot; Songhai Lineage Translation Draft &quot; has been successfully published to the Library of Memory.
+                &quot; {documentTitle || 'Untitled Draft'} &quot; has been successfully published to the Library of Memory.
               </p>
               <div className="bg-theme-surface-low p-3 rounded border border-theme-outline/20 w-full font-mono text-xs text-theme-on-surface/50 truncate select-all">
-                TxID: 0x8a92f...4c9e81b2a7d4e5f6
+                Piece ID: {pieceId || 'Unknown'}
               </div>
             </div>
           )}
@@ -177,7 +193,36 @@ export default function PublishingModal({
               Cancel
             </button>
             <button 
-              onClick={() => nextPublishStep(publishStep!)}
+              onClick={async () => {
+                if (publishStep === 'revenue') {
+                  if (!selectedCommunity) {
+                    alert('Please select a community to publish to');
+                    setPublishStep('community');
+                    return;
+                  }
+                  
+                  setPublishStep('signing');
+                  
+                  try {
+                    const res = await publishDocument({
+                      documentId,
+                      communityId: selectedCommunity
+                    });
+                    
+                    if (res.success) {
+                      setPieceId(res.pieceId);
+                      setPublishStep('success');
+                    } else {
+                      setPublishStep('draft');
+                    }
+                  } catch (e) {
+                    console.error(e);
+                    setPublishStep('draft');
+                  }
+                } else {
+                  nextPublishStep(publishStep!);
+                }
+              }}
               className="bg-theme-forest text-theme-parchment px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 flex items-center gap-2"
             >
               {publishStep === 'revenue' ? 'Sign & Publish' : 'Continue'} <ChevronRight size={16} />
@@ -190,10 +235,10 @@ export default function PublishingModal({
             <button 
               onClick={() => {
                 setPublishStep(null);
-                if (artifactId) {
-                  router.push(ROUTES.ARTIFACT(artifactId));
+                if (pieceId) {
+                  router.push(ROUTES.ARTIFACT(pieceId));
                 } else {
-                  router.push(ROUTES.VILLAGE.PROJECT(communityId, projectId));
+                  router.push(ROUTES.STUDIO);
                 }
               }}
               className="bg-theme-forest text-theme-parchment px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90"

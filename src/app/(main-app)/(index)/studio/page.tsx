@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FileText, Link as LinkIcon, Loader2, Clock, ArrowRight } from 'lucide-react';
-import { useCreateArtifact, useGetUserArtifacts } from '@/services/projects'; // Note: will rename hook later
+import { useCreateDocument, useGetUserDocuments } from '@/services/documents';
 import { getLocalDocuments, LocalDocument } from '@/lib/indexeddb';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { ROUTES } from '@/lib/routes';
@@ -11,9 +11,7 @@ import { Button } from '@/components/ui/button';
 
 export default function StudioLandingPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const projectId = searchParams?.get('project_id') || '1';
-  const communityId = searchParams?.get('community_id') || 'scribes-of-sahel';
+  // No longer requires projectId or communityId by default.
 
   const [externalUrl, setExternalUrl] = useState('');
   const [isLinking, setIsLinking] = useState(false);
@@ -21,10 +19,10 @@ export default function StudioLandingPage() {
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const [localPieces, setLocalPieces] = useState<LocalDocument[]>([]);
-  const { mutateAsync: createPiece } = useCreateArtifact();
-  const { data: piecesData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: piecesLoading } = useGetUserArtifacts();
+  const { mutateAsync: createDocument } = useCreateDocument();
+  const { data: documentsData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: piecesLoading } = useGetUserDocuments();
 
-  const allPieces = piecesData?.pages.flatMap((page) => page.data) || [];
+  const allPieces = documentsData?.pages.flatMap((page) => page.data) || [];
 
   useEffect(() => {
     // Load local documents
@@ -59,7 +57,7 @@ export default function StudioLandingPage() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleCreateNative = () => {
-    router.push(`/studio/new?project_id=${projectId}&community_id=${communityId}`);
+    router.push(`/studio/new`);
   };
 
   const handleLinkExternal = async (e: React.FormEvent) => {
@@ -69,14 +67,13 @@ export default function StudioLandingPage() {
     setIsLinking(true);
 
     try {
-      await createPiece({
-        projectId,
+      const { id } = await createDocument({
         title: 'External Document',
         content: externalUrl
       });
 
-      // Redirect to the project workspace
-      router.push( ROUTES.VILLAGE.PROJECT(communityId, projectId));
+      // Redirect to the newly created draft in studio
+      router.push(ROUTES.STUDIO + `/${id}`);
 
     } catch (e) {
       console.error(e);
@@ -163,7 +160,7 @@ export default function StudioLandingPage() {
             {(showAllDocuments ? mergedPieces : recentPieces).map(piece => (
               <div 
                 key={piece.id} 
-                onClick={() => router.push(`/studio/${piece.id}?project_id=${projectId}&community_id=${communityId}`)}
+                onClick={() => router.push(`/studio/${piece.id}`)}
                 className="bg-white border border-theme-outline/10 hover:border-theme-clay p-5 rounded-xl cursor-pointer transition-colors group flex items-start justify-between"
               >
                 <div>
