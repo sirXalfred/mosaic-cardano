@@ -20,12 +20,14 @@ import NotFound from '@/components/layout/NotFound';
 import { PageError } from '@/components/ui/PageError';
 import { Button } from '@/components/ui/button';
 import { CloseButton } from '@/components/ui/close-button';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function CommunityPublicProfile() {
   const params = useParams();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const { userId } = useAuth();
 
   const communityId = params?.community_id as string;
   const focusId = searchParams?.get('focus_id');
@@ -41,6 +43,11 @@ export default function CommunityPublicProfile() {
   const { mutateAsync: joinCommunity, isPending: isJoining } = useJoinCommunity(communityId);
 
   const handleJoin = async () => {
+    if (!userId) {
+      router.push(`${ROUTES.AUTH}?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    
     try {
       await joinCommunity();
     } catch (e) {
