@@ -37,6 +37,7 @@ export const UnfollowUserRequestSchema = FollowUserRequestSchema;
 export const JoinCommunityRequestSchema = z.object({
   userId: UUIDSchema,
   communityId: UUIDSchema,
+  inviterId: UUIDSchema.optional(),
 });
 
 export const LeaveCommunityRequestSchema = JoinCommunityRequestSchema;

@@ -22,7 +22,7 @@ export type VillageSummary = {
 export const villageService = {
 	async createCommunity(userId: string, input: { name: string; description?: string; tags?: string[]; profileImageUrl?: string | null }): Promise<CommunityNode> {
 		const parsedUserId = z.string().uuid().parse(userId);
-		
+
 		const currentVillageCount = await runRead(
 			`
 				MATCH (u:Mosaic_User {id: $userId})-[m:MEMBER_OF {role: 'ADMIN'}]->(c:Mosaic_Community)
@@ -102,7 +102,7 @@ export const villageService = {
 				SET c.isDeleted = true, c.deletedAt = $now
 			`,
 			{ userId: parsedUserId, communityId: parsedCommunityId, now },
-			() => {}
+			() => { }
 		);
 
 		await Promise.all([
@@ -147,6 +147,7 @@ export const villageService = {
 			`
 			MATCH (c:Mosaic_Community {id: $communityId})<-[:MEMBER_OF {role: 'ADMIN'}]-(creator:Mosaic_User)
 			OPTIONAL MATCH (c)<-[:MEMBER_OF]-(member:Mosaic_User)
+
 			RETURN creator.planType AS planType, count(member) AS memberCount
 			LIMIT 1
 			`,
@@ -157,7 +158,7 @@ export const villageService = {
 		if (limitCheck[0]) {
 			const { planType, memberCount } = limitCheck[0];
 			const maxMembers = planType === 'PRO' ? 500 : planType === 'CUSTOM' ? Infinity : 50;
-			
+
 			if (memberCount >= maxMembers) {
 				throw new Error('VILLAGE_FULL: This village has reached its member limit for its current plan.');
 			}
@@ -167,14 +168,25 @@ export const villageService = {
 			`
 				MATCH (u:Mosaic_User {id: $userId})
 				MATCH (c:Mosaic_Community {id: $communityId})
+
 				MERGE (u)-[m:MEMBER_OF]->(c)
-				ON CREATE SET m.joinedAt = $now, m.role = 'MEMBER'
+
+				ON CREATE SET
+					m.joinedAt = $now,
+					m.role = 'MEMBER',
+					m.joinMethod = CASE
+						WHEN $inviterId IS NULL THEN 'DIRECT'
+						ELSE 'INVITE'
+					END,
+					m.inviterId = $inviterId
+
 				RETURN c.id AS communityId
 			`,
 			{
 				userId: parsed.userId,
 				communityId: parsed.communityId,
 				now,
+				inviterId: parsed.inviterId ?? null,
 			},
 			row => row.communityId,
 		);
@@ -262,7 +274,7 @@ export const villageService = {
 				isPublic: input.isPublic ?? null,
 				now,
 			},
-			() => {} // Empty mapRow since we don't need a return value
+			() => { } // Empty mapRow since we don't need a return value
 		);
 
 		await invalidateCachePattern(cacheKey('community', parsedCommunityId, '*'));
@@ -327,7 +339,7 @@ export const villageService = {
 				memberIds: parsedMemberIds,
 				now
 			},
-			() => {}
+			() => { }
 		);
 
 		await invalidateCachePattern(cacheKey('community', parsedCommunityId, '*'));

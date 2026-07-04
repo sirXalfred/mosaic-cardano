@@ -3,6 +3,7 @@ import { pieceService } from '@/services/backend/piece.service';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const QuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(5),

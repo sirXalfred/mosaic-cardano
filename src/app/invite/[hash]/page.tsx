@@ -1,34 +1,39 @@
-'use client';
+import { Metadata } from 'next';
+import { InvitePageContent } from '@/components/village/InvitePageContent';
+import { inviteService } from '@/services/backend/invite.service';
 
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { ROUTES } from '@/lib/routes';
-import { AppIntent, INTENT_KEY } from '@/lib/intents';
+export async function generateMetadata({ params }: { params: Promise<{ hash: string }> }): Promise<Metadata> {
+  const { hash } = await params;
+  const inviteData = await inviteService.getInviteByHash(hash);
 
-export default function InvitePage({ params }: { params: { hash: string } }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const villageId = searchParams.get('villageId');
-  const { hash } = params;
+  if (inviteData) {
+    const communityName = inviteData?.community.name;
+    const image = inviteData?.community.profileImageUrl
 
-  useEffect(() => {
-    if (hash && villageId) {
-      localStorage.setItem(INTENT_KEY, AppIntent.INVITE_VILLAGE);
-      localStorage.setItem(AppIntent.INVITE_VILLAGE, JSON.stringify({ hash, villageId }));
-      router.push(ROUTES.AUTH);
-      
-    } else {
-      router.push(ROUTES.LANDING);
-    }
-  }, [hash, villageId, router]);
+    return {
+      title: `Invite to ${communityName}`,
+      description: `You are being invited to ${inviteData.community.name} | Mosaic`,
+      openGraph: {
+        images: image? [{url: image}] : undefined,
+      },
+      twitter: image? {
+        card: 'summary_large_image',
+        images: [{url: image}],
+      } : undefined
+    };
+  }
+
+  return {
+    title: 'Mosaic Invitation',
+    description: 'You have been invited to join a community on Mosaic.',
+  };
+}
+
+export default async function InvitePage({ params }: { params: Promise<{ hash: string }> } ) {
+  const { hash } = await params;
+  const inviteData = await inviteService.getInviteByHash(hash)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-theme-surface">
-      <div className="flex flex-col items-center gap-4 text-theme-forest">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p className="font-serif italic text-xl">Preparing your invite...</p>
-      </div>
-    </div>
+    <InvitePageContent hash={hash} villageId={inviteData?.community.id}/>
   );
 }
