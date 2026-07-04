@@ -37,7 +37,9 @@ export function middleware(req: NextRequest) {
 
   if (!noRedirect) {
     if (!token && !isAuthPage) {
-      return NextResponse.redirect(new URL(ROUTES.AUTH, req.url));
+      const loginUrl = new URL(ROUTES.AUTH, req.url);
+      loginUrl.searchParams.set('next', pathname + req.nextUrl.search);
+      return NextResponse.redirect(loginUrl);
     }
 
     if (token && isAuthPage) {

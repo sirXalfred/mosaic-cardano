@@ -13,12 +13,12 @@ export default function VillageTopAppBar({ children }: { children?: React.ReactN
   const params = useParams();
   const communityId = params.community_id as string;
   const { data: authState } = useGetAuthState();
-  const { data: membership, isLoading: isLoadingMembership } = useGetVillageMembership(communityId);
+  const { data: membership } = useGetVillageMembership(communityId);
 
-  // const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { copyInvite, isGeneratingInvite, isError, error } = useShareInvite(communityId);
- 
   const isMember = authState?.isAuthenticated && membership?.isMember;
+  
+  // const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { copyInvite, isGeneratingInvite, isError, error } = useShareInvite(communityId, !!isMember);
 
   const handleShareInvite = async () => {
     const inviteUrl = await copyInvite();
@@ -38,18 +38,6 @@ export default function VillageTopAppBar({ children }: { children?: React.ReactN
       {
         !isMember && (<MosaicBrand size="small" />)
       }
-      
-      {isLoadingMembership ? (
-        <div className="h-6 w-48 bg-theme-outline/20 animate-pulse rounded"></div>
-      ) : (
-        <div className="flex items-center gap-4">
-          {!isMember && (
-            <button className="text-theme-accent font-sans text-[10px] uppercase tracking-widest font-bold hover:text-theme-forest transition-colors">
-              Join Village
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 

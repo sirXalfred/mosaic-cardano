@@ -12,7 +12,8 @@ import { useGetExploreItem } from '@/services/explore';
 import {
   useGetVillageDetails,
   useGetVillageFeaturedWorks,
-  useGetVillageMembers
+  useGetVillageMembers,
+  useJoinCommunity
 } from '@/services/villages';
 import { ROUTES } from '@/lib/routes';
 import NotFound from '@/components/layout/NotFound';
@@ -36,6 +37,16 @@ export default function CommunityPublicProfile() {
   const { data: villageDetails, isError: isVillageError, is404Error: isVillage404Error, error: villageError, isLoading: isLoadingDetails } = useGetVillageDetails(communityId);
   const { data: featuredWorks, isLoading: isLoadingWorks } = useGetVillageFeaturedWorks(communityId);
   const { data: members, isLoading: isLoadingMembers } = useGetVillageMembers(communityId);
+
+  const { mutateAsync: joinCommunity, isPending: isJoining } = useJoinCommunity(communityId);
+
+  const handleJoin = async () => {
+    try {
+      await joinCommunity();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Function to dismiss the modal overlay
   const handleCloseModal = () => {
@@ -92,14 +103,14 @@ export default function CommunityPublicProfile() {
           )}
           <div className="pt-8 flex items-center justify-center gap-6">
             {!villageDetails?.isMember && (
-              <Button>
+              <Button onClick={handleJoin} disabled={isJoining}>
                 Join
               </Button>
             )}
 
             <Button asChild variant="outline">
-              <Link href={ROUTES.STUDIO}>
-                View Open Works
+              <Link href={ROUTES.VILLAGE.LIBRARY(communityId)}>
+                View Archive
               </Link>
             </Button>
           </div>
@@ -414,8 +425,15 @@ export default function CommunityPublicProfile() {
                       Dismiss
                     </button>
                     <button
-                      onClick={() => alert(`Simulating action: Joining/Contributing to "${focusedItem.title}"`)}
-                      className="bg-theme-forest text-theme-parchment px-6 py-3 rounded-lg text-xs uppercase tracking-widest font-bold font-sans hover:opacity-90 transition-opacity shadow-md cursor-pointer"
+                      onClick={() => {
+                        if (focusedItem.type === 'project' || focusedItem.type === 'residency' || focusedItem.type === 'publication') {
+                          alert(`Simulating action: Joining/Contributing to "${focusedItem.title}"`);
+                        } else {
+                          handleJoin();
+                        }
+                      }}
+                      disabled={isJoining}
+                      className="bg-theme-forest text-theme-parchment px-6 py-3 rounded-lg text-xs uppercase tracking-widest font-bold font-sans hover:opacity-90 transition-opacity shadow-md cursor-pointer disabled:opacity-50"
                     >
                       {focusedItem.type === 'project' ? 'Submit Contribution' :
                         focusedItem.type === 'residency' ? 'Submit Application' :

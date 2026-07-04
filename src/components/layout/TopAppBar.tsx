@@ -65,7 +65,7 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
         <div className="flex items-center gap-3 md:gap-6">
           {rightContent}
           
-          <WalletStatus className="hidden md:flex" />
+          {isAuthenticated && <WalletStatus className="hidden md:flex" />}
 
           {isAuthenticated && (
             <DropdownMenu>

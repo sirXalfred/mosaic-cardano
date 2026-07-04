@@ -19,7 +19,19 @@ export const useSetOnboardingInfo = () => {
     return useMutation({
         mutationFn: setOnboardingInfo,
         onSuccess: () => {
-            // invalidate authstate or optimistic update
+            // optimistic update
+            queryClient.setQueryData(['authState'], (old: unknown) => {
+                const oldState = old as { user?: { isOnboarded?: boolean } };
+                if (!oldState) return oldState;
+                return {
+                    ...oldState,
+                    user: {
+                        ...oldState.user,
+                        isOnboarded: true
+                    }
+                };
+            });
+            // invalidate authstate
             queryClient.invalidateQueries({
                 queryKey: ['authState']
             });

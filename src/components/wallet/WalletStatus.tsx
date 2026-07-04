@@ -186,8 +186,15 @@ export function WalletLoginButton({
 }) {
   const { wallet, connected, name, connect } = useWallet();
   const { mutateAsync: loginWithWallet, isPending } = useLoginWithWallet();
-  const { openModal } = useModals();
+  const { openModal, isOpen } = useModals();
   const [pendingLogin, setPendingLogin] = useState(false);
+  const isWalletModalOpen = isOpen(MODALS.WALLET_CONNECT);
+
+  useEffect(() => {
+    if (!isWalletModalOpen && pendingLogin && !connected) {
+      setPendingLogin(false);
+    }
+  }, [isWalletModalOpen, pendingLogin, connected]);
 
   useEffect(() => {
     if (onLoadingChange) {

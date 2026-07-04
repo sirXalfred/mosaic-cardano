@@ -243,6 +243,42 @@ export const useCreateVillage = () => {
   });
 };
 
+export const useJoinCommunity = (communityId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI(`/api/villages/${communityId}/membership`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['villageMembership', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['villageDetails', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['villageMembers', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['myVillages'] });
+    }
+  });
+};
+
+export const useLeaveCommunity = (communityId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI(`/api/villages/${communityId}/membership`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['villageMembership', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['villageDetails', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['villageMembers', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['myVillages'] });
+    }
+  });
+};
+
 export const useGetFeaturedArtifacts = () => {
   return useXQuery({
     queryKey: ['featuredArtifacts'],
@@ -289,7 +325,7 @@ export const useGetVillageActivityLog = (villageId: string) => {
   });
 };
 
-export const useShareInvite = (communityId: string) => {
+export const useShareInvite = (communityId: string, isMember: boolean = true) => {
   const { userId } = useAuth();
 
   const query = useXQuery({
@@ -302,7 +338,7 @@ export const useShareInvite = (communityId: string) => {
 
       return res.hash;
     },
-    enabled: !!userId,
+    enabled: !!userId && isMember,
     staleTime: Infinity,
     gcTime: Infinity,
   });

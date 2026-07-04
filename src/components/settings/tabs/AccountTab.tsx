@@ -1,4 +1,4 @@
-import { useGetUserSettings } from '@/services/auth';
+import { useGetUserSettings, useGetAuthState } from '@/services/auth';
 import { Button } from '@/components/ui/button';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
@@ -20,6 +20,7 @@ const WalletLinkButton = dynamic(() => import('@/components/wallet/WalletStatus'
 
 export default function AccountTab() {
   const { data: settings, isLoading: isSettingsLoading } = useGetUserSettings();
+  const { data: authState } = useGetAuthState();
   const { openModal } = useModals();
 
   return (
@@ -72,27 +73,31 @@ export default function AccountTab() {
 
         <hr className="border-theme-outline/10" />
 
-        <div>
-          <h3 className="text-sm font-bold text-theme-on-surface mb-3">Wallet Connection</h3>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0033AD]/10 flex items-center justify-center text-[#0033AD] font-bold text-lg">₳</div>
-              <div>
-                <p className="text-sm font-medium text-theme-forest">Cardano Wallet</p>
-                <p className="text-xs text-theme-on-surface/60">
-                  <WalletConnectedText />
-                </p>
+        {authState?.isAuthenticated && (
+          <>
+            <div>
+              <h3 className="text-sm font-bold text-theme-on-surface mb-3">Wallet Connection</h3>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-theme-surface-high border border-theme-outline/20 rounded-xl gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#0033AD]/10 flex items-center justify-center text-[#0033AD] font-bold text-lg">₳</div>
+                  <div>
+                    <p className="text-sm font-medium text-theme-forest">Cardano Wallet</p>
+                    <p className="text-xs text-theme-on-surface/60">
+                      <WalletConnectedText />
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <WalletLinkButton />
+                  <WalletStatus />
+                </div>
               </div>
+              <p className="text-xs text-theme-on-surface/50 mt-2">Connect your wallet to receive SCR rewards, participate in governance, and manage your subscriptions.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <WalletLinkButton />
-              <WalletStatus />
-            </div>
-          </div>
-          <p className="text-xs text-theme-on-surface/50 mt-2">Connect your wallet to receive SCR rewards, participate in governance, and manage your subscriptions.</p>
-        </div>
 
-        <hr className="border-theme-outline/10" />
+            <hr className="border-theme-outline/10" />
+          </>
+        )}
 
         <div>
           <h3 className="text-sm font-bold text-theme-on-surface mb-3">Connected Accounts</h3>

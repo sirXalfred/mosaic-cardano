@@ -37,7 +37,7 @@ export default function VerifyPaymentModal({ isOpen, onClose }: VerifyPaymentMod
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-parchment/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-theme-parchment/80 backdrop-blur-sm">
       <div className="bg-theme-surface w-full max-w-md rounded-3xl p-6 shadow-2xl border border-theme-outline/20 relative animate-in zoom-in-95 duration-200">
         <CloseButton onClick={onClose} />
 
