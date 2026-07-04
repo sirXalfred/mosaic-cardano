@@ -54,7 +54,7 @@ export const ProjectNodeSchema = z.object({
 
 export const PieceNodeSchema = z.object({
   id: UUIDSchema,
-  projectId: UUIDSchema,
+  communityId: UUIDSchema,
   authorId: UUIDSchema,
   title: z.string().min(1),
   contentUrl: z.string().url(),

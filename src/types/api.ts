@@ -22,7 +22,7 @@ export const OnboardingRequestSchema = z.object({
 // Action: Publish Piece
 export const PublishPieceRequestSchema = z.object({
   userId: UUIDSchema,
-  projectId: UUIDSchema,
+  communityId: UUIDSchema,
   // Pick the fields needed to create a piece, and add custom parameters
   pieceData: PieceNodeSchema.pick({ title: true, contentUrl: true, contentType: true }).partial({ contentType: true }),
 });

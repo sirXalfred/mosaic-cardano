@@ -68,24 +68,24 @@ export const participateService = {
 		const rows = await runWrite(
 			`
 				MATCH (author:Mosaic_User {id: $userId})
-				MATCH (project:Mosaic_Project {id: $projectId})
+				MATCH (community:Mosaic_Community {id: $communityId})
 				CREATE (piece:Mosaic_Piece {
 					id: $pieceId,
-					projectId: $projectId,
+					communityId: $communityId,
 					authorId: $userId,
 					title: $title,
 					contentUrl: $contentUrl,
 					contentType: $contentType,
 					createdAt: $now
 				})
-				MERGE (project)-[:CONTAINS]->(piece)
+				MERGE (community)-[:PUBLISHED_IN]->(piece)
 				MERGE (author)-[:AUTHORED {createdAt: $now}]->(piece)
 				RETURN piece AS piece
 			`,
 			{
 				pieceId,
 				userId: parsed.userId,
-				projectId: parsed.projectId,
+				communityId: parsed.communityId,
 				title: parsed.pieceData.title,
 				contentUrl: parsed.pieceData.contentUrl,
 				contentType: parsed.pieceData.contentType ?? 'OTHER',
