@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation';
 import { useGetVillageLibrary } from '@/services/villages';
 import { StatePanel } from '@/components/ui/StatePanel';
 import { Loader2 } from 'lucide-react';
-import { PostCard } from '@/components/post/PostCard';
+import { PieceCard } from '@/components/piece/PieceCard';
+import { PieceDetails } from '@/services/backend/piece.service';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 
 
@@ -63,7 +64,7 @@ function VillageLibraryPageContent() {
         <>
           <div className="flex flex-col gap-6">
             {items.map((item, i) => (
-              <PostCard key={`${item.id}-${i}`} post={item} communityId={communityId} />
+              <PieceCard key={`${item.id}-${i}`} piece={item as unknown as PieceDetails} />
             ))}
           </div>
 

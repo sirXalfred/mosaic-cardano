@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRequestUserId } from '@/lib/backend/request';
-import { postService } from '@/services/backend/post.service';
+import { pieceService } from '@/services/backend/piece.service';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -17,7 +16,7 @@ export async function GET(
 ) {
   try {
     const { communityId } = await params;
-    const userId = await getRequestUserId(request);
+    // userId is no longer needed since library is public pieces
     
     const { searchParams } = new URL(request.url);
     const parseResult = QuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
@@ -28,11 +27,15 @@ export async function GET(
 
     const { filter, limit, offset } = parseResult.data;
 
-    const posts = await postService.listPosts(communityId, userId, limit, offset, filter === 'All' ? undefined : filter);
+    let singularFilter: string | undefined = filter === 'All' ? undefined : filter;
+    if (singularFilter && singularFilter.endsWith('s')) {
+      singularFilter = singularFilter.slice(0, -1);
+    }
+    const pieces = await pieceService.listVillagePieces(communityId, limit, offset, singularFilter);
 
     return NextResponse.json({
-      items: posts,
-      nextOffset: posts.length === limit ? offset + limit : null,
+      items: pieces,
+      nextOffset: pieces.length === limit ? offset + limit : null,
     });
   } catch (error) {
     console.error('Error fetching library materials:', error);

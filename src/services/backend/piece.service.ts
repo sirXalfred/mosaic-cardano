@@ -81,5 +81,50 @@ export const pieceService = {
     });
 
     return rows.length > 0 && rows[0] !== null ? rows[0] : null;
+  },
+
+  async listVillagePieces(communityId: string, limit = 50, offset = 0, filter?: string): Promise<PieceDetails[]> {
+    let typeFilter = '';
+    // Assuming filter matches contentType, adjust if necessary
+    if (filter && filter !== 'All') {
+      typeFilter = `AND p.contentType = $filter`;
+    }
+
+    const query = `
+      MATCH (community:Mosaic_Community {id: $communityId})-[:PUBLISHED_IN]->(p:Mosaic_Piece)
+      WHERE 1=1 ${typeFilter}
+      OPTIONAL MATCH (author:Mosaic_User)-[:AUTHORED]->(p)
+      RETURN p, author, community
+      ORDER BY p.createdAt DESC
+      SKIP toInteger($offset)
+      LIMIT toInteger($limit)
+    `;
+
+    const rows = await runRead(query, { communityId, limit, offset, filter: filter?.slice(0, -1) }, (row) => {
+      // NOTE: slicing 's' off filter if the UI passes 'Pieces' instead of 'Piece' 
+      // or we just trust the filter if the frontend already handles singular vs plural.
+      const p = row.p as Record<string, unknown>;
+      const author = row.author as Record<string, unknown> | null;
+      const communityNode = row.community as Record<string, unknown>;
+
+      return {
+        id: p.id as string,
+        title: p.title as string,
+        contentUrl: p.contentUrl as string,
+        contentType: p.contentType as string,
+        createdAt: p.createdAt as number,
+        author: {
+          id: (author?.id as string) || '',
+          name: (author?.displayName as string) || (author?.username as string) || 'Unknown Author',
+          username: (author?.username as string) || '',
+        },
+        community: {
+          id: (communityNode?.id as string) || '',
+          name: (communityNode?.name as string) || 'Unknown Community',
+        },
+      };
+    });
+
+    return rows;
   }
 };

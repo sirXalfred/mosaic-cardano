@@ -9,7 +9,7 @@ import {
 import { useXQuery } from '@/lib/extended-react-query';
 import { fetchAPI } from './api';
 import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { PostResponse } from '@/services/backend/post.service';
+import { PieceDetails } from '@/services/backend/piece.service';
 import { useAuth } from '@/contexts/auth-context';
 
 export interface VillageDetail {
@@ -366,7 +366,7 @@ export const useGetVillageLibrary = (communityId: string, filter: string) => {
     queryKey: ['villageLibrary', communityId, filter],
     initialPageParam: 0,
     queryFn: async ({ pageParam = 0 }) => {
-      return fetchAPI(`/api/villages/${communityId}/library?filter=${filter}&offset=${pageParam}&limit=20`) as Promise<{ items: PostResponse[], nextOffset: number | null }>;
+      return fetchAPI(`/api/villages/${communityId}/library?filter=${filter}&offset=${pageParam}&limit=20`) as Promise<{ items: PieceDetails[], nextOffset: number | null }>;
     },
     getNextPageParam: (lastPage) => lastPage.nextOffset,
   });
