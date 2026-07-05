@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
 import { FileText } from 'lucide-react';
-import { PieceDetails } from '@/services/backend/piece.service';
+import { PieceDetails } from '@/types/mosaic';
 
 export function PieceCard({ piece }: { piece: PieceDetails }) {
   // Format the date
@@ -31,7 +31,7 @@ export function PieceCard({ piece }: { piece: PieceDetails }) {
           <div className="flex items-center gap-4 text-xs font-sans text-theme-on-surface/60">
             <div className="flex items-center gap-1.5">
               <span className="font-bold uppercase tracking-widest opacity-70">Author:</span>
-              <span className="text-theme-forest font-medium">{piece.author.name}</span>
+              <span className="text-theme-forest font-medium">{piece.contributors?.[0]?.name || 'Unknown'}</span>
             </div>
             
             <div className="w-1 h-1 rounded-full bg-theme-outline/20"></div>

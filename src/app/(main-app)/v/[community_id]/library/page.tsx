@@ -5,7 +5,7 @@ import { useGetVillageLibrary } from '@/services/villages';
 import { StatePanel } from '@/components/ui/StatePanel';
 import { Loader2 } from 'lucide-react';
 import { PieceCard } from '@/components/piece/PieceCard';
-import { PieceDetails } from '@/services/backend/piece.service';
+import { PieceDetails } from '@/types/mosaic';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 
 
