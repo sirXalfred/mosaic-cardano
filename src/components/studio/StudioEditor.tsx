@@ -16,8 +16,20 @@ import Image from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
 import Typography from '@tiptap/extension-typography';
 import { useCreateDocument, useUpdateDocument } from '@/services/documents';
-import { saveLocalDocument, getLocalDocuments } from '@/lib/indexeddb';
+import { saveLocalDocument, getLocalDocuments, deleteLocalDocument } from '@/lib/indexeddb';
 import { DocumentDetails } from '@/types/mosaic';
+import dynamic from 'next/dynamic';
+import { useInviteContributor } from '@/services/documents';
+import { toast } from 'sonner';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
+import { useGetAuthState } from '@/services/auth';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/lib/routes';
+
+const SignContributionButton = dynamic(() => import('./SignContributionButton').then((m) => m.SignContributionButton), { ssr: false });
+
+import { PublishStep } from '@/types/mosaic';
 
 export default function StudioEditor({ 
   setPublishStep,
@@ -25,18 +37,24 @@ export default function StudioEditor({
   document,
   isContentLoading
 }: { 
-  setPublishStep: (val: 'draft') => void,
+  setPublishStep: (val: PublishStep) => void,
   documentId: string | null,
   document?: DocumentDetails | null,
   isContentLoading?: boolean
 }) {
   const { mutateAsync: createDocument, isPending: isCreating } = useCreateDocument();
   const { mutateAsync: updateDocument, isPending: isUpdating } = useUpdateDocument();
+  const { mutateAsync: inviteContributor, isPending: isInviting } = useInviteContributor();
   const isSaving = isCreating || isUpdating;
+  const { openModal } = useModals();
+  const { data: authState } = useGetAuthState();
+  const router = useRouter();
   
   const [title, setTitle] = useState('');
-  const [currentPieceId, setCurrentPieceId] = useState<string | null>(documentId);
+  const [currentPieceId, setCurrentPieceId] = useState<string | null>(documentId === 'new' ? null : documentId);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const isFrozen = ['freezing', 'propose', 'waiting', 'mint', 'success'].includes(document?.publishStage || '');
 
   const editor = useEditor({
     extensions: [
@@ -48,7 +66,7 @@ export default function StudioEditor({
         orderedList: { HTMLAttributes: { class: 'list-decimal list-outside ml-6 space-y-2 my-4' } },
       }),
       Placeholder.configure({
-        placeholder: 'Write the next chapter of the archive...',
+        placeholder: isFrozen ? '' : 'Write the next chapter of the archive...',
         emptyEditorClass: 'is-editor-empty',
       }),
       CharacterCount,
@@ -62,26 +80,46 @@ export default function StudioEditor({
       Typography,
     ],
     content: document?.contentRaw || '',
+    editable: !isFrozen,
     editorProps: {
       attributes: {
-        class: 'prose prose-theme font-serif text-lg leading-loose text-theme-on-surface/90 outline-none min-h-[60vh] max-w-none pb-32',
+        class: `prose prose-theme font-serif text-lg leading-loose text-theme-on-surface/90 outline-none min-h-[60vh] max-w-none pb-32 ${isFrozen ? 'opacity-75 cursor-not-allowed' : ''}`,
       },
+    },
+    onUpdate: async ({ editor }) => {
+      const targetId = currentPieceId || 'new-draft';
+      try {
+        await saveLocalDocument({
+          id: targetId,
+          title: title || 'Untitled Draft',
+          contentSnippet: editor.getText().slice(0, 100),
+          content: editor.getHTML(),
+          lastAccessed: Date.now(),
+        });
+      } catch {
+        // silently ignore
+      }
     },
   });
 
   useEffect(() => {
     async function loadContent() {
-      if (!document || !editor) return;
-      setTitle(document.title);
+      if (!editor) return;
+      if (documentId !== 'new' && !document) return;
       
-      let initialContent = document.contentRaw || '';
+      if (document?.title) {
+        setTitle(document.title);
+      }
+      
+      let initialContent = document?.contentRaw || '';
 
-      if (documentId) {
+      const targetId = documentId === 'new' ? 'new-draft' : documentId;
+      if (targetId) {
         try {
           const localDocs = await getLocalDocuments();
-          const localDoc = localDocs.find(d => d.id === documentId);
+          const localDoc = localDocs.find(d => d.id === targetId);
           // If local document was accessed/saved after the server version was last updated
-          if (localDoc && localDoc.content && localDoc.lastAccessed > document.updatedAt) {
+          if (localDoc && localDoc.content && (targetId === 'new-draft' || localDoc.lastAccessed > (document?.updatedAt || 0))) {
             initialContent = localDoc.content;
             setLastSaved(new Date(localDoc.lastAccessed));
             console.log("Loaded newer draft from local IndexedDB");
@@ -102,6 +140,8 @@ export default function StudioEditor({
   const handleSave = async () => {
     if (!editor) return;
     
+    const loadingToast = toast.loading(currentPieceId ? "Saving changes..." : "Creating new draft...");
+    
     try {
       let savedId = currentPieceId;
       if (!currentPieceId) {
@@ -111,6 +151,8 @@ export default function StudioEditor({
         });
         setCurrentPieceId(newId);
         savedId = newId;
+        await deleteLocalDocument('new-draft');
+        router.replace(ROUTES.STUDIO_EDITOR(newId));
       } else {
         await updateDocument({
           documentId: currentPieceId,
@@ -130,35 +172,68 @@ export default function StudioEditor({
           lastAccessed: Date.now(),
         });
       }
-
+      toast.success(currentPieceId ? "Saved successfully" : "Draft created", { id: loadingToast });
     } catch (e) {
+      toast.error("Failed to save draft", { id: loadingToast });
       console.error(e);
     }
   };
 
   const addImage = useCallback(() => {
-    const url = window.prompt('URL of the image:');
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
+    openModal(MODALS.PROMPT, {
+      title: "Add Image",
+      type: "url",
+      placeholder: "URL of the image",
+      onSubmit: (url: string) => {
+        if (editor) {
+          editor.chain().focus().setImage({ src: url }).run();
+        }
+      }
+    });
+  }, [editor, openModal]);
 
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl);
     
-    if (url === null) return;
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-  }, [editor]);
+    openModal(MODALS.PROMPT, {
+      title: "Set Link",
+      type: "url",
+      placeholder: "https://...",
+      defaultValue: previousUrl,
+      onSubmit: (url: string) => {
+        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      },
+      onCancel: () => {
+        if (!previousUrl) {
+          editor.chain().focus().extendMarkRange('link').unsetLink().run();
+        }
+      }
+    });
+  }, [editor, openModal]);
 
   const isEditorDisabled = isSaving;
 
-  // Removed early return to show header while loading
+  const handleInvite = async () => {
+    if (!currentPieceId) {
+      toast.error("Please save the draft first");
+      return;
+    }
+    
+    openModal(MODALS.PROMPT, {
+      title: "Invite Contributor",
+      placeholder: "Enter username...",
+      type: "text",
+      onSubmit: async (username: string) => {
+        await inviteContributor({ documentId: currentPieceId, username });
+      }
+    });
+  };
+
+  // Only show signing button if the logged-in user is a contributor with 'Pending' status and has been assigned a weight > 0
+  const loggedInUserId = authState?.user?.id;
+  const userContribution = document?.contributions?.find(c => c.userId === loggedInUserId);
+  const needsToSign = userContribution?.status === 'Pending' && (userContribution.weight || 0) > 0;
 
   return (
     <main className="flex-1 flex flex-col h-full bg-theme-surface relative">
@@ -181,13 +256,32 @@ export default function StudioEditor({
           {/* Contributors UI */}
           <div className="hidden md:flex items-center">
             <div className="flex -space-x-2 mr-2">
-              <div className="w-6 h-6 rounded-full bg-theme-accent text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-theme-surface z-20" title="David Adeleke (Author)">DA</div>
-              <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-theme-surface z-10" title="Amina Diallo (Contributor)">AD</div>
+              {document?.contributions && document.contributions.length > 0 ? (
+                document.contributions.map((c, i) => (
+                  <div key={c.userId} className={`w-6 h-6 rounded-full text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-theme-surface z-${20 - i} ${c.status === 'Signed' ? 'bg-green-500' : 'bg-theme-accent'}`} title={`${c.name} (${c.role || 'Collaborator'}) - ${c.status}`}>
+                    {c.name.substring(0, 2).toUpperCase()}
+                  </div>
+                ))
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-theme-accent text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-theme-surface z-20" title="You (Author)">You</div>
+              )}
             </div>
-            <span className="text-[10px] text-theme-on-surface/50 font-bold uppercase tracking-widest cursor-pointer hover:text-theme-accent">
-              + Invite
-            </span>
+            <button 
+              onClick={handleInvite}
+              disabled={isInviting}
+              className="text-[10px] text-theme-on-surface/50 font-bold uppercase tracking-widest cursor-pointer hover:text-theme-accent disabled:opacity-50"
+            >
+              {isInviting ? 'Inviting...' : '+ Invite'}
+            </button>
           </div>
+
+          {/* Sign Button */}
+          {needsToSign && currentPieceId && userContribution && (
+            <SignContributionButton 
+              documentId={currentPieceId} 
+              weight={userContribution.weight} 
+            />
+          )}
 
           {/* Save Status & Button */}
           <div className="flex items-center gap-3">
@@ -207,12 +301,18 @@ export default function StudioEditor({
           </div>
           
           <button 
-            onClick={() => setPublishStep('draft')}
+            onClick={() => {
+              if (isFrozen) {
+                setPublishStep(document?.publishStage || 'draft');
+              } else {
+                setPublishStep('draft');
+              }
+            }}
             disabled={!currentPieceId || isSaving}
-            title={!currentPieceId ? "Save as draft first" : "Publish to Library"}
+            title={!currentPieceId ? "Please save your draft first" : (isFrozen ? "Continue Publishing" : "Publish to Library")}
             className="bg-theme-forest text-theme-parchment px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 transition-transform active:scale-95 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Publish
+            {isFrozen ? `Continue: ${document?.publishStage}` : 'Publish'}
           </button>
         </div>
       </div>

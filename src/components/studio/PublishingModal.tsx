@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle, FileText, PlayCircle, ChevronRight, Users, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/routes';
 import { CloseButton } from '../ui/close-button';
-import { usePublishDocument, useProposeSplits } from '@/services/documents';
-import { DocumentDetails } from '@/types/mosaic';
-
-export type PublishStep = 'draft' | 'community' | 'propose' | 'waiting' | 'mint' | 'success';
+import { usePublishDocument, useProposeSplits, useFreezeContent } from '@/services/documents';
+import { DocumentDetails, PublishStep } from '@/types/mosaic';
+import Link from 'next/link';
 
 export default function PublishingModal({
   publishStep,
@@ -21,15 +19,21 @@ export default function PublishingModal({
   communities: { id: string, name: string }[];
   nextPublishStep: (current: PublishStep) => void;
 }) {
-  const router = useRouter();
-  const [selectedCommunity, setSelectedCommunity] = useState<string>('');
-  const [pieceId, setPieceId] = useState<string>('');
+  const [selectedCommunity, setSelectedCommunity] = useState<string>(document?.communityId || '');
+  const [pieceId, setPieceId] = useState<string>(publishStep === 'success' ? document?.id || '' : '');
   
   const { mutateAsync: publishDocument } = usePublishDocument();
   const { mutateAsync: proposeSplits, isPending: isProposing } = useProposeSplits();
+  const { mutateAsync: freezeContent, isPending: isFreezing } = useFreezeContent();
 
   // Local state for split proposals
   const [splits, setSplits] = useState<{ userId: string, name: string, role: string, weight: number }[]>([]);
+
+  useEffect(() => {
+    if (publishStep === 'draft' && document?.publishStage && document.publishStage !== 'draft') {
+      setPublishStep(document.publishStage);
+    }
+  }, [publishStep, document?.publishStage, setPublishStep]);
 
   useEffect(() => {
     if (document?.contributions) {
@@ -41,6 +45,44 @@ export default function PublishingModal({
       })));
     }
   }, [document]);
+
+  const hasMintedRef = useRef(false);
+
+  // Handle the automatic transition when reaching the mint step
+  useEffect(() => {
+    let isMounted = true;
+
+    async function executeMint() {
+      if (publishStep === 'mint' && document && !hasMintedRef.current) {
+        hasMintedRef.current = true;
+        try {
+          // Upload to IPFS logic is handled by backend or mesh SDK before calling this,
+          // or inside the publishDocument endpoint.
+          const res = await publishDocument({
+            documentId: document.id,
+            communityId: selectedCommunity
+          });
+          
+          if (isMounted && res.success) {
+            setPieceId(res.pieceId);
+            setPublishStep('success');
+          }
+        } catch (e) {
+          console.error(e);
+          if (isMounted) {
+            setPublishStep('draft');
+            hasMintedRef.current = false;
+          }
+        }
+      }
+    }
+
+    executeMint();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [publishStep, document, publishDocument, selectedCommunity, setPublishStep]);
 
   if (!publishStep || !document) return null;
 
@@ -62,12 +104,19 @@ export default function PublishingModal({
     if (publishStep === 'community') {
       if (!selectedCommunity) return alert('Select a community');
       
-      // If there are multiple contributors, go to propose splits
-      if (document.contributions && document.contributions.length > 1) {
-        setPublishStep('propose');
-      } else {
-        // Just the creator, go straight to minting
-        setPublishStep('mint');
+      setPublishStep('freezing');
+      try {
+        const res = await freezeContent({ documentId: document.id, communityId: selectedCommunity });
+        if (res.success) {
+          if (document.contributions && document.contributions.length > 1) {
+            setPublishStep('propose');
+          } else {
+            setPublishStep('mint');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        setPublishStep('community');
       }
       return;
     }
@@ -89,22 +138,7 @@ export default function PublishingModal({
     }
 
     if (publishStep === 'mint') {
-      setPublishStep('mint'); // actually stays on mint to show loader
-      try {
-        // Upload to IPFS logic will be here before calling publishDocument
-        const res = await publishDocument({
-          documentId: document.id,
-          communityId: selectedCommunity
-        });
-        
-        if (res.success) {
-          setPieceId(res.pieceId);
-          setPublishStep('success');
-        }
-      } catch (e) {
-        console.error(e);
-        setPublishStep('draft');
-      }
+      // The useEffect handles the actual API call
       return;
     }
 
@@ -113,7 +147,7 @@ export default function PublishingModal({
 
   return (
     <div className="fixed inset-0 bg-theme-forest/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-theme-parchment w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-theme-parchment w-full max-w-2xl relative rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         
         {/* Header */}
         <div className="px-8 py-5 border-b border-theme-outline/20 flex justify-between items-center bg-theme-surface-low">
@@ -130,7 +164,7 @@ export default function PublishingModal({
                 <div className="w-12 h-12 rounded-full bg-theme-clay/20 flex items-center justify-center text-theme-accent"><FileText size={24} /></div>
                 <div>
                   <h3 className="font-bold text-lg">Initiate Publishing</h3>
-                  <p className="text-sm text-theme-on-surface/70">Prepare this draft to be sealed in the Library of Memory.</p>
+                  <p className="text-sm text-theme-on-surface/70">Prepare to finalize and publish this piece.</p>
                 </div>
               </div>
               <div className="bg-white p-5 rounded-xl border border-theme-outline/20 space-y-3">
@@ -173,6 +207,18 @@ export default function PublishingModal({
             </div>
           )}
 
+          {publishStep === 'freezing' && (
+            <div className="space-y-6 py-12 flex flex-col items-center text-center animate-in fade-in">
+              <div className="relative w-24 h-24 mb-4">
+                <div className="absolute inset-0 border-4 border-theme-outline/20 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-theme-accent rounded-full border-t-transparent animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center text-theme-accent"><FileText size={32} className="animate-pulse" /></div>
+              </div>
+              <h3 className="font-serif text-2xl text-theme-forest">Freezing Content...</h3>
+              <p className="text-sm text-theme-on-surface/60 font-mono">Uploading raw document to IPFS for permanence.</p>
+            </div>
+          )}
+
           {publishStep === 'propose' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-8">
               <div>
@@ -204,8 +250,26 @@ export default function PublishingModal({
                 ))}
               </div>
 
+              {/* Distribution Bar */}
+              <div className="w-full h-4 bg-theme-outline/10 rounded-full overflow-hidden flex shadow-inner border border-theme-outline/20">
+                {splits.map((s, i) => (
+                  <div 
+                    key={s.userId} 
+                    className="h-full transition-all duration-300 relative group"
+                    style={{ 
+                      width: `${Math.max(s.weight, 0)}%`, 
+                      backgroundColor: `hsl(${i * 60}, 70%, 50%)`
+                    }}
+                  >
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-theme-surface-high shadow-lg text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                      {s.name} - {s.weight}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div className={`text-sm font-bold text-right ${isValidSplits ? 'text-green-600' : 'text-red-500'}`}>
-                Total: {totalWeight}%
+                Total Allocation: {totalWeight}% {isValidSplits ? '(Valid)' : '(Must be 100%)'}
               </div>
             </div>
           )}
@@ -263,7 +327,7 @@ export default function PublishingModal({
         </div>
         
         {/* Footer Actions */}
-        {publishStep !== 'mint' && publishStep !== 'success' && (
+        {publishStep !== 'mint' && publishStep !== 'success' && publishStep !== 'freezing' && (
           <div className="px-8 py-5 border-t border-theme-outline/20 bg-theme-surface-low flex justify-between items-center">
             <button 
               onClick={() => setPublishStep(null)}
@@ -273,10 +337,10 @@ export default function PublishingModal({
             </button>
             <button 
               onClick={handleContinue}
-              disabled={isProposing || (publishStep === 'propose' && !isValidSplits) || (publishStep === 'waiting' && !allSigned)}
+              disabled={isProposing || isFreezing || (publishStep === 'propose' && !isValidSplits) || (publishStep === 'waiting' && !allSigned)}
               className="bg-theme-forest text-theme-parchment px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isProposing ? <Loader2 size={16} className="animate-spin" /> : null}
+              {(isProposing || isFreezing) ? <Loader2 size={16} className="animate-spin" /> : null}
               {publishStep === 'waiting' && allSigned ? 'Publish & Mint' : 'Continue'} <ChevronRight size={16} />
             </button>
           </div>
@@ -284,19 +348,12 @@ export default function PublishingModal({
         
         {publishStep === 'success' && (
           <div className="px-8 py-5 border-t border-theme-outline/20 bg-theme-surface-low flex justify-center gap-4">
-            <button 
-              onClick={() => {
-                setPublishStep(null);
-                if (pieceId) {
-                  router.push(ROUTES.ARTIFACT(pieceId));
-                } else {
-                  router.push(ROUTES.STUDIO);
-                }
-              }}
+            <Link
+              href={pieceId ? ROUTES.ARTIFACT(pieceId) : ROUTES.STUDIO}
               className="bg-theme-forest text-theme-parchment px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90"
             >
               View Publication
-            </button>
+            </Link>
           </div>
         )}
         
