@@ -27,11 +27,9 @@ export interface BadgeMetadata {
     name: string;
     image: string;
     description: string;
-    villagesCreated: number;
-    projectsJoined: number;
-    totalDonations: number;
     unlockedAt: string;
     badgeType: string;
+    [key: string]: unknown;
 }
 
 export const mintCIP68Badge = async (

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/lib/backend/request';
 import { documentService } from '@/services/backend/document.service';
+import { villageService } from '@/services/backend/village.service';
 import { anchorContributionManifest, ContributionManifest } from '@/lib/cardano/minting';
 import { z } from 'zod';
 
@@ -28,7 +29,13 @@ export const POST = withAuth(async (request, { params }, userId) => {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    // 2. Publish in Neo4j (this also verifies all signatures are present)
+    // 2. Fetch community name for metadata FIRST
+    const village = await villageService.getCommunityByIdOrSlug(communityId);
+    if (!village) {
+        return NextResponse.json({ error: 'Community not found' }, { status: 404 });
+    }
+
+    // 3. Publish in Neo4j (this also verifies all signatures are present)
     const pieceId = await documentService.publishDocumentToPiece(documentId, userId, communityId);
 
     // 3. Build Manifest
@@ -36,12 +43,14 @@ export const POST = withAuth(async (request, { params }, userId) => {
       title: document.title,
       contentHash: document.contentUrl, // Cloudinary URL or hash
       communityId: communityId,
+      communityName: village.name,
       contributors: document.contributions?.map(c => ({
         userId: c.userId,
         name: c.name,
         role: c.role,
         weight: c.weight,
-        signature: c.signatureHash || 'no_sig'
+        signature: c.signatureHash || 'no_sig',
+        walletAddress: c.walletAddress || 'unlinked_wallet'
       })) || [],
       timestamp: Date.now()
     };

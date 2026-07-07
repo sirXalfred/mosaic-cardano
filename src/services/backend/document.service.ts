@@ -118,7 +118,8 @@ export const documentService = {
         role: c.role,
         weight: c.weight,
         status: c.status,
-        signatureHash: c.signatureHash
+        signatureHash: c.signatureHash,
+        walletAddress: c.walletAddress
       }) AS contributions
     `;
 
@@ -226,15 +227,16 @@ export const documentService = {
     if (!rows.length) throw new Error('Failed to propose splits');
   },
 
-  async signContribution(documentId: string, userId: string, signatureHash: string): Promise<void> {
+  async signContribution(documentId: string, userId: string, signatureHash: string, walletAddress: string): Promise<void> {
     const query = `
       MATCH (p:Mosaic_Piece {id: $documentId})-[:HAS_CONTRIBUTION]->(c:Mosaic_Contribution)-[:MADE_BY]->(u:Mosaic_User {id: $userId})
       SET c.status = 'Signed',
-          c.signatureHash = $signatureHash
+          c.signatureHash = $signatureHash,
+          c.walletAddress = $walletAddress
       RETURN c.id
     `;
     
-    const rows = await runWrite(query, { documentId, userId, signatureHash }, (row) => row);
+    const rows = await runWrite(query, { documentId, userId, signatureHash, walletAddress }, (row) => row);
     if (!rows.length) throw new Error('Failed to sign contribution');
   },
 

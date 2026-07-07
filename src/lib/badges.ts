@@ -42,13 +42,6 @@ export const BADGE_MAP: Record<string, BadgeConfig> = {
     icon: '📜',
     description: 'Published a piece of work in the studio.',
   },
-  // Legacy mappings if any users still have them
-  'Pioneer': {
-    slug: 'Pioneer',
-    name: 'Legacy Pioneer',
-    icon: '🛡️',
-    description: 'Legacy pioneer badge.',
-  }
 };
 
 export const getBadgeConfig = (slug: string): BadgeConfig => {
@@ -58,4 +51,14 @@ export const getBadgeConfig = (slug: string): BadgeConfig => {
     icon: '🏅',
     description: 'An earned community badge.',
   };
+};
+
+
+export const BADGE_ASSETS: Record<string, string> = {
+  'early-user': 'ipfs://QmPlaceholderUserBadge...',
+  'early-adopter': 'ipfs://QmPlaceholderAdopterBadge...',
+  'first-post': 'ipfs://QmPlaceholderPostBadge...',
+  'first-feedback': 'ipfs://QmPlaceholderFeedbackBadge...',
+  'first-invite': 'ipfs://QmPlaceholderInviteBadge...',
+  'first-document': 'ipfs://QmPlaceholderDocBadge...'
 };

@@ -4,6 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { useGetDocumentRevisions, useGetArtifactAnalytics } from '@/services/projects';
 import { useGetPieceDetails } from '@/services/pieces';
+import { resolveIPFSUri } from '@/lib/ipfs';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
@@ -25,7 +26,8 @@ export default function ArtifactPage() {
   React.useEffect(() => {
     if (piece?.contentUrl) {
       setIsContentLoading(true);
-      fetch(piece.contentUrl)
+      const resolvedUrl = resolveIPFSUri(piece.contentUrl);
+      fetch(resolvedUrl)
         .then(res => res.text())
         .then(text => setContent(text))
         .catch(err => console.error("Failed to load piece content:", err))

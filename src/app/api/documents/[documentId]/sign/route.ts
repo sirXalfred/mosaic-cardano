@@ -7,6 +7,7 @@ export const runtime = 'nodejs';
 
 const SignSchema = z.object({
   signatureHash: z.string().min(1),
+  walletAddress: z.string().min(1),
 });
 
 export const POST = withAuth(async (request, { params }, userId) => {
@@ -20,7 +21,7 @@ export const POST = withAuth(async (request, { params }, userId) => {
       return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
-    await documentService.signContribution(documentId, userId, parseResult.data.signatureHash);
+    await documentService.signContribution(documentId, userId, parseResult.data.signatureHash, parseResult.data.walletAddress);
     
     return NextResponse.json({ success: true });
   } catch (error) {

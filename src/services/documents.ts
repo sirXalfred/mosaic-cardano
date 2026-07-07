@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { fetchAPI } from './api';
 
 import { DocumentDetails } from '@/types/mosaic';
+import { resolveIPFSUri } from '@/lib/ipfs';
 
 export const useCreateDocument = () => {
   const queryClient = useQueryClient();
@@ -126,10 +127,10 @@ export const useSignContribution = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ documentId, signatureHash }: { documentId: string, signatureHash: string }) => {
+    mutationFn: async ({ documentId, signatureHash, walletAddress }: { documentId: string, signatureHash: string, walletAddress: string }) => {
       await fetchAPI(`/api/documents/${documentId}/sign`, {
         method: 'POST',
-        data: { signatureHash },
+        data: { signatureHash, walletAddress },
       });
     },
     onSuccess: (_, variables) => {
@@ -156,8 +157,9 @@ export const useGetDocumentDetails = (documentId: string | null) => {
     queryKey: ['documentContent', docQuery.data?.contentUrl],
     queryFn: async () => {
       if (!docQuery.data?.contentUrl) return '';
-      const contentRes = await fetch(docQuery.data.contentUrl);
-      if (!contentRes.ok) throw new Error("Failed to fetch content from Cloudinary");
+      const resolvedUrl = resolveIPFSUri(docQuery.data.contentUrl);
+      const contentRes = await fetch(resolvedUrl);
+      if (!contentRes.ok) throw new Error("Failed to fetch content");
       return await contentRes.text();
     },
     enabled: !!docQuery.data?.contentUrl,

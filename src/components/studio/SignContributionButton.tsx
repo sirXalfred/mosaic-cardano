@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useWallet } from '@meshsdk/react';
 import { useSignContribution } from '@/services/documents';
+import { useGetUserSettings } from '@/services/auth';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
 import { Loader2, PenTool } from 'lucide-react';
@@ -19,6 +20,8 @@ export function SignContributionButton({ documentId, weight, className = '' }: S
   const { mutateAsync: signContribution, isPending: isSigningAPI } = useSignContribution();
   const [isWalletSigning, setIsWalletSigning] = useState(false);
 
+  const { data: userSettings } = useGetUserSettings();
+
   const isWorking = isSigningAPI || isWalletSigning;
 
   const handleSign = async () => {
@@ -32,17 +35,33 @@ export function SignContributionButton({ documentId, weight, className = '' }: S
       
       const addresses = await wallet.getUsedAddresses();
       const address = addresses[0] || await wallet.getChangeAddress();
+
+      // Check if user has linked a wallet to their profile
+      if (!userSettings?.walletAddress) {
+        // We prompt them to link it, but we do not wait/block the signing process
+        // We just pop the modal for them to link it for future recovery
+        openModal(MODALS.PROMPT, {
+          title: "Link Wallet for Recovery",
+          description: "We noticed you haven't permanently linked a Cardano wallet to your profile. You can still sign this contribution, but linking your wallet ensures you never lose access to your on-chain reputation.",
+          actionText: "Link Now",
+          cancelText: "Skip for now",
+          onAction: () => {
+             // You can navigate to settings or trigger link wallet API
+             // For now, they can just link via profile settings later
+          }
+        });
+      }
       
       // Payload to sign
       const payload = `I agree to my ${weight}% contribution weight for document: ${documentId}`;
-      // const payloadHex = Buffer.from(payload, 'utf8').toString('hex');
       
       const signature = await wallet.signData(payload, address);
       
-      // Submit signature to backend
+      // Submit signature and wallet address to backend
       await signContribution({
         documentId,
-        signatureHash: signature.signature
+        signatureHash: signature.signature,
+        walletAddress: address
       });
       
     } catch (error) {

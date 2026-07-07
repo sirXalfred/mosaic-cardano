@@ -5,12 +5,14 @@ export interface ContributionManifest {
   title: string;
   contentHash: string; // IPFS URI of the raw document
   communityId: string;
+  communityName?: string;
   contributors: {
     userId: string;
     name: string;
     role: string;
     weight: number;
     signature: string;
+    walletAddress: string;
   }[];
   timestamp: number;
 }
@@ -71,7 +73,8 @@ export async function anchorContributionManifest(
       type: 'MosaicContribution',
       manifestUri: splitString(manifestIpfsUri),
       title: splitString(manifest.title),
-      communityId: splitString(manifest.communityId)
+      communityId: splitString(manifest.communityId),
+      communityName: manifest.communityName ? splitString(manifest.communityName) : undefined
     });
 
     const unsignedTx = await tx.build();

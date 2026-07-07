@@ -7,6 +7,7 @@ export interface ContributionDetails {
   weight: number;
   status: 'Pending' | 'Signed';
   signatureHash?: string;
+  walletAddress?: string;
 }
 
 export type PublishStep = 'draft' | 'community' | 'freezing' | 'propose' | 'waiting' | 'mint' | 'success';
