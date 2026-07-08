@@ -1,6 +1,12 @@
 import React from 'react';
-import ComingSoon from '@/components/layout/ComingSoon';
+import { Metadata } from 'next';
+import InboxView from '@/components/notifications/InboxView';
+
+export const metadata: Metadata = {
+  title: 'Inbox',
+  description: 'Your personal notification center.',
+};
 
 export default function InboxPage() {
-  return <ComingSoon title="Inbox" />;
+  return <InboxView />;
 }
