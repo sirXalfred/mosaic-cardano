@@ -134,7 +134,22 @@ export const authService = {
 		if (!rows[0]) {
 			throw new Error('Email is already registered');
 		}
-		return rows[0];
+		const user = rows[0];
+
+		try {
+			const { notificationService } = await import('./notification.service');
+			await notificationService.createNotification({
+				userId: user.id,
+				type: 'SYSTEM',
+				title: 'Welcome to Mosaic! 🎉',
+				body: 'Discover a new way to publish, collaborate, and earn on Cardano. Head over to the Explore tab to find your first village or join the conversation.',
+				actionUrl: '/explore',
+			});
+		} catch (err) {
+			console.error('Failed to send welcome notification:', err);
+		}
+
+		return user;
 	},
 
 	async loginWithPassword(input: LoginWithPasswordRequest): Promise<UserNode> {

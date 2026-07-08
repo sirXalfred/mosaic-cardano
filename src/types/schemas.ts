@@ -10,6 +10,11 @@ export const NotificationTypeSchema = z.enum([
   'MENTION',
   'FOLLOW',
   'PROJECT_UPDATE',
+  'SIGNATURE_REQUEST',
+  'PIECE_UPDATE',
+  'VILLAGE_ANNOUNCEMENT',
+  'UPVOTE',
+  'COMMUNITY_MEMBER_JOINED',
 ]);
 
 export const AuthProviderSchema = z.enum(['LOCAL', 'OAUTH', 'WALLET']);
@@ -25,6 +30,7 @@ export const UserNodeSchema = z.object({
   isVerified: z.boolean().default(false),
   isOnboarded: z.boolean().default(false),
   planType: z.enum(['FREE', 'BASIC', 'PRO', 'CUSTOM']).default('FREE'),
+  role: z.enum(['USER', 'ADMIN', 'MODERATOR']).default('USER'),
   settings: z.string().optional(),
   createdAt: TimestampSchema,
   updatedAt: TimestampSchema.optional(),
@@ -91,7 +97,11 @@ export const NotificationNodeSchema = z.object({
   title: z.string().min(1).max(140),
   body: z.string().max(1000).optional(),
   isRead: z.boolean().default(false),
+  aggregationKey: z.string().optional(),
+  actionUrl: z.string().optional(),
+  actors: z.array(z.string()).default([]),
   createdAt: TimestampSchema,
+  updatedAt: TimestampSchema.optional(),
 });
 
 export const CredentialNodeSchema = z.object({

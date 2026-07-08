@@ -20,6 +20,8 @@ import { useAuth } from '@/contexts/auth-context';
 import { Skeleton } from '../ui/skeleton';
 import dynamic from 'next/dynamic';
 import { useSidebar } from '@/contexts/sidebar-context';
+import NotificationDropdownList from '@/components/notifications/NotificationDropdownList';
+import { useGetNotifications } from '@/services/notifications';
 
 const WalletStatus = dynamic(() => import('@/components/wallet/WalletStatus').then((mod) => mod.WalletStatus), {
   ssr: false,
@@ -42,6 +44,8 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
   const { openModal } = useModals();
 
   const { toggleMobileSidebar } = useSidebar();
+  const { data: notificationsData } = useGetNotifications(10);
+  const hasUnread = notificationsData?.pages[0]?.items.some(n => !n.isRead) || false;
 
   const handleLogoutClicked = () => {
     handleLogout();
@@ -98,11 +102,25 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
           )}
 
           <div className="flex items-center gap-4">
-            <Button asChild disabled variant="ghost" size="icon">
-              <Link href={ROUTES.NOTIFICATIONS}>
-                <BellIcon />
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-theme-outline/10 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-theme-accent/50">
+                <BellIcon size={20} className="text-theme-on-surface/80 hover:text-theme-forest transition-colors" />
+                {hasUnread && <div className="absolute top-2 right-2 w-2 h-2 bg-theme-accent rounded-full border border-theme-parchment" />}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 bg-theme-surface-high border-theme-outline/20 shadow-lg rounded-xl mt-2 p-0 overflow-hidden">
+                <div className="p-4 border-b border-theme-outline/10 flex justify-between items-center bg-theme-surface-low/50">
+                  <h3 className="font-bold text-sm text-theme-forest">Notifications</h3>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                  <NotificationDropdownList />
+                </div>
+                <div className="p-2 border-t border-theme-outline/10 bg-theme-surface-low/50">
+                  <Button asChild variant="ghost" className="w-full text-xs font-bold text-theme-accent hover:text-theme-accent hover:bg-theme-accent/10">
+                    <Link href={ROUTES.NOTIFICATIONS}>View All Notifications</Link>
+                  </Button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {
               isLoading ? (

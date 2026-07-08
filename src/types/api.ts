@@ -54,6 +54,8 @@ export const CreateNotificationRequestSchema = z.object({
   type: NotificationNodeSchema.shape.type,
   title: z.string().min(1).max(140),
   body: z.string().max(1000).optional(),
+  aggregationKey: z.string().optional(),
+  actionUrl: z.string().optional(),
 });
 
 export const PaginationQuerySchema = z.object({

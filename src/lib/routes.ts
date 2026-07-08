@@ -10,7 +10,7 @@ export const ROUTES = {
   STUDIO: '/studio',
   STUDIO_EDITOR: (documentId: string) => `/studio/${documentId}`,
   PROFILE: '/profile', // generic profile
-  NOTIFICATIONS: '/notifications',
+  NOTIFICATIONS: '/inbox',
   ARTIFACT: (id: string) => `/piece/${id}`,
 
   USER: (id: string, currentUserId?: string) => id === currentUserId ? '/profile' : `/u/${id}`,
