@@ -21,19 +21,51 @@ export const adminService = {
           MATCH (p:Mosaic_Piece)
           RETURN count(p) AS totalPieces
         }
-        RETURN totalUsers, proUsers, basicUsers, freeUsers, totalVillages, totalPieces
+        CALL {
+          MATCH (s:Mosaic_Subscription)
+          WITH s, substring(coalesce(s.createdAt, '2026-06'), 0, 7) AS month,
+               coalesce(s.expectedAda, CASE s.planType WHEN 'PRO' THEN 60 WHEN 'BASIC' THEN 8 ELSE 0 END) AS rev
+          WITH month, sum(rev) AS mrr
+          ORDER BY month DESC LIMIT 6
+          RETURN collect({month: month, revenue: mrr}) AS mrrHistory
+        }
+        RETURN totalUsers, proUsers, basicUsers, freeUsers, totalVillages, totalPieces, mrrHistory
       `,
       {},
-      row => ({
-        users: {
-          total: Number(row.totalUsers) || 0,
-          pro: Number(row.proUsers) || 0,
-          basic: Number(row.basicUsers) || 0,
-          free: Number(row.freeUsers) || 0,
-        },
-        villages: Number(row.totalVillages) || 0,
-        pieces: Number(row.totalPieces) || 0,
-      })
+      row => {
+        // Generate last 6 months strings (YYYY-MM)
+        const last6Months: string[] = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          // Pad month with zero if needed
+          const y = d.getFullYear();
+          const m = (d.getMonth() + 1).toString().padStart(2, '0');
+          last6Months.push(`${y}-${m}`);
+        }
+
+        const rawMrr = (row.mrrHistory as Array<{ month: string; revenue: number }>) || [];
+        const mrrMap = new Map(rawMrr.map(item => [item.month, item.revenue]));
+        
+        const mrrHistory: { month: string, revenue: number }[] = [];
+        let cumulativeRevenue = 0;
+        for (const month of last6Months) {
+          cumulativeRevenue += mrrMap.get(month) || 0;
+          mrrHistory.push({ month, revenue: cumulativeRevenue });
+        }
+
+        return {
+          users: {
+            total: Number(row.totalUsers) || 0,
+            pro: Number(row.proUsers) || 0,
+            basic: Number(row.basicUsers) || 0,
+            free: Number(row.freeUsers) || 0,
+          },
+          villages: Number(row.totalVillages) || 0,
+          pieces: Number(row.totalPieces) || 0,
+          mrrHistory,
+        };
+      }
     );
 
     return result[0];
