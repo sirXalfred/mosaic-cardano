@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Users, UserPlus, Loader2 } from 'lucide-react';
+import { MessageSquare, Users, UserPlus, Loader2, ChevronRight } from 'lucide-react';
 import { DocumentComment } from '@/services/projects';
 import { useInviteContributor } from '@/services/documents';
 import { DocumentDetails } from '@/types/mosaic';
@@ -7,10 +7,14 @@ import { useAuth } from '@/contexts/auth-context';
 
 export default function StudioSidebarRight({ 
   comments,
-  document
+  document,
+  isMobileOpen = false,
+  closeMobileSidebar
 }: {
   comments: DocumentComment[] | undefined;
   document: DocumentDetails | null;
+  isMobileOpen?: boolean;
+  closeMobileSidebar?: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'comments' | 'contributors'>('contributors');
   const [inviteUsername, setInviteUsername] = useState('');
@@ -32,8 +36,20 @@ export default function StudioSidebarRight({
   };
 
   return (
-    <aside className="w-80 border-l border-theme-outline/20 bg-theme-surface-low flex flex-col hidden lg:flex">
-      <div className="flex border-b border-theme-outline/20">
+    <aside className={`
+      w-80 border-l border-theme-outline/20 bg-theme-surface-low flex flex-col 
+      fixed lg:relative inset-y-0 right-0 z-50 lg:z-auto transition-transform duration-300 ease-in-out
+      ${isMobileOpen ? 'translate-x-0 shadow-2xl' : 'translate-x-full lg:translate-x-0'}
+    `}>
+      <div className="flex border-b border-theme-outline/20 relative">
+        {isMobileOpen && (
+          <button 
+            onClick={closeMobileSidebar}
+            className="absolute -left-12 top-4 bg-theme-surface border border-theme-outline/20 p-2 rounded-l-lg lg:hidden"
+          >
+            <ChevronRight size={18} />
+          </button>
+        )}
         <button 
           onClick={() => setActiveTab('contributors')}
           className={`flex-1 py-4 flex justify-center border-b-2 ${activeTab === 'contributors' ? 'border-theme-accent text-theme-accent' : 'border-transparent text-theme-on-surface/50 hover:text-theme-forest cursor-pointer'}`}

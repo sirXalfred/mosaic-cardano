@@ -5,6 +5,7 @@ import { CloseButton } from '../ui/close-button';
 import { usePublishDocument, useProposeSplits, useFreezeContent } from '@/services/documents';
 import { DocumentDetails, PublishStep } from '@/types/mosaic';
 import Link from 'next/link';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function PublishingModal({
   publishStep,
@@ -151,7 +152,7 @@ export default function PublishingModal({
         
         {/* Header */}
         <div className="px-8 py-5 border-b border-theme-outline/20 flex justify-between items-center bg-theme-surface-low">
-          <h2 className="font-serif text-xl font-medium text-theme-forest">Publish Artifact</h2>
+          <h2 className="font-serif text-xl font-medium text-theme-forest">Publish Piece</h2>
           <CloseButton onClick={() => setPublishStep(null)} />
         </div>
         
@@ -214,8 +215,8 @@ export default function PublishingModal({
                 <div className="absolute inset-0 border-4 border-theme-accent rounded-full border-t-transparent animate-spin"></div>
                 <div className="absolute inset-0 flex items-center justify-center text-theme-accent"><FileText size={32} className="animate-pulse" /></div>
               </div>
-              <h3 className="font-serif text-2xl text-theme-forest">Freezing Content...</h3>
-              <p className="text-sm text-theme-on-surface/60 font-mono">Uploading raw document to IPFS for permanence.</p>
+              <h3 className="font-serif text-2xl text-theme-forest">Securing Content...</h3>
+              <p className="text-sm text-theme-on-surface/60 font-mono">Securely storing your content permanently.</p>
             </div>
           )}
 
@@ -226,46 +227,53 @@ export default function PublishingModal({
                 <p className="text-sm text-theme-on-surface/70 mb-4">Define the ownership structure for this piece. Total must equal 100%.</p>
               </div>
               
-              <div className="space-y-3">
-                {splits.map(s => (
-                  <div key={s.userId} className="flex items-center justify-between p-3 bg-white border border-theme-outline/20 rounded-lg">
-                    <span className="text-sm font-bold w-1/3">{s.name}</span>
-                    <input 
-                      type="text" 
-                      placeholder="Role (e.g. Writer)" 
-                      value={s.role} 
-                      onChange={(e) => handleRoleChange(s.userId, e.target.value)}
-                      className="border border-theme-outline/20 rounded px-2 py-1 text-sm w-1/3 outline-none focus:border-theme-accent/50"
-                    />
-                    <div className="flex items-center gap-1 w-1/4 justify-end">
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 space-y-3">
+                  {splits.map(s => (
+                    <div key={s.userId} className="flex items-center justify-between p-3 bg-white border border-theme-outline/20 rounded-lg">
+                      <span className="text-sm font-bold w-1/3">{s.name}</span>
                       <input 
-                        type="number" 
-                        value={s.weight} 
-                        onChange={(e) => handleWeightChange(s.userId, e.target.value)}
-                        className="border border-theme-outline/20 rounded px-2 py-1 text-sm w-16 text-right outline-none focus:border-theme-accent/50"
+                        type="text" 
+                        placeholder="Role (e.g. Writer)" 
+                        value={s.role} 
+                        onChange={(e) => handleRoleChange(s.userId, e.target.value)}
+                        className="border border-theme-outline/20 rounded px-2 py-1 text-sm w-1/3 outline-none focus:border-theme-accent/50"
                       />
-                      <span className="text-sm text-theme-on-surface/50">%</span>
+                      <div className="flex items-center gap-1 w-1/4 justify-end">
+                        <input 
+                          type="number" 
+                          value={s.weight} 
+                          onChange={(e) => handleWeightChange(s.userId, e.target.value)}
+                          className="border border-theme-outline/20 rounded px-2 py-1 text-sm w-16 text-right outline-none focus:border-theme-accent/50"
+                        />
+                        <span className="text-sm text-theme-on-surface/50">%</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Distribution Bar */}
-              <div className="w-full h-4 bg-theme-outline/10 rounded-full overflow-hidden flex shadow-inner border border-theme-outline/20">
-                {splits.map((s, i) => (
-                  <div 
-                    key={s.userId} 
-                    className="h-full transition-all duration-300 relative group"
-                    style={{ 
-                      width: `${Math.max(s.weight, 0)}%`, 
-                      backgroundColor: `hsl(${i * 60}, 70%, 50%)`
-                    }}
-                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-theme-surface-high shadow-lg text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                      {s.name} - {s.weight}%
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                
+                {/* Pie Chart Distribution */}
+                <div className="w-full md:w-1/3 h-48 flex flex-col items-center justify-center bg-theme-surface-low rounded-xl border border-theme-outline/20">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={splits}
+                        dataKey="weight"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={30}
+                        outerRadius={60}
+                        paddingAngle={2}
+                      >
+                        {splits.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value}%`, 'Share']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               <div className={`text-sm font-bold text-right ${isValidSplits ? 'text-green-600' : 'text-red-500'}`}>
@@ -281,7 +289,7 @@ export default function PublishingModal({
               </div>
               <h3 className="font-serif text-2xl text-theme-forest">Waiting for Signatures</h3>
               <p className="text-sm text-theme-on-surface/70 max-w-sm">
-                The contribution splits have been proposed. We are now waiting for all contributors to cryptographically sign the manifest.
+                The contribution splits have been proposed. We are now waiting for all contributors to cryptographically sign to confirm their share.
               </p>
               
               <div className="w-full text-left bg-white p-4 rounded-xl border border-theme-outline/20 space-y-2 mt-4">
@@ -304,8 +312,8 @@ export default function PublishingModal({
                 <div className="absolute inset-0 border-4 border-theme-accent rounded-full border-t-transparent animate-spin"></div>
                 <div className="absolute inset-0 flex items-center justify-center text-theme-accent"><PlayCircle size={32} className="animate-pulse" /></div>
               </div>
-              <h3 className="font-serif text-2xl text-theme-forest">Anchoring to Cardano...</h3>
-              <p className="text-sm text-theme-on-surface/60 font-mono">Pinning to IPFS and minting immutable contribution manifest.</p>
+              <h3 className="font-serif text-2xl text-theme-forest">Finalizing Publication...</h3>
+              <p className="text-sm text-theme-on-surface/60 font-mono">Securing the publication on the blockchain.</p>
             </div>
           )}
 
@@ -314,9 +322,9 @@ export default function PublishingModal({
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
                 <CheckCircle size={40} />
               </div>
-              <h3 className="font-serif text-3xl text-theme-forest">Piece Sealed</h3>
+              <h3 className="font-serif text-3xl text-theme-forest">Piece Published</h3>
               <p className="text-sm text-theme-on-surface/70 max-w-sm">
-                &quot; {document.title || 'Untitled Draft'} &quot; has been successfully anchored on-chain and published to the Community Library.
+                &quot; {document.title || 'Untitled Draft'} &quot; has been successfully secured on the blockchain and added to the Community Library.
               </p>
               <div className="bg-theme-surface-low p-3 rounded border border-theme-outline/20 w-full font-mono text-xs text-theme-on-surface/50 truncate select-all">
                 Piece ID: {pieceId || 'Unknown'}
@@ -352,7 +360,7 @@ export default function PublishingModal({
               href={pieceId ? ROUTES.ARTIFACT(pieceId) : ROUTES.STUDIO}
               className="bg-theme-forest text-theme-parchment px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90"
             >
-              View Publication
+              View Piece
             </Link>
           </div>
         )}

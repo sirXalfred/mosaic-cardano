@@ -16,6 +16,7 @@ export default function StudioPage({ params }: { params: { document_id: string }
   const { data: myVillages } = useGetMyVillages();
   
   const [publishStep, setPublishStep] = useState<PublishStep | null>(null);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   
   if (isDocumentLoading) {
     return <div className="min-h-screen bg-theme-surface flex items-center justify-center">Loading Studio...</div>;
@@ -33,18 +34,29 @@ export default function StudioPage({ params }: { params: { document_id: string }
   };
 
   return (
-    <div className="flex h-screen bg-theme-surface overflow-hidden font-sans">
+    <div className="flex h-[100dvh] bg-theme-surface overflow-hidden font-sans relative">
       
       <StudioEditor 
         setPublishStep={setPublishStep} 
         documentId={documentId}
         document={document || null}
         isContentLoading={isContentLoading}
+        toggleSidebar={() => setShowMobileSidebar(!showMobileSidebar)}
       />
+      
+      {/* Mobile Backdrop */}
+      {showMobileSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
       
       <StudioSidebarRight 
         comments={[]} 
         document={document || null}
+        isMobileOpen={showMobileSidebar}
+        closeMobileSidebar={() => setShowMobileSidebar(false)}
       />
       
       <PublishingModal 
