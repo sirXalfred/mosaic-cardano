@@ -11,7 +11,7 @@ export const ROUTES = {
   STUDIO_EDITOR: (documentId: string) => `/studio/${documentId}`,
   PROFILE: '/profile', // generic profile
   NOTIFICATIONS: '/notifications',
-  ARTIFACT: (id: string) => `/artifact/${id}`,
+  ARTIFACT: (id: string) => `/piece/${id}`,
 
   USER: (id: string, currentUserId?: string) => id === currentUserId ? '/profile' : `/u/${id}`,
 

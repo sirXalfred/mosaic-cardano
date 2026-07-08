@@ -10,22 +10,8 @@ export interface FeaturedPiece {
   description: string;
 }
 
-export interface PieceDetails {
-  id: string;
-  title: string;
-  contentUrl: string;
-  contentType: string;
-  createdAt: number;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-  };
-  community: {
-    id: string;
-    name: string;
-  };
-}
+import { PieceDetails } from '@/types/mosaic';
+export type { PieceDetails };
 
 export const useGetFeaturedPieces = (limit = 5) => {
   return useQuery({
