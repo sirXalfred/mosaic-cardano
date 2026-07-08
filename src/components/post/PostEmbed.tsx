@@ -1,8 +1,9 @@
 import React from 'react';
 import { EntityPlaceholder, EntityType } from '@/components/ui/EntityPlaceholder';
 import { Loader2, ExternalLink } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useGetEmbedPostData } from '@/services/posts';
+import { ROUTES } from '@/lib/routes';
+import Link from 'next/link';
 
 interface Props {
   type: EntityType;
@@ -10,17 +11,15 @@ interface Props {
 }
 
 export function PostEmbed({ type, id }: Props) {
-  const router = useRouter();
-
   // We fetch minimal details for the entity. We can optimize this later with a batch endpoint.
   const { data, isLoading, error } = useGetEmbedPostData(type, id);
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (type === 'village') router.push(`/v/${id}`);
-    else if (type === 'project') router.push(`/project/${id}`); // Adjust routing as needed
-    else if (type === 'piece' || type === 'publication') router.push(`/studio/${id}`);
-  };
+  // const handleClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   if (type === 'village') router.push(ROUTES.VILLAGE.HOME(id));
+  //   else if (type === 'project') router.push(ROUTES.VILLAGE.PROJECT(id)); // Adjust routing as needed
+  //   else if (type === 'piece' || type === 'publication') router.push(ROUTES.STUDIO_EDITOR(id));
+  // };
 
   if (isLoading) {
     return (
@@ -38,9 +37,17 @@ export function PostEmbed({ type, id }: Props) {
     );
   }
 
+  const getLink = () => {
+    if (type === 'village') return ROUTES.VILLAGE.HOME(id);
+    else if (type === 'project') return ROUTES.VILLAGE.PROJECT('none', id); // todo: add community_id to project
+    else if (type === 'piece' || type === 'publication') return ROUTES.ARTIFACT(id);
+    else if (type === 'document') return ROUTES.STUDIO_EDITOR(id);
+    return '#';
+  }
+
   return (
-    <div 
-      onClick={handleClick}
+    <Link
+      href={getLink()}
       className="w-full max-w-sm rounded-xl border border-theme-outline/20 bg-theme-surface hover:border-theme-accent hover:bg-theme-surface-raised transition-all my-3 cursor-pointer group overflow-hidden flex shadow-sm"
     >
       <div className="w-24 shrink-0 bg-theme-surface-low border-r border-theme-outline/10 group-hover:bg-theme-surface-raised transition-colors flex items-center justify-center p-2">
@@ -64,6 +71,6 @@ export function PostEmbed({ type, id }: Props) {
       <div className="px-3 flex items-center justify-center text-theme-on-surface/30 group-hover:text-theme-accent transition-colors">
         <ExternalLink size={16} />
       </div>
-    </div>
+    </Link>
   );
 }

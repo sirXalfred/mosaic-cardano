@@ -1,20 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getRequestUserId } from '@/lib/backend/request';
+import { withAuth } from '@/lib/backend/request';
 import { documentService } from '@/services/backend/document.service';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ documentId: string }> }
-) {
+export const GET = withAuth(async (request, { params }, userId) => {
   try {
-    const { documentId } = await params;
-    const userId = await getRequestUserId(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { documentId } = await params as { documentId: string };
     
     const document = await documentService.getDocument(documentId, userId);
     if (!document) {
@@ -27,7 +20,7 @@ export async function GET(
     const msg = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
-}
+});
 
 const UpdateSchema = z.object({
   title: z.string().optional(),
@@ -35,16 +28,9 @@ const UpdateSchema = z.object({
   status: z.string().optional()
 });
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ documentId: string }> }
-) {
+export const PUT = withAuth(async (request, { params }, userId) => {
   try {
-    const { documentId } = await params;
-    const userId = await getRequestUserId(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { documentId } = await params as { documentId: string };
     const body = await request.json();
     
     const parseResult = UpdateSchema.safeParse(body);
@@ -59,4 +45,4 @@ export async function PUT(
     const msg = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
-}
+});

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { badgeService } from '@/services/backend/badge.service';
 import { authService } from '@/services/backend/auth.service';
-import { mintCIP68Badge } from '@/lib/blockchain/minting';
+import { mintCIP68Badge, BadgeMetadata } from '@/lib/blockchain/minting';
 import { z } from 'zod';
 import { withAuth } from '@/lib/backend/request';
+import { BADGE_ASSETS } from '@/lib/badges';
 
 export const GET = withAuth(async (req, context, userId) => {
     try {
@@ -37,18 +38,31 @@ export const POST = withAuth(async (req, context, userId) => {
             return NextResponse.json({ error: "You must link a Cardano wallet before claiming badges." }, { status: 400 });
         }
 
-        // We'll prepare dummy metadata for now based on badge type
-        // In a real app, we'd query exact stats
-        const metadata = {
+
+        const imageUri = BADGE_ASSETS[badge.type] || 'ipfs://QmGenericBadge...';
+
+        // Prepare dynamic metadata based on badge type
+        const metadata: BadgeMetadata = {
             name: `Mosaic ${badge.type} Badge`,
-            image: "ipfs://QmDummyImageHash...",
+            image: imageUri,
             description: `Awarded to ${badge.type} contributors of Mosaic.`,
-            villagesCreated: 1, // dynamically calculated in real scenario
-            projectsJoined: 0,
-            totalDonations: 0,
-            unlockedAt: badge.createdAt,
+            unlockedAt: new Date(badge.createdAt).toISOString(),
             badgeType: badge.type
         };
+
+        if (badge.type === 'early-adopter') {
+            metadata.villageCreated = true;
+        } else if (badge.type === 'first-post') {
+            metadata.postPublished = true;
+        } else if (badge.type === 'first-feedback') {
+            metadata.feedbackProvided = true;
+        } else if (badge.type === 'first-invite') {
+            metadata.inviteSent = true;
+        } else if (badge.type === 'first-document') {
+            metadata.documentPublished = true;
+        } else if (badge.type === 'early-user') {
+            metadata.onboarded = true;
+        }
 
         const { txHash, policyId, assetNameHex, assetNameBase } = await mintCIP68Badge(
             settings.walletAddress,

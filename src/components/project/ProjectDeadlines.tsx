@@ -34,7 +34,7 @@ export default function ProjectDeadlines({ project }: { project: ProjectDetail }
           <div className="absolute w-4 h-4 rounded-full -left-[41px] top-1 border-4 border-theme-surface bg-theme-forest"></div>
           <p className="text-sm font-bold text-theme-forest mb-1">{project.targetDeadline}</p>
           <h3 className="font-serif text-xl text-theme-forest mb-2">Project Delivery</h3>
-          <p className="text-sm text-theme-on-surface/70">Final artifacts to be published to the Library of Memory.</p>
+          <p className="text-sm text-theme-on-surface/70">Final artifacts to be anchored on-chain and published to the Community Library.</p>
         </div>
       </div>
     </div>

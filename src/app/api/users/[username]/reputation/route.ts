@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { authService } from '@/services/backend/auth.service';
 import { settingsService } from '@/services/backend/settings.service';
 import { badgeService } from '@/services/backend/badge.service';
+import { villageService } from '@/services/backend/village.service';
 
 export const runtime = 'nodejs';
 
@@ -30,13 +31,20 @@ export async function GET(
       }));
     }
 
+    let userCommunities: { id: string; name: string; role: string }[] = [];
+    if (settings.profile.showCommunities) {
+      const realComms = await villageService.listUserVillages(user.id);
+      userCommunities = realComms.map(v => ({
+        id: v.id,
+        name: v.name,
+        role: "member"
+      }));
+    }
+
     const defaultReputation = {
       badges: userBadges,
       skills: [],
-      communities: settings.profile.showCommunities ? [
-        // Mock community if visible
-        { id: 'c1', name: 'Artisans', role: 'Member' }
-      ] : [],
+      communities: userCommunities,
       projects: [],
       supportHistory: []
     };

@@ -5,7 +5,7 @@ import { useGetVillageLibrary } from '@/services/villages';
 import { StatePanel } from '@/components/ui/StatePanel';
 import { Loader2 } from 'lucide-react';
 import { PieceCard } from '@/components/piece/PieceCard';
-import { PieceDetails } from '@/services/backend/piece.service';
+import { PieceDetails } from '@/types/mosaic';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 
 
@@ -38,12 +38,12 @@ function VillageLibraryPageContent() {
   return (
     <AppPageContainer title="Village Library" description="The permanent archive of everything created and published by this community">
 
-      <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="sticky top-5 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {FILTERS.map((filter) => (
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all ${
+            className={`px-4 py-1.5 cursor-pointer rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all ${
               activeFilter === filter
                 ? 'bg-theme-forest text-theme-parchment'
                 : 'bg-theme-surface border border-theme-outline/20 text-theme-on-surface/70 hover:bg-theme-surface-high'

@@ -1,15 +1,12 @@
 import { API } from '@/lib/api-routes';
 import {
-  MOCK_FEATURED_ARTIFACTS,
   MOCK_VILLAGE_NEEDS,
-  MOCK_VILLAGE_PROJECTS,
-  MOCK_VILLAGE_STREAM,
-  MOCK_VILLAGE_TIMELINE,
+  MOCK_VILLAGE_PROJECTS
 } from '@/data/mock';
 import { useXQuery } from '@/lib/extended-react-query';
 import { fetchAPI } from './api';
 import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { PieceDetails } from '@/services/backend/piece.service';
+import { PieceDetails } from '@/types/mosaic';
 import { useAuth } from '@/contexts/auth-context';
 
 export interface VillageDetail {
@@ -181,32 +178,12 @@ export const addMockVillageProject = (project: { id: string, title: string, desc
   MOCK_VILLAGE_PROJECTS.unshift(project);
 };
 
-export const useGetVillageStream = () => {
-  return useXQuery({
-    queryKey: ['villageStream'],
-    queryFn: async () => {
-      await delay(1000);
-      return MOCK_VILLAGE_STREAM;
-    }
-  });
-};
-
 export const useGetVillageNeeds = () => {
   return useXQuery({
     queryKey: ['villageNeeds'],
     queryFn: async () => {
       await delay(600);
       return MOCK_VILLAGE_NEEDS;
-    }
-  });
-};
-
-export const useGetVillageTimeline = () => {
-  return useXQuery({
-    queryKey: ['villageTimeline'],
-    queryFn: async () => {
-      await delay(500);
-      return MOCK_VILLAGE_TIMELINE;
     }
   });
 };
@@ -275,16 +252,6 @@ export const useLeaveCommunity = (communityId: string) => {
       queryClient.invalidateQueries({ queryKey: ['villageDetails', communityId] });
       queryClient.invalidateQueries({ queryKey: ['villageMembers', communityId] });
       queryClient.invalidateQueries({ queryKey: ['myVillages'] });
-    }
-  });
-};
-
-export const useGetFeaturedArtifacts = () => {
-  return useXQuery({
-    queryKey: ['featuredArtifacts'],
-    queryFn: async () => {
-      await delay(700);
-      return [...MOCK_FEATURED_ARTIFACTS];
     }
   });
 };

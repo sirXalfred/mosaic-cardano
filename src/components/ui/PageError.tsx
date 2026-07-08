@@ -1,8 +1,8 @@
 import React from 'react';
 import { AlertTriangleIcon, RotateCcw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/routes';
+import Link from 'next/link';
 
 export type PageErrorProps = {
   title?: string;
@@ -19,8 +19,6 @@ export function PageError({
   onRetry,
   showHomeButton = true
 }: PageErrorProps) {
-  const router = useRouter();
-
   return (
     <div className="flex w-full min-h-[60vh] flex-col items-center justify-center p-6 md:p-10 text-center animate-in fade-in zoom-in-95 duration-500">
       <div className="relative mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-red-500/5 dark:bg-red-400/5 mb-8">
@@ -50,9 +48,11 @@ export function PageError({
             </Button>
           )}
           {showHomeButton && (
-            <Button onClick={() => router.push(ROUTES.HOME)} variant="outline" className="rounded-full px-8 py-5 w-full sm:w-auto bg-transparent border-theme-outline/20">
-              <Home size={18} className="mr-2" />
-              Return Home
+            <Button asChild variant="outline" className="rounded-full px-8 py-5 w-full sm:w-auto bg-transparent border-theme-outline/20">
+              <Link href={ROUTES.HOME}>
+                <Home size={18} className="mr-2" />
+                Return Home
+              </Link>
             </Button>
           )}
         </div>

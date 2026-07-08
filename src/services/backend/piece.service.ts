@@ -8,30 +8,17 @@ export interface FeaturedPiece {
   description: string;
 }
 
-export interface PieceDetails {
-  id: string;
-  title: string;
-  contentUrl: string;
-  contentType: string;
-  createdAt: number;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-  };
-  community: {
-    id: string;
-    name: string;
-  };
-}
+import { PieceDetails } from '@/types/mosaic';
 
 export const pieceService = {
   async getFeaturedPieces(limit = 5): Promise<FeaturedPiece[]> {
     const query = `
       MATCH (p:Mosaic_Piece)
-      OPTIONAL MATCH (c:Mosaic_Community)-[:PUBLISHED_IN]->(p)
-      OPTIONAL MATCH (a:Mosaic_User)-[:AUTHORED]->(p)
-      RETURN p.id AS id, p.title AS title, p.contentType AS type, coalesce(c.name, 'Unknown Community') AS community, coalesce(a.displayName, a.username) AS author
+      OPTIONAL MATCH (p)-[:PUBLISHED_IN]->(c:Mosaic_Community)
+      OPTIONAL MATCH (p)-[:HAS_CONTRIBUTION]->(contrib:Mosaic_Contribution)-[:MADE_BY]->(a:Mosaic_User)
+      // Fallback for older pieces
+      OPTIONAL MATCH (legacyAuthor:Mosaic_User)-[:AUTHORED]->(p)
+      RETURN p.id AS id, p.title AS title, p.contentType AS type, coalesce(c.name, 'Unknown Community') AS community, coalesce(a.displayName, a.username, legacyAuthor.displayName, legacyAuthor.username) AS author
       ORDER BY p.createdAt ASC
       LIMIT toInteger($limit)
     `;
@@ -50,17 +37,34 @@ export const pieceService = {
   async getPieceById(id: string): Promise<PieceDetails | null> {
     const query = `
       MATCH (p:Mosaic_Piece {id: $id})
-      OPTIONAL MATCH (author:Mosaic_User)-[:AUTHORED]->(p)
-      OPTIONAL MATCH (community:Mosaic_Community)-[:PUBLISHED_IN]->(p)
-      RETURN p, author, community
+      OPTIONAL MATCH (p)-[:HAS_CONTRIBUTION]->(c:Mosaic_Contribution)-[:MADE_BY]->(u:Mosaic_User)
+      OPTIONAL MATCH (legacyAuthor:Mosaic_User)-[:AUTHORED]->(p)
+      OPTIONAL MATCH (p)-[:PUBLISHED_IN]->(community:Mosaic_Community)
+      RETURN p, community, legacyAuthor, collect({
+        userId: u.id,
+        name: u.displayName,
+        username: u.username,
+        role: c.role,
+        weight: c.weight
+      }) AS contributors
     `;
 
     const rows = await runRead(query, { id }, (row) => {
       const p = row.p as Record<string, unknown>;
-      const author = row.author as Record<string, unknown> | null;
+      const legacyAuthor = row.legacyAuthor as Record<string, unknown> | null;
       const community = row.community as Record<string, unknown> | null;
+      const contribs = row.contributors as { userId: string; name: string; username: string; role: string; weight: number; }[];
 
-      if (!p) return null;
+      let mappedContributors = contribs.filter(c => c.userId !== null);
+      if (mappedContributors.length === 0 && legacyAuthor) {
+        mappedContributors = [{
+          userId: legacyAuthor.id as string,
+          name: (legacyAuthor.displayName as string) || (legacyAuthor.username as string) || 'Unknown Author',
+          username: legacyAuthor.username as string,
+          role: 'Creator',
+          weight: 100
+        }];
+      }
 
       return {
         id: p.id as string,
@@ -68,11 +72,7 @@ export const pieceService = {
         contentUrl: p.contentUrl as string,
         contentType: p.contentType as string,
         createdAt: p.createdAt as number,
-        author: {
-          id: (author?.id as string) || '',
-          name: (author?.displayName as string) || (author?.username as string) || 'Unknown Author',
-          username: (author?.username as string) || '',
-        },
+        contributors: mappedContributors,
         community: {
           id: (community?.id as string) || '',
           name: (community?.name as string) || 'Unknown Community',
@@ -91,10 +91,17 @@ export const pieceService = {
     }
 
     const query = `
-      MATCH (community:Mosaic_Community {id: $communityId})-[:PUBLISHED_IN]->(p:Mosaic_Piece)
+      MATCH (p:Mosaic_Piece)-[:PUBLISHED_IN]->(community:Mosaic_Community {id: $communityId})
       WHERE 1=1 ${typeFilter}
-      OPTIONAL MATCH (author:Mosaic_User)-[:AUTHORED]->(p)
-      RETURN p, author, community
+      OPTIONAL MATCH (p)-[:HAS_CONTRIBUTION]->(c:Mosaic_Contribution)-[:MADE_BY]->(u:Mosaic_User)
+      OPTIONAL MATCH (legacyAuthor:Mosaic_User)-[:AUTHORED]->(p)
+      RETURN p, community, legacyAuthor, collect({
+        userId: u.id,
+        name: u.displayName,
+        username: u.username,
+        role: c.role,
+        weight: c.weight
+      }) AS contributors
       ORDER BY p.createdAt DESC
       SKIP toInteger($offset)
       LIMIT toInteger($limit)
@@ -104,8 +111,20 @@ export const pieceService = {
       // NOTE: slicing 's' off filter if the UI passes 'Pieces' instead of 'Piece' 
       // or we just trust the filter if the frontend already handles singular vs plural.
       const p = row.p as Record<string, unknown>;
-      const author = row.author as Record<string, unknown> | null;
+      const legacyAuthor = row.legacyAuthor as Record<string, unknown> | null;
       const communityNode = row.community as Record<string, unknown>;
+      const contribs = row.contributors as { userId: string; name: string; username: string; role: string; weight: number; }[];
+
+      let mappedContributors = contribs.filter(c => c.userId !== null);
+      if (mappedContributors.length === 0 && legacyAuthor) {
+        mappedContributors = [{
+          userId: legacyAuthor.id as string,
+          name: (legacyAuthor.displayName as string) || (legacyAuthor.username as string) || 'Unknown Author',
+          username: legacyAuthor.username as string,
+          role: 'Creator',
+          weight: 100
+        }];
+      }
 
       return {
         id: p.id as string,
@@ -113,11 +132,7 @@ export const pieceService = {
         contentUrl: p.contentUrl as string,
         contentType: p.contentType as string,
         createdAt: p.createdAt as number,
-        author: {
-          id: (author?.id as string) || '',
-          name: (author?.displayName as string) || (author?.username as string) || 'Unknown Author',
-          username: (author?.username as string) || '',
-        },
+        contributors: mappedContributors,
         community: {
           id: (communityNode?.id as string) || '',
           name: (communityNode?.name as string) || 'Unknown Community',

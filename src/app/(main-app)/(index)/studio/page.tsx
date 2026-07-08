@@ -8,6 +8,7 @@ import { getLocalDocuments, LocalDocument } from '@/lib/indexeddb';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { ROUTES } from '@/lib/routes';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function StudioLandingPage() {
   const router = useRouter();
@@ -56,10 +57,6 @@ export default function StudioLandingPage() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleCreateNative = () => {
-    router.push(`/studio/new`);
-  };
-
   const handleLinkExternal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!externalUrl) return;
@@ -73,7 +70,7 @@ export default function StudioLandingPage() {
       });
 
       // Redirect to the newly created draft in studio
-      router.push(ROUTES.STUDIO + `/${id}`);
+      router.push(ROUTES.STUDIO_EDITOR(id));
 
     } catch (e) {
       console.error(e);
@@ -89,8 +86,8 @@ export default function StudioLandingPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
         
         {/* Native Draft Option */}
-        <button 
-          onClick={handleCreateNative}
+        <Link 
+          href={ROUTES.STUDIO + '/new'}
           className="bg-white border border-theme-outline/20 hover:border-theme-accent hover:shadow-lg transition-all rounded-2xl p-8 flex flex-col items-start text-left cursor-pointer group h-full"
         >
           <div className="w-12 h-12 bg-theme-clay/10 text-theme-accent rounded-xl flex items-center justify-center mb-6 group-hover:bg-theme-accent group-hover:text-white transition-colors">
@@ -103,7 +100,7 @@ export default function StudioLandingPage() {
           <span className="text-[10px] uppercase tracking-widest font-bold text-theme-forest flex items-center gap-2">
             Start Writing &rarr;
           </span>
-        </button>
+        </Link>
 
         {/* External Link Option */}
         <div className="bg-white border border-theme-outline/20 rounded-2xl p-8 flex flex-col items-start h-full">
@@ -158,9 +155,9 @@ export default function StudioLandingPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(showAllDocuments ? mergedPieces : recentPieces).map(piece => (
-              <div 
+              <Link
                 key={piece.id} 
-                onClick={() => router.push(`/studio/${piece.id}`)}
+                href={ROUTES.STUDIO_EDITOR(piece.id)}
                 className="bg-white border border-theme-outline/10 hover:border-theme-clay p-5 rounded-xl cursor-pointer transition-colors group flex items-start justify-between"
               >
                 <div>
@@ -175,7 +172,7 @@ export default function StudioLandingPage() {
                 <div className="w-8 h-8 rounded bg-theme-surface flex items-center justify-center text-theme-outline/50 group-hover:bg-theme-clay/10 group-hover:text-theme-accent transition-colors">
                   <FileText size={16} />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

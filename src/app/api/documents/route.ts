@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRequestUserId } from '@/lib/backend/request';
+import { withAuth } from '@/lib/backend/request';
 import { documentService } from '@/services/backend/document.service';
 import { z } from 'zod';
 
@@ -10,12 +10,8 @@ const CreateSchema = z.object({
   content: z.string().optional().default('')
 });
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (request, context, userId) => {
   try {
-    const userId = await getRequestUserId(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const body = await request.json();
     const parseResult = CreateSchema.safeParse(body);
     
@@ -31,15 +27,11 @@ export async function POST(request: Request) {
     console.error('Failed to create document:', error);
     const msg = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: msg }, { status: 500 });
-  }
 }
+});
 
-export async function GET(request: Request) {
+export const GET = withAuth(async (request, context, userId) => {
   try {
-    const userId = await getRequestUserId(request);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -54,5 +46,5 @@ export async function GET(request: Request) {
     console.error('Failed to get documents:', error);
     const msg = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: msg }, { status: 500 });
-  }
 }
+});

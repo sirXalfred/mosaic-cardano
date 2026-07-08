@@ -78,7 +78,7 @@ export const participateService = {
 					contentType: $contentType,
 					createdAt: $now
 				})
-				MERGE (community)-[:PUBLISHED_IN]->(piece)
+				MERGE (piece)-[:PUBLISHED_IN]->(community)
 				MERGE (author)-[:AUTHORED {createdAt: $now}]->(piece)
 				RETURN piece AS piece
 			`,

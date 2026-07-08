@@ -149,7 +149,7 @@ const MOCK_PROJECT_DETAILS: Record<string, ProjectDetail> = {
         status: 'Pending',
         tasks: [
           { id: 't6', title: 'Format manuscripts for Studio', status: 'Unassigned' },
-          { id: 't7', title: 'Publish to Library of Memory', status: 'Unassigned' }
+          { id: 't7', title: 'Anchor & Publish to Community Library', status: 'Unassigned' }
         ]
       }
     ],
