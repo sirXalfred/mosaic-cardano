@@ -1,15 +1,14 @@
 import { Metadata } from 'next';
 import ExploreView from '@/components/explore/ExploreView';
-import { AuthGuard } from '@/contexts/auth-guard';
 
 export const metadata: Metadata = {
   title: 'Explore',
-  description: 'Discover communities, villages, and shared passions on Mosaic.',
+  description: 'Discover communities, collaborated workpieces, and shared passions on Mosaic.',
 };
 
 export default function ExplorePage() {
-  return <AuthGuard>
-   <ExploreView />;
-   </AuthGuard>
+  return (
+   <ExploreView />
+   );
 }
 
