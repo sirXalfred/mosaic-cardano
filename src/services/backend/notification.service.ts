@@ -259,6 +259,16 @@ export const notificationService = {
 			body: `You've earned the ${badgeName} badge. Click to mint it on-chain!`,
 			actionUrl: `?modal=BADGES`
 		});
+	},
+
+	async notifyMention(userId: string, actorName: string, communityName: string, communityId: string) {
+		return this.createNotification({
+			userId,
+			type: 'MENTION',
+			title: 'You were mentioned',
+			body: `${actorName} mentioned you in a post in ${communityName}`,
+			actionUrl: `/v/${communityId}/feed`
+		});
 	}
 };
 

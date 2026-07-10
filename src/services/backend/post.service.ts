@@ -1,5 +1,6 @@
 import { runRead, runWrite } from './shared';
 import { badgeService } from './badge.service';
+import { notificationService } from './notification.service';
 
 export type PostResponse = {
   id: string;
@@ -39,14 +40,14 @@ export const postService = {
       CREATE (u)-[:AUTHORED]->(p)
       CREATE (p)-[:POSTED_IN]->(c)
       
-      WITH p, u
+      WITH p, u, c
       OPTIONAL MATCH (parent:Mosaic_Post {id: $replyToId})
       FOREACH (ignoreMe IN CASE WHEN parent IS NOT NULL THEN [1] ELSE [] END |
         CREATE (p)-[:REPLIED_TO]->(parent)
         SET parent.replyCount = coalesce(parent.replyCount, 0) + 1
       )
 
-      RETURN p AS post, u AS author
+      RETURN p AS post, u AS author, c.name AS communityName
     `;
 
     const rows = await runWrite(query, { communityId, authorId, content, postId, timestamp, replyToId: replyToId || null }, (row) => row);
@@ -55,9 +56,35 @@ export const postService = {
 
     const post = rows[0].post as Record<string, unknown>;
     const author = rows[0].author as Record<string, unknown>;
+    const communityName = rows[0].communityName as string;
+
+    const authorDisplayName = author.displayName as string || author.name as string;
 
     // Asynchronously award the first-post badge (idempotent in DB)
     badgeService.createUnclaimedBadge(authorId, 'first-post', `fp-${authorId}`).catch(console.error);
+
+    // Process Mentions
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+    const mentions = new Set<string>();
+    let match;
+    while ((match = mentionRegex.exec(content)) !== null) {
+      mentions.add(match[1]);
+    }
+
+    if (mentions.size > 0) {
+      const usernames = Array.from(mentions);
+      runRead(
+        `MATCH (u:Mosaic_User) WHERE u.username IN $usernames RETURN u.id AS id`,
+        { usernames },
+        (row) => row.id as string
+      ).then(userIds => {
+        userIds.forEach(id => {
+          if (id !== authorId) {
+            notificationService.notifyMention(id, authorDisplayName, communityName, communityId).catch(console.error);
+          }
+        });
+      }).catch(console.error);
+    }
 
     return {
       id: post.id as string,
