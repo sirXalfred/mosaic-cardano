@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { truncateWalletAddress } from '@/lib/utils';
 import { InteractiveCopy } from '@/components/ui/interactive-copy';
+
 export const ProfileHeader = ({ profile, isLoading }: { profile?: UserProfile, isLoading: boolean }) => {
   const { userId } = useAuth();
 

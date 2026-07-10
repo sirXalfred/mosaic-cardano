@@ -80,6 +80,16 @@ export const PostNodeSchema = z.object({
   updatedAt: TimestampSchema.optional(),
 });
 
+export const DocumentCommentNodeSchema = z.object({
+  id: UUIDSchema,
+  documentId: UUIDSchema,
+  authorId: UUIDSchema,
+  content: z.string().min(1).max(2000),
+  resolved: z.boolean().default(false),
+  createdAt: TimestampSchema,
+  updatedAt: TimestampSchema.optional(),
+});
+
 export const SkillNodeSchema = z.object({
   name: z.string().trim().toLowerCase().min(1).max(80),
   createdAt: TimestampSchema.optional(),

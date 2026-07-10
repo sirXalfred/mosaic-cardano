@@ -73,7 +73,7 @@ export const RecommendedCommunitiesResponseSchema = z.object({
 });
 
 export const RegisterWithPasswordRequestSchema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores (no @ symbols)"),
   displayName: z.string().min(1).max(80),
   email: z.string().email(),
   password: z.string().min(8).max(128),

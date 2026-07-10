@@ -71,7 +71,7 @@ function VillageMembersPageContent() {
   };
 
   return (
-    <AppPageContainer title={`Members: ${village?.name}`} description="The scribes, creators, and contributors building this village">
+    <AppPageContainer title={`Members: ${village?.name}`} description="The creators, members and contributors building this community">
       <div className="flex md:items-end justify-end gap-6 mb-8">
         <div className="flex items-center gap-4">
           {isAdmin && selectedMemberIds.size > 0 && (
@@ -105,7 +105,7 @@ function VillageMembersPageContent() {
       ) : isError ? (
         <StatePanel variant="error" title="Failed to Load" description="An error occurred while fetching members." onRetry={() => refetch()} />
       ) : (!members || members.length === 0) ? (
-        <StatePanel variant="empty" title="No Members" description="No members found in this village." />
+        <StatePanel variant="empty" title="No Members" description="No members found in this community." />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {members.map(member => {

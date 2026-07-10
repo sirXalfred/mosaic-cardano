@@ -25,7 +25,7 @@ export const POST = withAuth(async (request, context, userId) => {
     if (error instanceof Error && error.message.startsWith('PLAN_LIMIT')) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
-    console.error('Error creating village:', error);
+    console.error('Error creating community:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });

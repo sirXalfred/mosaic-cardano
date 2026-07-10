@@ -10,7 +10,7 @@ export const GET = withAdminAuth(async (req: Request) => {
     const data = await adminService.listVillages(page);
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Failed to list villages:', error);
+    console.error('Failed to list communities:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });

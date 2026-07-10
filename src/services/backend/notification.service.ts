@@ -249,6 +249,26 @@ export const notificationService = {
 			body: `${memberName} just joined ${communityName}!`,
 			actionUrl: `/v/${communityId}`
 		});
+	},
+
+	async notifyBadgeEarned(userId: string, badgeName: string) {
+		return this.createNotification({
+			userId,
+			type: 'SYSTEM',
+			title: 'New Badge Unlocked!',
+			body: `You've earned the ${badgeName} badge. Click to mint it on-chain!`,
+			actionUrl: `?modal=BADGES`
+		});
+	},
+
+	async notifyMention(userId: string, actorName: string, communityName: string, communityId: string) {
+		return this.createNotification({
+			userId,
+			type: 'MENTION',
+			title: 'You were mentioned',
+			body: `${actorName} mentioned you in a post in ${communityName}`,
+			actionUrl: `/v/${communityId}/feed`
+		});
 	}
 };
 

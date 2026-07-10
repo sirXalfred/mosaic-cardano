@@ -13,10 +13,14 @@ import ExploreTabs from './ExploreTabs';
 import ExploreCard from './ExploreCard';
 import { ROUTES } from '@/lib/routes';
 import { Button } from '../ui/button';
+import AppPageContainer from '../layout/AppPageContainer';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function ExploreView() {
   const router = useRouter();
   const { filters, activeTab, setFilter } = useExploreStore();
+  const {userId} = useAuth();
+  const isAuthenticated = !!userId;
 
   const [offset, setOffset] = useState(0);
   const [items, setItems] = useState<ExploreItem[]>([]);
@@ -102,8 +106,13 @@ export default function ExploreView() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
-      <ExploreHeader />
+    <AppPageContainer 
+    {...(!isAuthenticated ? {} : {
+        title: "Explore",
+        description: "Discover communities, projects, and collaborations emerging across the network."
+      })}
+    >
+      {!isAuthenticated && <ExploreHeader />}
 
       {/* 2. SEARCH & FILTER HUB */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-theme-surface-low/30 p-4 rounded-2xl border border-theme-outline/15 shadow-sm">
@@ -209,6 +218,6 @@ export default function ExploreView() {
           </div>
         )}
       </div>
-    </div>
+    </AppPageContainer>
   );
 }

@@ -39,9 +39,9 @@ export const villageService = {
 			row => String(row.planType || 'FREE')
 		);
 
-		const maxVillages = userPlan[0] === 'PRO' ? 5 : userPlan[0] === 'CUSTOM' ? Infinity : 1;
+		const maxVillages = ['PRO', 'CUSTOM'].includes(userPlan[0]) ? Infinity : userPlan[0] === 'BASIC' ? 10 : 1;
 		if (currentVillageCount[0] >= maxVillages) {
-			throw new Error('PLAN_LIMIT: Upgrade to Pro to create more than one village.');
+			throw new Error('PLAN_LIMIT: Upgrade your plan to create more communities.');
 		}
 
 		const id = crypto.randomUUID();
@@ -99,7 +99,7 @@ export const villageService = {
 			`
 				MATCH (u:Mosaic_User {id: $userId})-[m:MEMBER_OF]->(c:Mosaic_Community {id: $communityId})
 				WHERE m.role = 'ADMIN'
-				SET c.isDeleted = true, c.deletedAt = $now
+				DETACH DELETE c
 			`,
 			{ userId: parsedUserId, communityId: parsedCommunityId, now },
 			() => { }
@@ -291,13 +291,31 @@ export const villageService = {
 			async () => {
 				return runRead(
 					`
-						MATCH (c:Community {id: $communityId})-[:HAS_ACTIVITY]->(a:CommunityActivity)
-						RETURN a AS activity
-						ORDER BY a.createdAt DESC
+						CALL {
+							MATCH (u:Mosaic_User)-[:AUTHORED]->(p:Mosaic_Post)-[:POSTED_IN]->(c:Mosaic_Community {id: $communityId})
+							RETURN p.id AS id, 'POST' AS type, coalesce(u.displayName, u.name, u.username) + ' posted a message.' AS description, p.createdAt AS createdAt
+							UNION
+							MATCH (u:Mosaic_User)<-[:CREATED_BY]-(p:Mosaic_Piece)-[:PUBLISHED_IN]->(c:Mosaic_Community {id: $communityId})
+							WHERE p.status = 'Published'
+							RETURN p.id AS id, 'PIECE' AS type, coalesce(u.displayName, u.name, u.username) + ' published a piece: "' + p.title + '".' AS description, p.updatedAt AS createdAt
+							UNION
+							MATCH (u:Mosaic_User)-[m:MEMBER_OF]->(c:Mosaic_Community {id: $communityId})
+							RETURN u.id + '_' + m.joinedAt AS id, 'JOIN' AS type, coalesce(u.displayName, u.name, u.username) + ' joined the community.' AS description, m.joinedAt AS createdAt
+							UNION
+							MATCH (c:Mosaic_Community {id: $communityId})-[:HAS_ACTIVITY]->(a:Mosaic_CommunityActivity)
+							RETURN a.id AS id, a.type AS type, a.description AS description, a.createdAt AS createdAt
+						}
+						RETURN id, type, description, createdAt
+						ORDER BY createdAt DESC
 						LIMIT toInteger($limit)
 					`,
 					{ communityId: parsedCommunityId, limit },
-					row => row.activity as { id: string; type: string; description: string; createdAt: number },
+					row => ({
+						id: row.id as string,
+						type: row.type as string,
+						description: row.description as string,
+						createdAt: Number(row.createdAt),
+					}),
 				);
 			},
 			30,

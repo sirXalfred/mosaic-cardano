@@ -653,7 +653,7 @@ export const MOCK_MY_VILLAGES = [
   {
     id: 'scribes-of-sahel',
     name: 'The Scribes of the Sahel',
-    description: 'A digital settlement dedicated to archiving the oral histories and poetry of West Africa.',
+    description: 'A digital community dedicated to archiving the oral histories and poetry of West Africa.',
     profileImageUrl: null,
     memberCount: 142,
     icon: '📜',
@@ -679,7 +679,7 @@ export const MOCK_VILLAGE_DETAILS: Record<string, {
   'scribes-of-sahel': {
     id: 'scribes-of-sahel',
     name: 'The Scribes of the Sahel',
-    description: 'A digital settlement dedicated to archiving the oral histories and poetry of West Africa.',
+    description: 'A digital community dedicated to archiving the oral histories and poetry of West Africa.',
     memberCount: 142,
     treasuryBalance: '45,000 SCR',
     isMember: true,

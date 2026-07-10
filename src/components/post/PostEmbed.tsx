@@ -18,7 +18,7 @@ export function PostEmbed({ type, id }: Props) {
   //   e.stopPropagation();
   //   if (type === 'village') router.push(ROUTES.VILLAGE.HOME(id));
   //   else if (type === 'project') router.push(ROUTES.VILLAGE.PROJECT(id)); // Adjust routing as needed
-  //   else if (type === 'piece' || type === 'publication') router.push(ROUTES.STUDIO_EDITOR(id));
+  //   else if (type === 'piece' || type === 'publication') router.push(ROUTES.WORKSPACE_EDITOR(id));
   // };
 
   if (isLoading) {
@@ -41,7 +41,7 @@ export function PostEmbed({ type, id }: Props) {
     if (type === 'village') return ROUTES.VILLAGE.HOME(id);
     else if (type === 'project') return ROUTES.VILLAGE.PROJECT('none', id); // todo: add community_id to project
     else if (type === 'piece' || type === 'publication') return ROUTES.ARTIFACT(id);
-    else if (type === 'document') return ROUTES.STUDIO_EDITOR(id);
+    else if (type === 'document') return ROUTES.WORKSPACE_EDITOR(id);
     return '#';
   }
 

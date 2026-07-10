@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle, FileText, PlayCircle, ChevronRight, Users, Loader2 } from 'lucide-react';
 import { ROUTES } from '@/lib/routes';
 import { CloseButton } from '../ui/close-button';
-import { usePublishDocument, useProposeSplits, useFreezeContent } from '@/services/documents';
+import { usePublishDocument, useProposeSplits, useFreezeContent, useUpdateDocument } from '@/services/documents';
+import { useGetAuthState } from '@/services/auth';
 import { DocumentDetails, PublishStep } from '@/types/mosaic';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -26,6 +27,9 @@ export default function PublishingModal({
   const { mutateAsync: publishDocument } = usePublishDocument();
   const { mutateAsync: proposeSplits, isPending: isProposing } = useProposeSplits();
   const { mutateAsync: freezeContent, isPending: isFreezing } = useFreezeContent();
+  const { mutateAsync: updateDocument, isPending: isCanceling } = useUpdateDocument();
+  const { data: authState } = useGetAuthState();
+  const isCreator = document?.creator?.id === authState?.user?.id;
 
   // Local state for split proposals
   const [splits, setSplits] = useState<{ userId: string, name: string, role: string, weight: number }[]>([]);
@@ -38,14 +42,26 @@ export default function PublishingModal({
 
   useEffect(() => {
     if (document?.contributions) {
-      setSplits(document.contributions.map(c => ({
-        userId: c.userId,
-        name: c.name,
-        role: c.role || 'Contributor',
-        weight: c.weight || 0
-      })));
+      if (publishStep === 'propose') {
+        const count = document.contributions.length;
+        const equalShare = count > 0 ? Number((100 / count).toFixed(2)) : 0;
+        // Fix rounding error for last element
+        setSplits(document.contributions.map((c, i) => ({
+          userId: c.userId,
+          name: c.name,
+          role: c.role || 'Contributor',
+          weight: i === count - 1 ? Number((100 - (equalShare * (count - 1))).toFixed(2)) : equalShare
+        })));
+      } else {
+        setSplits(document.contributions.map(c => ({
+          userId: c.userId,
+          name: c.name,
+          role: c.role || 'Contributor',
+          weight: publishStep === 'draft' ? 0 : (c.weight || 0)
+        })));
+      }
     }
-  }, [document]);
+  }, [document, publishStep]);
 
   const hasMintedRef = useRef(false);
 
@@ -144,6 +160,20 @@ export default function PublishingModal({
     }
 
     nextPublishStep(publishStep);
+  };
+
+  const handleCancelPublishing = async () => {
+    if (!document) return;
+    try {
+      await updateDocument({
+        documentId: document.id,
+        updates: { publishStage: 'draft' }
+      });
+      setPublishStep(null);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to cancel publishing');
+    }
   };
 
   return (
@@ -337,12 +367,24 @@ export default function PublishingModal({
         {/* Footer Actions */}
         {publishStep !== 'mint' && publishStep !== 'success' && publishStep !== 'freezing' && (
           <div className="px-8 py-5 border-t border-theme-outline/20 bg-theme-surface-low flex justify-between items-center">
-            <button 
-              onClick={() => setPublishStep(null)}
-              className="text-xs uppercase tracking-widest font-bold text-theme-on-surface/50 hover:text-theme-forest cursor-pointer"
-            >
-              Cancel
-            </button>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setPublishStep(null)}
+                className="text-xs uppercase tracking-widest font-bold text-theme-on-surface/50 hover:text-theme-forest cursor-pointer"
+              >
+                Close
+              </button>
+              {isCreator && publishStep !== 'community' && (
+                <button 
+                  onClick={handleCancelPublishing}
+                  disabled={isCanceling}
+                  className="text-xs uppercase tracking-widest font-bold text-red-500 hover:text-red-700 cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isCanceling && <Loader2 size={12} className="animate-spin" />}
+                  Cancel Publishing
+                </button>
+              )}
+            </div>
             <button 
               onClick={handleContinue}
               disabled={isProposing || isFreezing || (publishStep === 'propose' && !isValidSplits) || (publishStep === 'waiting' && !allSigned)}
@@ -357,7 +399,7 @@ export default function PublishingModal({
         {publishStep === 'success' && (
           <div className="px-8 py-5 border-t border-theme-outline/20 bg-theme-surface-low flex justify-center gap-4">
             <Link
-              href={pieceId ? ROUTES.ARTIFACT(pieceId) : ROUTES.STUDIO}
+              href={pieceId ? ROUTES.ARTIFACT(pieceId) : ROUTES.WORKSPACE}
               className="bg-theme-forest text-theme-parchment px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90"
             >
               View Piece

@@ -21,7 +21,7 @@ export default function PrivacyTab({ settings }: { settings: UserSettings['priva
         <div className="flex items-center justify-between py-2">
           <div className="pr-4">
             <h3 className="text-sm font-bold text-theme-on-surface">Discoverability</h3>
-            <p className="text-xs text-theme-on-surface/60 mt-1">Allow your profile to be found in search results and village member lists.</p>
+            <p className="text-xs text-theme-on-surface/60 mt-1">Allow your profile to be found in search results and village (community) member lists.</p>
           </div>
           <Switch 
             checked={settings.discoverable}

@@ -1,86 +1,32 @@
-"use client";
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
-import { useGetVillageLibrary } from '@/services/villages';
-import { StatePanel } from '@/components/ui/StatePanel';
-import { Loader2 } from 'lucide-react';
-import { PieceCard } from '@/components/piece/PieceCard';
-import { PieceDetails } from '@/types/mosaic';
+import React from 'react';
 import AppPageContainer from '@/components/layout/AppPageContainer';
+import VillageLibraryClient from './VillageLibraryClient';
+import { pieceService } from '@/services/backend/piece.service';
 
+export default async function VillageLibraryPage({ params, searchParams }: { params: Promise<{ community_id: string }>, searchParams: Promise<{ filter?: string }> }) {
+  const { community_id } = await params;
+  const { filter } = await searchParams;
+  const activeFilter = filter || 'All';
+  
+  let singularFilter: string | undefined = activeFilter === 'All' ? undefined : activeFilter;
+  if (singularFilter && singularFilter.endsWith('s')) {
+    singularFilter = singularFilter.slice(0, -1);
+  }
 
-const FILTERS = ['All', 'Pieces', 'Publications', 'Projects'];
-
-export default function VillageLibraryPage() {
-  return (
-    <VillageLibraryPageContent />
-  )
-}
-
-function VillageLibraryPageContent() {
-  const params = useParams();
-  const communityId = params.community_id as string;
-  const [activeFilter, setActiveFilter] = useState('All');
-  const displayActive = activeFilter === 'All' ? 'item' : activeFilter;
-
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useGetVillageLibrary(communityId, activeFilter);
-
-  const items = data?.pages.flatMap(page => page.items) || [];
+  // Pre-fetch the first page of items
+  const initialItems = await pieceService.listVillagePieces(community_id, 50, 0, singularFilter);
+  
+  const initialData = {
+    pages: [{
+      items: initialItems,
+      nextOffset: initialItems.length === 50 ? 50 : null
+    }],
+    pageParams: [0]
+  };
 
   return (
-    <AppPageContainer title="Village Library" description="The permanent archive of everything created and published by this community">
-
-      <div className="sticky top-5 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {FILTERS.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-1.5 cursor-pointer rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all ${
-              activeFilter === filter
-                ? 'bg-theme-forest text-theme-parchment'
-                : 'bg-theme-surface border border-theme-outline/20 text-theme-on-surface/70 hover:bg-theme-surface-high'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      {isLoading ? (
-        <StatePanel variant="loading" title="Loading Library" description="Fetching library materials..." />
-      ) : isError ? (
-        <StatePanel variant="error" title="Failed to Load" description="An error occurred while fetching the library." onRetry={() => refetch()} />
-      ) : items.length === 0 ? (
-        <StatePanel variant="empty" title="Empty Library" description={`No ${displayActive.toLowerCase()} found in the library yet.`} />
-      ) : (
-        <>
-          <div className="flex flex-col gap-6">
-            {items.map((item, i) => (
-              <PieceCard key={`${item.id}-${i}`} piece={item as unknown as PieceDetails} />
-            ))}
-          </div>
-
-          {hasNextPage && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="flex items-center gap-2 bg-theme-surface border border-theme-outline/20 text-theme-forest px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-theme-surface-high transition-colors disabled:opacity-50"
-              >
-                {isFetchingNextPage ? <Loader2 size={16} className="animate-spin" /> : 'Load More'}
-              </button>
-            </div>
-          )}
-        </>
-      )}
+    <AppPageContainer title="Community Library" description="The permanent archive of everything created and published by this community">
+      <VillageLibraryClient communityId={community_id} initialData={initialData} />
     </AppPageContainer>
   );
 }

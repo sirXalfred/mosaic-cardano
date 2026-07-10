@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateVillage } from '@/services/villages';
-import { Loader2, ArrowRight, Flame, Globe, Type, Image as ImageIcon } from 'lucide-react';
+import { Loader2, ArrowRight, Globe, Type, Image as ImageIcon } from 'lucide-react';
 import { ROUTES } from '@/lib/routes';
 import { FormError } from '@/components/ui/form-error';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { MODALS } from '@/lib/modals';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { createVillageProfileImage } from '@/lib/create-village-profile-image';
 import { toast } from 'sonner';
+import MosaicSymbol from '@/components/ui/icons/MosaicSymbol';
 
 export default function CreateCommunityPage() {
   const router = useRouter();
@@ -70,11 +71,11 @@ export default function CreateCommunityPage() {
         duration: 10000,
       });
 
-      router.push(ROUTES.VILLAGE.HOME(newVillageId));
+      router.push(ROUTES.VILLAGE.PROFILE(newVillageId));
 
     } catch (err) {
-      console.error("Failed to create village:", err);
-      const errorMessage = (err as Error).message || "Failed to create village. Please try again.";
+      console.error("Failed to create community:", err);
+      const errorMessage = (err as Error).message || "Failed to create community. Please try again.";
       if (errorMessage.includes('PLAN_LIMIT')) {
         setError(errorMessage);
         setTimeout(() => openModal(MODALS.PRICING), 1500);
@@ -91,9 +92,9 @@ export default function CreateCommunityPage() {
       <div className="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="text-center mb-10">
           <div className="w-16 h-16 bg-theme-clay/20 text-theme-accent rounded-full flex items-center justify-center mx-auto mb-6">
-            <Flame size={32} />
+            <MosaicSymbol />
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl text-theme-forest mb-4">Create a new Village</h1>
+          <h1 className="font-serif text-4xl md:text-5xl text-theme-forest mb-4">Create a new Community</h1>
           <p className="text-theme-on-surface/70 text-lg max-w-md mx-auto">
             Create a new digital village for your community to gather, archive, and collaborate.
           </p>
@@ -113,7 +114,7 @@ export default function CreateCommunityPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={displayedImage}
-                  alt="Village Avatar Preview"
+                  alt="Community Avatar Preview"
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
                 </>
@@ -152,7 +153,7 @@ export default function CreateCommunityPage() {
 
           <div className="space-y-2">
             <label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-theme-forest flex items-center gap-2">
-              <Globe size={14} className="text-theme-accent" /> Settlement Name
+              <Globe size={14} className="text-theme-accent" /> Community Name
             </label>
             <input
               id="name"
@@ -206,7 +207,7 @@ export default function CreateCommunityPage() {
               </>
             ) : (
               <>
-                Establish Settlement <ArrowRight size={18} />
+                Create Community <ArrowRight size={18} />
               </>
             )}
           </Button>

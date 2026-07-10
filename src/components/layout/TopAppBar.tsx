@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from 'react';
-import { BellIcon, PlusIcon, User, Palette, Award, LogOut, User2Icon, Wallet, MenuIcon } from 'lucide-react';
+import { BellIcon, PlusIcon, User, Palette, Award, LogOut, User2Icon, Wallet, MenuIcon, ChevronDownIcon } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGetAuthState } from '@/services/auth';
@@ -77,24 +77,19 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
                 <DropdownMenuTrigger>
                   <PlusIcon size="16" />
                   <span className="hidden md:inline-block ml-1">CREATE</span>
+                  <ChevronDownIcon size="14" className="ml-1 opacity-70" />
                 </DropdownMenuTrigger>
               </Button>
 
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link href={ROUTES.NEW_COMMUNITY}>
-                    Start a new Community
+                    New Community
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                  Create a Collaboration
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => openModal(MODALS.CREATE_PROJECT)}>
-                  Create a new Project
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={ROUTES.STUDIO}>
-                    Create a new Publication
+                  <Link href={ROUTES.WORKSPACE + '/new'}>
+                    New Piece
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -104,8 +99,8 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-theme-outline/10 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-theme-accent/50">
-                <BellIcon size={20} className="text-theme-on-surface/80 hover:text-theme-forest transition-colors" />
-                {hasUnread && <div className="absolute top-2 right-2 w-2 h-2 bg-theme-accent rounded-full border border-theme-parchment" />}
+                <BellIcon size={20} className={`text-theme-on-surface/80 hover:text-theme-forest transition-colors ${hasUnread ? 'animate-[wiggle_1s_ease-in-out_infinite]' : ''}`} />
+                {hasUnread && <div className="absolute top-2 right-2 w-2 h-2 bg-theme-accent rounded-full border border-theme-parchment animate-pulse" />}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80 bg-theme-surface-high border-theme-outline/20 shadow-lg rounded-xl mt-2 p-0 overflow-hidden">
                 <div className="p-4 border-b border-theme-outline/10 flex justify-between items-center bg-theme-surface-low/50">
@@ -153,9 +148,9 @@ function TopAppBar({ leftContent, rightContent }: TopAppBarProps) {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
-                      <Link href={ROUTES.STUDIO} className="flex items-center gap-3 w-full">
+                      <Link href={ROUTES.WORKSPACE} className="flex items-center gap-3 w-full">
                         <Palette size={16} className="text-theme-on-surface/60" />
-                        <span>Studio</span>
+                        <span>Workspace</span>
                       </Link>
                     </DropdownMenuItem>
 

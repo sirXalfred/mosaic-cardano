@@ -4,6 +4,7 @@ import { fetchAPI } from './api';
 
 import { DocumentDetails } from '@/types/mosaic';
 import { resolveIPFSUri } from '@/lib/ipfs';
+import { DocumentComment } from './projects';
 
 export const useCreateDocument = () => {
   const queryClient = useQueryClient();
@@ -143,14 +144,16 @@ export const useSignContribution = () => {
   });
 };
 
-export const useGetDocumentDetails = (documentId: string | null) => {
+export const useGetDocumentDetails = (documentId: string | null, initialData?: DocumentDetails | null) => {
   const docQuery = useQuery({
     queryKey: ['documentDetails', documentId],
     queryFn: async () => {
       if (!documentId || documentId === 'new') return null;
       return await fetchAPI(`/api/documents/${documentId}`) as DocumentDetails;
     },
-    enabled: !!documentId && documentId !== 'new'
+    enabled: !!documentId && documentId !== 'new' && !initialData,
+    initialData: initialData,
+    staleTime: 10 * 1000 // 10 seconds to quickly reflect new status when waiting for others
   });
 
   const contentQuery = useQuery({
@@ -173,7 +176,7 @@ export const useGetDocumentDetails = (documentId: string | null) => {
 
   return {
     document: documentWithContent,
-    isLoading: docQuery.isLoading,
+    isLoading: docQuery.isLoading && !initialData,
     isError: docQuery.isError,
     error: docQuery.error,
     
@@ -197,5 +200,37 @@ export const useGetUserDocuments = () => {
       return data as { data: DocumentDetails[], nextOffset: number | null };
     },
     getNextPageParam: (lastPage) => lastPage.nextOffset,
+  });
+};
+
+export const useGetDocumentComments = (documentId: string) => {
+  return useQuery({
+    queryKey: ['documentComments', documentId],
+    queryFn: async () => {
+      if (!documentId || documentId === 'new') return [];
+      const res = await fetchAPI(`/api/documents/${documentId}/comments`);
+      return (res as { items: DocumentComment[] }).items;
+    },
+    enabled: !!documentId && documentId !== 'new'
+  });
+};
+
+export const useAddDocumentComment = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ documentId, content }: { documentId: string, content: string }) => {
+      await fetchAPI(`/api/documents/${documentId}/comments`, {
+        method: 'POST',
+        data: { content },
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['documentComments', variables.documentId] });
+      toast.success('Comment added');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to add comment');
+    }
   });
 };

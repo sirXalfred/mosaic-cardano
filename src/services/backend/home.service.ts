@@ -109,7 +109,7 @@ export const homeService = {
           progress: Math.min(95, 20 + artifactCount * 12 + collaboratorNames.length * 6),
           lastActivityAt: activityAt,
           collaborators: collaboratorNames.slice(0, 3),
-          link: ROUTES.STUDIO,
+          link: ROUTES.WORKSPACE,
         } satisfies HomeProjectSummary;
       },
     );
@@ -158,4 +158,30 @@ export const homeService = {
       return [];
     return []
   },
+
+  async listPendingSignatures(userId: string, limit = 6): Promise<{ id: string, title: string, community: string, link: string }[]> {
+    const parsed = listLimitInput.parse({ limit });
+    
+    return runRead(
+      `
+        MATCH (p:Mosaic_Piece {publishStage: 'waiting'})-[:PUBLISHED_IN]->(community:Mosaic_Community)
+        MATCH (p)-[:HAS_CONTRIBUTION]->(c:Mosaic_Contribution {status: 'Pending'})-[:MADE_BY]->(:Mosaic_User {id: $userId})
+        RETURN p AS piece, community AS community
+        ORDER BY p.updatedAt DESC
+        LIMIT toInteger($limit)
+      `,
+      { userId, limit: parsed.limit },
+      row => {
+        const piece = row.piece as { id: string; title: string };
+        const community = row.community as { name: string };
+        
+        return {
+          id: piece.id,
+          title: piece.title,
+          community: community.name,
+          link: ROUTES.WORKSPACE_EDITOR(piece.id),
+        };
+      }
+    );
+  }
 };

@@ -114,11 +114,23 @@ export default function PiecePageContent({ piece }: { piece?: PieceDetails | nul
                 <span className="block font-bold text-theme-forest">
                   {authorName} {coContributors.length > 0 && <span className="text-theme-on-surface/50 font-normal">and {coContributors.length} other{coContributors.length > 1 ? 's' : ''}</span>}
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-theme-on-surface/50">Verified Authorship</span>
               </div>
             </div>
-            <div className="font-mono text-xs text-theme-on-surface/50 uppercase tracking-widest">
-              Published {new Date(piece.createdAt).toLocaleDateString()} • Secured on the Blockchain & Published to the Community Library
+            <div className="font-mono text-xs text-theme-on-surface/50 uppercase tracking-widest flex items-center gap-2 flex-wrap">
+              <span>Published {new Date(piece.createdAt).toLocaleDateString()}</span>
+              {piece.txHash && (
+                <>
+                  <span>•</span>
+                  <a 
+                    href={`https://preprod.cardanoscan.io/transaction/${piece.txHash}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-theme-accent hover:underline"
+                  >
+                    View on Explorer
+                  </a>
+                </>
+              )}
             </div>
           </header>
 

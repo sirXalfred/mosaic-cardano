@@ -193,7 +193,7 @@ export const PricingSection = ({ containerVariants, isModal = false }: { contain
         <motion.div variants={pricingVariants} className="inline-flex items-center gap-2 bg-theme-accent/10 text-theme-accent px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
           <HashIcon size={14} /> Now In Beta
         </motion.div>
-        <motion.h2 variants={pricingVariants} className={`font-serif text-theme-forest mb-6 ${isModal ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'}`}>Sustain Your Village</motion.h2>
+        <motion.h2 variants={pricingVariants} className={`font-serif text-theme-forest mb-6 ${isModal ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'}`}>Sustain Your Community</motion.h2>
         <motion.p variants={pricingVariants} className="font-sans text-lg text-theme-on-surface/70 max-w-2xl mx-auto">
           Start your community with our exclusive beta rates. Prices are displayed in USD but will be paid in their ADA equivalent.
         </motion.p>
@@ -224,8 +224,8 @@ export const PricingSection = ({ containerVariants, isModal = false }: { contain
             originalPrice={20}
             interval="mo"
             features={[
-              'Create 1 Village',
-              'Up to 50 Members',
+              'Create 10 Communities',
+              'Up to 50 Members each',
               'Standard Piece Storage',
               'Basic Governance Tools'
             ]}
@@ -246,7 +246,7 @@ export const PricingSection = ({ containerVariants, isModal = false }: { contain
             originalPrice={150}
             interval="mo"
             features={[
-              'Create Unlimited Villages',
+              'Create Unlimited Communities',
               'Up to 500 Members/Village',
               'Premium Piece Storage',
               'Advanced Governance Tools',
@@ -267,7 +267,7 @@ export const PricingSection = ({ containerVariants, isModal = false }: { contain
             title="Custom"
             description="For large institutions and distributed networks."
             features={[
-              'Unlimited Villages & Members',
+              'Unlimited Communities & Members',
               'Dedicated Storage Nodes',
               'White-label Options',
               'SLA & Priority Support',

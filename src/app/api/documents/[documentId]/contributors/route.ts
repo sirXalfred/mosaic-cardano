@@ -46,8 +46,11 @@ export const POST = withAuth(async (request, { params }, userId) => {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error modifying contributors:', error);
+    if (error instanceof Error && error.message?.includes('Failed to invite user')) {
+      return NextResponse.json({ error: 'User not found or already invited' }, { status: 404 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });

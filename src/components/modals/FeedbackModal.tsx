@@ -20,7 +20,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  
+
   const { mutateAsync: submitFeedback, isPending } = useSubmitFeedback();
 
   const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS || 'addr_test1...';
@@ -32,8 +32,8 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     if (!message) return;
 
     try {
-      await submitFeedback({ 
-        type, 
+      await submitFeedback({
+        type,
         message,
         name: isAnonymous ? undefined : name,
         email: isAnonymous ? undefined : email
@@ -54,16 +54,16 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   };
 
   return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-parchment/40 backdrop-blur-sm">
-      
-  
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-parchment/40 backdrop-blur-sm">
+
+
       <div className="relative bg-theme-parchment w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-        
-          <CloseButton disabled={isPending} onClick={handleClose} />
+
+        <CloseButton disabled={isPending} onClick={handleClose} />
 
         <div className="px-6 py-4 border-b border-theme-outline/20 flex justify-between items-center bg-theme-surface-low">
           {view === 'support' ? (
-            <Button 
+            <Button
               variant="link"
               size="none"
               onClick={() => setView('feedback')}
@@ -163,6 +163,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </Button>
 
               <Button
+                type="submit"
                 disabled={isPending || !message}
               >
                 {isPending && <Loader2 size={14} className="animate-spin" />}
@@ -175,10 +176,10 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             <p className="text-sm text-theme-forest/80 text-center font-serif">
               Mosaic is an open-source initiative. Your support helps us keep the infrastructure running and the platform growing.
             </p>
-            
+
             <div className="p-4 bg-white rounded-xl shadow-inner border border-theme-outline/10">
-              <QRCode 
-                value={treasuryAddress} 
+              <QRCode
+                value={treasuryAddress}
                 size={200}
                 level="M"
               />

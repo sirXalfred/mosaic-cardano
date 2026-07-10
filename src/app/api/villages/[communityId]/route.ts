@@ -15,7 +15,7 @@ export async function GET(
     const community = await villageService.getCommunityByIdOrSlug(communityId);
     
     if (!community) {
-      return NextResponse.json({ error: 'Village not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Community not found' }, { status: 404 });
     }
 
     let isMember = false;
@@ -43,7 +43,7 @@ export async function GET(
       role
     });
   } catch (error) {
-    console.error('Error fetching village details:', error);
+    console.error('Error fetching community details:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -58,7 +58,7 @@ export const DELETE = withAuth(async (request, context, userId) => {
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting village:', error);
+    console.error('Error deleting community:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });

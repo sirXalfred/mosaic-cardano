@@ -65,7 +65,7 @@ export default function ActiveProjectsList() {
           description="Projects you are contributing to will appear here once they are created or assigned to you."
           hasAction
           actionLabel="Create Project"
-          onTriggerAction={() => router.push(ROUTES.STUDIO)}
+          onTriggerAction={() => router.push(ROUTES.WORKSPACE)}
         />
       </div>
     );
@@ -109,7 +109,7 @@ export default function ActiveProjectsList() {
                   <span className="text-xs text-theme-on-surface/60 font-sans">{project.lastActivity}</span>
                 </div>
                 <button className="text-theme-accent font-sans text-[10px] uppercase tracking-widest flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Enter Studio <ChevronRight size={14} />
+                  Enter Workspace <ChevronRight size={14} />
                 </button>
               </div>
             </div>

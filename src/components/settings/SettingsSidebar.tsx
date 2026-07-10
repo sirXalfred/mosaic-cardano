@@ -1,8 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { User, Shield, Bell, Compass, CreditCard } from 'lucide-react';
-
-export type SettingsTab = 'account' | 'profile' | 'privacy' | 'feed' | 'notifications';
+import { User, Bell, CreditCard } from 'lucide-react';
+export type SettingsTab = 'account' | 'profile' | 'notifications';
 
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
@@ -13,8 +12,6 @@ export default function SettingsSidebar({ activeTab, onTabChange }: SettingsSide
   const tabs = [
     { id: 'account', label: 'Account Settings', icon: User },
     { id: 'profile', label: 'Profile Settings', icon: CreditCard }, // CreditCard as generic card/profile icon
-    { id: 'privacy', label: 'Safety & Privacy', icon: Shield },
-    { id: 'feed', label: 'Feed Settings', icon: Compass },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ] as const;
 
