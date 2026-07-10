@@ -20,7 +20,7 @@ export const ContributionRecord = ({ contributions, isLoading }: { contributions
 
   const getIcon = (action: string) => {
     switch(action) {
-      case 'Drafted Artifact': return <FileTextIcon size={18} className="text-theme-clay" />;
+      case 'Drafted Piece': return <FileTextIcon size={18} className="text-theme-clay" />;
       case 'Merged Pull Request': return <GitMergeIcon size={18} className="text-emerald-600" />;
       case 'Peer Review': return <CheckCircle2Icon size={18} className="text-blue-600" />;
       default: return <FileTextIcon size={18} className="text-theme-on-surface/40" />;

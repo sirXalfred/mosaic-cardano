@@ -17,7 +17,7 @@
 [![Build Status](https://img.shields.io/badge/status-building%20in%20public-blueviolet?style=for-the-badge&logo=github)](https://github.com/sirXalfred/mosaic-cardano)
 [![Hackathon](https://img.shields.io/badge/Gimbalabs-Piece%20of%20Pie%202026-orange?style=for-the-badge)](https://www.gimbalabs.com/piece-of-pie)
 [![Built on](https://img.shields.io/badge/Built%20on-Cardano-0033AD?style=for-the-badge&logo=cardano)](https://cardano.org)
-[![Week](https://img.shields.io/badge/Week-7%20of%2012-yellow?style=for-the-badge)](#roadmap)
+[![Phase](https://img.shields.io/badge/Status-Phase%202-yellow?style=for-the-badge)](#roadmap)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -251,7 +251,7 @@ We think it is important to be honest about what we know, what we are assuming, 
 
 ## ✦ The Roadmap
 
-*We are currently in Week 7 of 12 for the Gimbalabs Piece of Pie Hackathon. This roadmap reflects our plan at this moment — it will change, and we will document those changes here.*
+*Our detailed and forward-looking product roadmap can now be found in [ROADMAP.md](./ROADMAP.md).*
 
 <br/>
 
@@ -451,6 +451,6 @@ We are not open for external code contributions yet — we are too early in the 
 
 <br/>
 
-*Last updated: Week 7 · June 2026*
+*Last updated: Phase 2 · July 2026*
 
 </div>

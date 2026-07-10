@@ -62,7 +62,7 @@ export default function LandingView() {
       {/* 4. Trust & Reputation Section */}
       <TrustSection containerVariants={containerVariants} itemVariants={itemVariants} />
 
-      {/* 5. Artifact Highlights Section */}
+      {/* 5. Piece Highlights Section */}
       <motion.section 
         initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}

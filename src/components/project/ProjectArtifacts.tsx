@@ -9,9 +9,9 @@ export default function ProjectArtifacts({ project, projectId }: { project: Proj
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-end mb-8 border-b border-theme-outline/20 pb-4">
-        <h2 className="font-serif text-2xl text-theme-forest">Project Artifacts</h2>
+        <h2 className="font-serif text-2xl text-theme-forest">Project Pieces</h2>
         <Link href={`/studio?project_id=${projectId}`} className="bg-theme-forest text-theme-parchment px-6 py-3 rounded-lg text-xs font-sans uppercase tracking-widest font-bold hover:bg-theme-forest/90 cursor-pointer transition-all hover:scale-105 shadow-md flex items-center gap-2">
-          <FileText size={16} /> New Artifact
+          <FileText size={16} /> New Piece
         </Link>
       </div>
       

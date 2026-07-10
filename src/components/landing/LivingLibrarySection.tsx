@@ -75,7 +75,7 @@ export const LivingLibrarySection = () => {
           ) : null}
         </div>
 
-        {/* Right Side: List of Artifacts */}
+        {/* Right Side: List of Pieces */}
         <div className="space-y-4 min-h-[300px]">
           {isLoadingArtifacts ? (
             <>

@@ -131,7 +131,6 @@ export default function StudioEditor({
           if (localDoc && localDoc.content && (targetId === 'new-draft' || localDoc.lastAccessed > (document?.updatedAt || 0))) {
             initialContent = localDoc.content;
             setLastSaved(new Date(localDoc.lastAccessed));
-            console.log("Loaded newer draft from local IndexedDB");
           }
         } catch (e) {
           console.warn("Failed to check local documents", e);
