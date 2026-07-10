@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wand2, Flame } from 'lucide-react';
+import { Loader2, Wand2, Flame, MoveRightIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { NICHES } from '../lib/data';
 import { Button } from './ui/button';
@@ -95,7 +95,7 @@ export default function OnboardingView() {
             <div className={`h-1 rounded-full transition-all duration-700 ${step >= 1 ? 'w-12 bg-theme-forest' : 'w-4 bg-black/5'}`} />
             <div className={`h-1 rounded-full transition-all duration-700 ${step >= 2 ? 'w-12 bg-theme-forest' : 'w-4 bg-black/5'}`} />
           </div>
-          <h2 className="font-serif text-5xl mb-4 italic text-theme-forest">{step === 1 ? 'What draws you in?' : 'Join or Create a Village.'}</h2>
+          <h2 className="font-serif text-5xl mb-4 italic text-theme-forest">{step === 1 ? 'What draws you in?' : 'Join or Create a Community.'}</h2>
           <p className="text-xl opacity-50 text-theme-forest">{step === 1 ? 'Tell us your story or select niches manually.' : 'Select communities to join, or start your own.'}</p>
         </div>
 
@@ -129,11 +129,13 @@ export default function OnboardingView() {
                   <Flame size={140} />
                 </div>
                 <div className="relative z-10 flex-1">
-                  <h3 className="font-serif text-3xl mb-2">Create your own Village</h3>
-                  <p className="opacity-80">Can&apos;t find what you&apos;re looking for? Start a new settlement for your community.</p>
+                  <h3 className="font-serif text-3xl mb-2">Create your own Community</h3>
+                  <p className="opacity-80">Can&apos;t find what you&apos;re looking for? Start your own community.</p>
                 </div>
                 <Button onClick={handleCreateInstead} variant="accent" size="lg" className="relative z-10 whitespace-nowrap">
-                  {['pending', 'success'].includes(onboardMut.status) ? 'Saving...' : 'Establish Settlement ✨'}
+                  {['pending', 'success'].includes(onboardMut.status) ? 'Saving...' : 
+                  <>Create a Community <MoveRightIcon /> </>
+                }
                 </Button>
               </div>
             </div>

@@ -14,6 +14,7 @@ export const API = {
         ACTIVE_PROJECTS: '/api/home/active-projects',
         COMMUNITY_UPDATES: '/api/home/community-updates',
         SAVED_ITEMS: '/api/home/saved-items',
+        PENDING_SIGNATURES: '/api/home/pending-signatures',
     },
 
     ONBOARDING: {

@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: { community_id: str
   const { community_id } = await params;
   const communityData = await villageService.getCommunityByIdOrSlug(community_id);
   const communityName = communityData?.name || "Community";
-  const image = communityData?.profileImageUrl || "/assets/images/banner-image.png";
+  const image = communityData?.profileImageUrl;
   const descr = communityData?.description || "A community on Mosaic";
 
   return {
@@ -16,8 +16,8 @@ export async function generateMetadata({ params }: { params: { community_id: str
       default: communityName,
       template: `%s - ${communityName} | Mosaic`,
     },
+    icons: image ?? undefined,
     description: `${descr} | Mosaic`,
-
     openGraph: {
       images: image ? [{ url: image }] : undefined,
     },

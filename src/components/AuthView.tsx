@@ -124,7 +124,7 @@ export default function AuthView() {
               {mode === 'signup' ? 'Create an Account.' : 'Welcome back.'}
             </h2>
             <p className="text-theme-on-surface/60">
-              {mode === 'signup' ? 'Join the network of creative villages.' : 'Sign in to access your artifacts.'}
+              {mode === 'signup' ? 'Join the network of creative communities.' : 'Sign in to access your collaborative communities.'}
             </p>
           </div>
 
@@ -188,8 +188,8 @@ export default function AuthView() {
 
             <FormError message={isError ? error?.message || "An unknown error occurred" : ''} />
 
-            <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || walletLoading || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
-              {mode === 'signup' ? 'Join the Village' : 'Sign In'}
+            <Button className='w-full shadow-xl' type="submit" isLoading={isLoading || isSuccessful} size="lg" disabled={isSuccessful || isLoading || walletLoading || (mode === 'signup' && (!isUsernameValid || isLoadingUsername))}>
+              {mode === 'signup' ? 'Create Account' : 'Sign In'}
             </Button>
             
             {mode === 'signin' && (

@@ -161,7 +161,7 @@ export default function NotificationsTab({ settings }: { settings: UserSettings[
 
         <SettingToggleRow 
           title="Community Announcements" 
-          description="Important broadcasts from villages you are a member of."
+          description="Important broadcasts from villages (communities) you are a member of."
           inAppKey="inAppCommunityAlerts"
           pushKey="pushCommunityAlerts"
         />

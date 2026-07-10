@@ -4,12 +4,15 @@ import { useGetVillagePosts } from '@/services/posts';
 import { PostComposer } from '@/components/post/PostComposer';
 import { PostCard } from '@/components/post/PostCard';
 import { cn } from '@/lib/utils';
+import { useGetVillageDetails } from '@/services/villages';
 
 type TabType = 'Latest' | 'Top' | 'Announcements' | 'Pieces';
 
 export default function VillageStream({ communityId }: { communityId: string }) {
   const [activeTab, setActiveTab] = useState<TabType>('Latest');
   const { data: posts, isLoading } = useGetVillagePosts(communityId, activeTab);
+  const { data: village } = useGetVillageDetails(communityId);
+  const isCreator = village?.isCreator;
 
   return (
     <div>
@@ -50,7 +53,12 @@ export default function VillageStream({ communityId }: { communityId: string }) 
           ))
         ) : (
           <div className="py-12 text-center text-theme-on-surface/50 font-sans">
-            No posts found for this filter. Start the conversation!
+            {isCreator ? (
+              <p className="font-bold text-theme-forest mb-2">Make your first announcement</p>
+            ) : (
+              <p className="font-bold text-theme-forest mb-2">Make your first post</p>
+            )}
+            <p>No posts found for this filter. Start the conversation!</p>
           </div>
         )}
       </div>
@@ -58,7 +66,10 @@ export default function VillageStream({ communityId }: { communityId: string }) 
       {/* Sticky Post Composer at Bottom */}
       <div className="sticky bottom-6 z-40 mt-8">
         <div className="shadow-2xl rounded-xl ring-1 ring-theme-outline/20">
-          <PostComposer communityId={communityId} />
+          <PostComposer 
+            communityId={communityId} 
+            initialContent={!isLoading && posts?.length === 0 && !isCreator ? "Hiii, it's great being here in this community" : undefined}
+          />
         </div>
       </div>
     </div>

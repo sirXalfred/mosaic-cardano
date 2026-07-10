@@ -31,12 +31,12 @@ export const metadata: Metadata = {
     default: 'Mosaic',
     template: '%s | Mosaic',
   },
-  description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+  description: 'A platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
   keywords: ['communities', 'creators', 'cardano', 'web3', 'village', 'collaboration', 'funding'],
   authors: [{ name: 'Dev_id', url: 'https://github.com/davidtimi1' }],
   openGraph: {
     title: 'Mosaic',
-    description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+    description: 'A platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
     url: siteUrl,
     siteName: 'Mosaic',
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Mosaic',
-    description: 'A village platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
+    description: 'A platform for creative communities of any shared interest, passion, or hobby. Create together. Show up together. Earn together.',
     images: ['/assets/images/banner-image.png'],
   },
 };

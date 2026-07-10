@@ -7,8 +7,8 @@ export const ROUTES = {
   NEW_COMMUNITY: '/new',
   SETTINGS: '/settings',
   SUPPORT: '/support',
-  STUDIO: '/studio',
-  STUDIO_EDITOR: (documentId: string) => `/studio/${documentId}`,
+  WORKSPACE: '/workspace',
+  WORKSPACE_EDITOR: (documentId: string) => `/workspace/${documentId}`,
   PROFILE: '/profile', // generic profile
   NOTIFICATIONS: '/inbox',
   ARTIFACT: (id: string) => `/piece/${id}`,
@@ -16,11 +16,12 @@ export const ROUTES = {
   USER: (id: string, currentUserId?: string) => id === currentUserId ? '/profile' : `/u/${id}`,
 
   VILLAGE: {
-    HOME: (villageId: string) => `/v/${villageId}`,
+    PROFILE: (villageId: string) => `/v/${villageId}`,
+    HOME: (villageId: string) => `/v/${villageId}/feed`,
+    FEED: (villageId: string) => `/v/${villageId}/feed`,
     PROJECTS: (villageId: string) => `/v/${villageId}/projects`,
     PROJECT: (villageId: string, projectId: string) => `/v/${villageId}/project/${projectId}`,
     LIBRARY: (villageId: string) => `/v/${villageId}/library`,
-    FEED: (villageId: string) => `/v/${villageId}/feed`,
     TREASURY: (villageId: string) => `/v/${villageId}/treasury`,
     GOVERNANCE: (villageId: string) => `/v/${villageId}/governance`,
     MEMBERS: (villageId: string) => `/v/${villageId}/members`,

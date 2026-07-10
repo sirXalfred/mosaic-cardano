@@ -7,6 +7,7 @@ import { MODALS } from '@/lib/modals';
 import MosaicBrand from '../ui/icons/MosaicBrand';
 import { Github, Twitter } from 'lucide-react';
 import { CardanoIcon } from '../ui/icons/CardanoLogo';
+import MosaicSymbol from '../ui/icons/MosaicSymbol';
 
 type SitemapLink = {
   label: string;
@@ -16,7 +17,7 @@ type SitemapLink = {
 
 const SITEMAP: Record<string, SitemapLink[]> = {
   Platform: [
-    { label: 'Explore Villages', href: '/explore' },
+    { label: 'Explore Communities', href: '/explore' },
     { label: 'Global Archive', href: '#' },
     { label: 'The Studio', href: '/studio' },
     { label: 'Governance', href: '/docs/governance' },
@@ -57,6 +58,9 @@ export default function Footer() {
             <a href="https://github.com/sirXalfred/mosaic-cardano" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-theme-parchment/20 flex items-center justify-center hover:bg-theme-parchment hover:text-[#0a0f0d] transition-all">
               <Github size={18} />
             </a>
+            <a href="/v/mosaic-cardano" target="_blank" rel="noreferrer" className="group w-10 h-10 rounded-full border border-theme-parchment/20 flex items-center justify-center hover:bg-theme-parchment hover:text-[#0a0f0d] transition-all">
+              <MosaicSymbol className="stroke-white group-hover:stroke-black" size="size-8" />
+            </a>
           </div>
         </div>
 
@@ -93,7 +97,7 @@ export default function Footer() {
             <CardanoIcon size={20} color='white' />
             <span>Built on Cardano</span>
           </Link>
-           <br className="md:hidden"/> <span className="hidden md:inline">|</span> Built with ❤️ by <a href="https://github.com/davidtimi1" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Dev_id</a></p>
+           <br className="md:hidden"/> <span className="hidden md:inline">|</span> <span> Built with ❤️ by </span> <a href="https://github.com/davidtimi1" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Dev_id</a></p>
       </div>
     </footer>
   );

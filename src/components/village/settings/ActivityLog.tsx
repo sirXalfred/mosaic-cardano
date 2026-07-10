@@ -36,7 +36,7 @@ export default function ActivityLog({ communityId }: Props) {
       <div>
         <h2 className="text-xl font-display font-semibold text-theme-on-surface">Community Activity Log</h2>
         <p className="text-sm text-theme-on-surface/60 font-sans mt-1">
-          A transparent record of administrative and governance actions within the village.
+          A transparent record of administrative actions within the community.
         </p>
       </div>
 

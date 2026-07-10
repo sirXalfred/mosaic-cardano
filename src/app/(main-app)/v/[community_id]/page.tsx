@@ -6,14 +6,16 @@ import Image from 'next/image';
 import { useParams, useSearchParams, usePathname, useRouter } from 'next/navigation';
 import {
   ChevronRightIcon,
-  CheckCircle
+  CheckCircle,
+  CopyIcon
 } from 'lucide-react';
 import { useGetExploreItem } from '@/services/explore';
 import {
   useGetVillageDetails,
   useGetVillageFeaturedWorks,
   useGetVillageMembers,
-  useJoinCommunity
+  useJoinCommunity,
+  useShareInvite
 } from '@/services/villages';
 import { ROUTES } from '@/lib/routes';
 import NotFound from '@/components/layout/NotFound';
@@ -21,6 +23,7 @@ import { PageError } from '@/components/ui/PageError';
 import { Button } from '@/components/ui/button';
 import { CloseButton } from '@/components/ui/close-button';
 import { useAuth } from '@/contexts/auth-context';
+import { toast } from 'sonner';
 
 export default function CommunityPublicProfile() {
   const params = useParams();
@@ -41,6 +44,7 @@ export default function CommunityPublicProfile() {
   const { data: members, isLoading: isLoadingMembers } = useGetVillageMembers(communityId);
 
   const { mutateAsync: joinCommunity, isPending: isJoining } = useJoinCommunity(communityId);
+  const { copyInvite } = useShareInvite(communityId)
 
   const handleJoin = async () => {
     if (!userId) {
@@ -50,6 +54,7 @@ export default function CommunityPublicProfile() {
     
     try {
       await joinCommunity();
+      router.push(ROUTES.VILLAGE.FEED(communityId));
     } catch (e) {
       console.error(e);
     }
@@ -60,13 +65,21 @@ export default function CommunityPublicProfile() {
     router.push(pathname);
   };
 
+  const handleCopyInviteLink = async () => {
+    const copied = await copyInvite();
+    if (copied)
+      toast.success("Invite link copied to clipboard");
+    else
+      toast.error("Failed to copy invite link");
+  };
+
 
   if (isVillage404Error) {
     return <NotFound />;
   }
 
   if (isVillageError) {
-    return <PageError title="Error Loading Village" description="Failed to load village." errorMessage={villageError?.message} />;
+    return <PageError title="Error Loading Community" description="Failed to load community." errorMessage={villageError?.message} />;
   }
 
 
@@ -104,14 +117,20 @@ export default function CommunityPublicProfile() {
                 {villageDetails?.name || communityId.replace(/-/g, ' ')}
               </h1>
               <p className="font-sans text-lg md:text-xl text-theme-on-surface/80 max-w-2xl mx-auto leading-relaxed">
-                {villageDetails?.description || 'A digital cultural institution dedicated to archiving local histories.'}
+                {villageDetails?.description || 'A new Mosaic community.'}
               </p>
             </>
           )}
-          <div className="pt-8 flex items-center justify-center gap-6">
+          <div className="pt-8 flex items-center justify-center gap-6 flex-wrap">
             {!villageDetails?.isMember && (
               <Button onClick={handleJoin} disabled={isJoining}>
                 Join
+              </Button>
+            )}
+
+            {villageDetails?.isMember && (
+              <Button onClick={handleCopyInviteLink}>
+                  Invite Others <CopyIcon className="size-5" />
               </Button>
             )}
 
@@ -199,9 +218,9 @@ export default function CommunityPublicProfile() {
           ) : (
             <div>
               <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent mb-6 font-bold">
-                Stewards & Members ({villageDetails?.memberCount || 0})
+                Members ({villageDetails?.memberCount || 0})
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <Link href={villageDetails?.isMember ? ROUTES.VILLAGE.MEMBERS(communityId) : '#'} className="flex flex-wrap gap-2">
                 {members?.length === 0 ? (
                   <span className="text-xs text-theme-on-surface/50 italic">No members found.</span>
                 ) : (
@@ -218,7 +237,7 @@ export default function CommunityPublicProfile() {
                     )}
                   </>
                 )}
-              </div>
+              </Link>
             </div>
           )}
         </div>

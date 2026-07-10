@@ -97,7 +97,7 @@ export const derivedService = {
 				);
 
 				// Also include a small number of trending communities to diversify results
-				const trending = await this.getTrendingCommunities(5);
+				const trending = await this.getTrendingCommunities(limit);
 
 				const merged: CommunityNode[] = [];
 				const seen = new Set<string>();

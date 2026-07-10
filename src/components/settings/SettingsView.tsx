@@ -6,8 +6,6 @@ import { useGetSettings } from '@/services/settings';
 import { StatePanel } from '../ui/StatePanel';
 
 import ProfileTab from './tabs/ProfileTab';
-import PrivacyTab from './tabs/PrivacyTab';
-import FeedTab from './tabs/FeedTab';
 import NotificationsTab from './tabs/NotificationsTab';
 import AccountTab from './tabs/AccountTab';
 
@@ -38,8 +36,6 @@ export default function SettingsView({ initialTab }: { initialTab?: SettingsTab 
     switch (activeTab) {
       case 'account': return <AccountTab />;
       case 'profile': return <ProfileTab settings={settings.profile} />;
-      case 'privacy': return <PrivacyTab settings={settings.privacy} />;
-      case 'feed': return <FeedTab settings={settings.feed} />;
       case 'notifications': return <NotificationsTab settings={settings.notifications} />;
       default: return null;
     }

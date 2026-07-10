@@ -69,7 +69,7 @@ export default function ProfileSection({ communityId, settings, isCreator }: Pro
         
         <div className="flex-1 space-y-4">
           <p className="text-sm text-theme-on-surface/60 font-sans">
-            This is the primary image representing your village across the platform.
+            This is the primary image representing your community across the platform.
           </p>
           <div className="flex items-center gap-3">
             {isCreator && (

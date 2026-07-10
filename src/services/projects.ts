@@ -168,12 +168,7 @@ const MOCK_PROJECT_DETAILS: Record<string, ProjectDetail> = {
   }
 };
 
-const MOCK_COMMENTS: Record<string, DocumentComment[]> = {
-  'a1': [
-    { id: 'c1', authorName: 'Amina Diallo', content: 'We need to make sure this translation captures the poetic rhythm of the original chant.', timestamp: '1 hour ago', resolved: false, blockId: 'block-2' },
-    { id: 'c2', authorName: 'Kofi Mensah', content: 'Agreed. I added a footnote referencing the drum beat tempo.', timestamp: '45 mins ago', resolved: true, blockId: 'block-2' }
-  ]
-};
+
 
 const MOCK_REVISIONS: Record<string, DocumentRevision[]> = {
   'a1': [
@@ -215,16 +210,7 @@ export const useGetProjectDetails = (projectId: string) => {
   });
 };
 
-export const useGetDocumentComments = (artifactId: string) => {
-  return useXQuery({
-    queryKey: ['documentComments', artifactId],
-    queryFn: async () => {
-      await delay(400);
-      return MOCK_COMMENTS[artifactId] || [];
-    },
-    enabled: !!artifactId
-  });
-};
+
 
 export const useGetDocumentRevisions = (artifactId: string) => {
   return useXQuery({

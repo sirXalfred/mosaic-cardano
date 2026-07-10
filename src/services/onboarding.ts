@@ -35,6 +35,9 @@ export const useSetOnboardingInfo = () => {
             queryClient.invalidateQueries({
                 queryKey: ['authState']
             });
+            queryClient.invalidateQueries({
+                queryKey: ['myVillages']
+            });
         }
     });
 }

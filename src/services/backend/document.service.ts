@@ -182,6 +182,7 @@ export const documentService = {
   },
 
   async inviteContributor(documentId: string, creatorId: string, usernameToInvite: string): Promise<void> {
+    const sanitizedUsername = usernameToInvite.startsWith('@') ? usernameToInvite.slice(1) : usernameToInvite;
     const query = `
       MATCH (p:Mosaic_Piece {id: $documentId})-[:CREATED_BY]->(creator:Mosaic_User {id: $creatorId})
       MATCH (targetUser:Mosaic_User {username: $usernameToInvite})
@@ -201,7 +202,7 @@ export const documentService = {
       RETURN c.id
     `;
     
-    const rows = await runWrite(query, { documentId, creatorId, usernameToInvite }, (row) => row);
+    const rows = await runWrite(query, { documentId, creatorId, usernameToInvite: sanitizedUsername }, (row) => row);
     if (!rows.length) throw new Error('Failed to invite user (they may not exist or are already invited)');
   },
 
@@ -269,5 +270,45 @@ export const documentService = {
     const rows = await runWrite(publishQuery, { documentId, communityId }, (row) => row.id as string);
     if (!rows.length) throw new Error('Failed to link piece to community');
     return rows[0];
+  },
+
+  async addComment(documentId: string, userId: string, content: string): Promise<string> {
+    const query = `
+      MATCH (p:Mosaic_Piece {id: $documentId})
+      MATCH (u:Mosaic_User {id: $userId})
+      CREATE (c:Mosaic_DocumentComment {
+        id: 'comment_' + timestamp() + '_' + u.id,
+        content: $content,
+        resolved: false,
+        createdAt: timestamp()
+      })
+      CREATE (p)-[:HAS_COMMENT]->(c)
+      CREATE (c)-[:AUTHORED_BY]->(u)
+      RETURN c.id AS id
+    `;
+    
+    const rows = await runWrite(query, { documentId, userId, content }, (row) => row.id as string);
+    if (!rows.length) throw new Error('Failed to add comment');
+    return rows[0];
+  },
+
+  async getComments(documentId: string): Promise<{ id: string, authorName: string, content: string, timestamp: string, resolved: boolean }[]> {
+    const query = `
+      MATCH (p:Mosaic_Piece {id: $documentId})-[:HAS_COMMENT]->(c:Mosaic_DocumentComment)-[:AUTHORED_BY]->(u:Mosaic_User)
+      RETURN c, u
+      ORDER BY c.createdAt ASC
+    `;
+    
+    return runRead(query, { documentId }, (row) => {
+      const c = row.c as Record<string, unknown>;
+      const u = row.u as Record<string, unknown>;
+      return {
+        id: c.id as string,
+        authorName: u.displayName as string,
+        content: c.content as string,
+        timestamp: new Date(c.createdAt as number).toLocaleString(),
+        resolved: !!c.resolved
+      };
+    });
   }
 };
