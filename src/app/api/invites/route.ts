@@ -5,6 +5,23 @@ import { villageService } from '@/services/backend/village.service';
 
 export const runtime = 'nodejs';
 
+
+/**
+ * @swagger
+ * /api/invites:
+ *   post:
+ *     summary: POST invites
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (request, context, userId) => {
   try {
     const body = await request.json();

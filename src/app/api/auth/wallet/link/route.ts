@@ -5,6 +5,23 @@ import { checkSignature } from '@meshsdk/core';
 
 export const runtime = 'nodejs';
 
+
+/**
+ * @swagger
+ * /api/auth/wallet/link:
+ *   post:
+ *     summary: POST link
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (request, context, userId) => {
   try {
     const { signature, payload, address } = await request.json();

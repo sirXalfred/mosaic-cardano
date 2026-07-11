@@ -3,6 +3,23 @@ import { z } from 'zod';
 import { villageService } from '@/services/backend/village.service';
 import { withAuth } from '@/lib/backend/request';
 
+
+/**
+ * @swagger
+ * /api/villages/[communityId]/settings:
+ *   get:
+ *     summary: GET settings
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (req, { params }, userId) => {
   try {
     const communityId = params.communityId;
@@ -32,6 +49,23 @@ const UpdateSettingsSchema = z.object({
   isPublic: z.boolean().optional()
 });
 
+
+/**
+ * @swagger
+ * /api/villages/[communityId]/settings:
+ *   patch:
+ *     summary: PATCH settings
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const PATCH = withAuth(async (req, { params }, userId) => {
   try {
     const communityId = params.communityId;

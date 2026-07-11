@@ -1,96 +1,97 @@
-# Mosaic Technical Architecture & Design Decisions
+# Mosaic Architectural Reference & Vision
 
-This document outlines the core technical and architectural decisions made in building Mosaic. While we rely on standard modern web tooling for much of our stack (Next.js, Tailwind, Zustand), our unique requirements around community relationships, on-chain integrations, and collaborative creation required some unconventional design choices.
+This document details the complete graph architecture underlying the Mosaic platform, how our frontend manages data, and the future vision driving this project forward.
 
----
+## 1. The Neo4j Graph Schema
 
-## 1. Project Layout & Organization
+Unlike traditional relational databases, Mosaic maps reality using a connected Graph. The fundamental architecture revolves around **Nodes** (entities) and **Edges** (relationships between them). This structure powers our rapid, deep-traversal query capabilities.
 
-We structured the `src` directory to strongly decouple business logic from UI rendering, keeping the Next.js App Router clean and testable.
+### Core Nodes
 
-- `app/`: Exclusively for Next.js routing (pages, layouts, and `/api` route handlers). We keep these files thin, delegating logic to the `services` layer.
-- `components/`: UI components broken down into atomic, reusable pieces (e.g., Shadcn UI).
-- `services/`: The core backend business logic. All database queries and external integrations run through this layer rather than cluttering API route handlers.
-- `lib/`: Configuration and singleton clients (Neo4j driver, Redis client, UI utilities).
-- `store/` & `hooks/`: Client-side state management (Zustand) and reusable React logic (React Query hooks).
-- `types/`: Centralized TypeScript interfaces shared across the full stack.
-- `middleware.ts`: Centralized middleware for authentication checks, session management, and edge routing logic.
+- **`Mosaic_User`**: The central actor. Contains authentication profile, wallet addresses, roles, and platform settings.
+- **`Mosaic_Community`** (Villages): The foundational groups. Contains branding, rules, and treasury configurations.
+- **`Mosaic_Project`**: Collaborative efforts scoped within a community.
+- **`Mosaic_Piece`**: A completed, published unit of work (e.g., an article, a design, a code snippet).
+- **`Mosaic_Post`**: A short-form social update, discussion thread, or announcement.
+- **`Mosaic_Notification`**: In-app alerts targeted at users.
+- **`Mosaic_Credential`**: Secure login identifiers for Web2/Local auth.
+- **`Mosaic_Invite`**: Cryptographic invite hashes for joining restricted communities.
+- **Tags (`Mosaic_Topic`, `Mosaic_Skill`)**: Semantic categorizations for discovery.
 
-This layout enforces a clear boundary between backend services, API communication, and frontend rendering, making the codebase highly maintainable.
+### Relationship Edges (The Connections)
 
----
+- `(User)-[:MEMBER_OF {role, joinedAt}]->(Community)`
+- `(User)-[:FOLLOWS {isMuted, createdAt}]->(User)`
+- `(User)-[:CONTRIBUTED_TO {role, createdAt}]->(Piece)`
+- `(User)-[:UPVOTED / DOWNVOTED]->(Post)`
+- `(User)-[:VIEWED {durationSeconds}]->(Piece | Post)`
+- `(User)-[:SAVED]->(Piece | Post)`
+- `(User)-[:INVITED_BY]->(User)`
+- `(Post)-[:REPLIED_TO]->(Post)`
+- `(Piece | Post)-[:TAGGED_WITH]->(Topic)`
 
-## 2. The Database: Graph Over Relational (Neo4j)
-
-### The Decision
-We chose **Neo4j**, a graph database, over traditional relational databases (like PostgreSQL) or document stores (like MongoDB). 
-
-### The Rationale
-Mosaic’s core data model is highly interconnected. Users belong to multiple villages, author specific *pieces* (formerly referred to as artifacts), vote on posts, and participate in challenges. In a relational database, querying these deep relationships (e.g., "Find all users in Village A who contributed to Piece B and voted on Post C") requires complex and expensive `JOIN` operations. 
-
-A graph database models these relationships natively using Nodes and Edges. This allows for extremely fast traversal of complex queries, making features like the Explore feed, community activity logs, and interconnected user profiles highly performant.
-
-### The Memgraph vs. Neo4j Trade-Off
-During development, we experienced significant friction with our database deployment, highlighting a classic technical trade-off: **infrastructure constraints vs. resource efficiency**.
-
-1. **The Startup Resource Issue:** We initially built on Neo4j, but discovered that it was highly resource-intensive on our VPS. It consumed significant storage and RAM just to initialize, leaving very little headroom for the rest of our application.
-2. **The Memgraph Pivot:** To reduce our footprint, we switched to **Memgraph**, an in-memory graph database. Because Memgraph uses the exact same Cypher queries (OpenCypher compatible) as Neo4j, we were able to seamlessly swap the database engine without rewriting our `services/` layer.
-3. **The VPS Permission Blocker:** Unfortunately, when deploying Memgraph via Docker, the container required root-level permissions on the host system to create its persistent storage directories. Our VPS environment strictly prohibits this level of root access.
-4. **The Revert:** Unable to bypass the permission restrictions of our hosting provider, we were forced to migrate *back* to Neo4j. We have decided to accept the heavier resource footprint of Neo4j to "manage our fate" and ensure stable deployments without hitting hard infrastructure permission walls.
-
-*(Note: We specifically namespace our node labels in Neo4j to allow for safe scaling and future multi-tenant project differentiation).*
-
-## 2. Web3 & Blockchain Layer (MeshSDK)
-
-### The Decision
-We opted to use **MeshSDK** for our Cardano integrations rather than writing custom Plutus smart contracts and raw transaction builders from scratch.
-
-### The Rationale
-Our immediate goal is to prove value to communities. MeshSDK provides a robust, production-ready abstraction for connecting wallets, querying assets, and building transactions. 
-- **Lazy Loading & Performance:** Web3 libraries are notoriously heavy and often cause SSR (Server-Side Rendering) issues. We explicitly refactored our architecture to strictly dynamically import (lazy-load) MeshSDK components and hooks. This keeps the initial bundle size small and prevents Next.js hydration errors.
-- **Metadata Verification:** To bridge the off-chain (database) and on-chain (Cardano) worlds, our subscription and payment flows include `userId` metadata verification. When a payment is made on-chain, it includes the user's ID, which our backend API (`/api` payment services) verifies to securely grant plan upgrades and access.
-
-## 3. Authentication & Wallet Linking
-
-### The Decision
-We implemented a custom secure wallet login and linking system using **Nonce Verification**, bypassing traditional username/password flows.
-
-### The Rationale
-Because identity in Web3 is tied to wallets, our authentication flow requires cryptographic proof of ownership. When a user logs in, the backend generates a unique nonce. The user signs this nonce with their Cardano wallet. The server verifies the signature before issuing a secure session. 
-We also implemented a centralized `withAuth` API decorator and strict session invalidation to ensure that users are properly logged out across all active sessions when required.
-
-## 4. Caching & Concurrency (Redis)
-
-### The Decision
-We use **Redis** (`ioredis`) for session management, performance caching, and crucially, **distributed caching locks**.
-
-### The Rationale
-When multiple users interact with the same community data concurrently—such as during village soft-deletion or mass plan-level updates—race conditions can occur. We use Redis to implement distributed locks, ensuring that critical mutations to community states are processed atomically. Additionally, Redis caches heavy Graph queries to keep the Explore and Feed pages extremely snappy.
-
-## 5. The Studio: Offline-First & Optimistic UI
-
-### The Decision
-The collaborative editor (Studio) leverages a "browser DB" (local storage/IndexedDB mechanics) integrated directly with our API data resolution.
-
-### The Rationale
-Writers and creators need a robust editor that doesn't lose work if the connection drops (a common scenario for our target demographic in Africa). Drafts are saved aggressively to the local browser environment and then resolved/synced seamlessly with the backend API. 
-Furthermore, interactions like posting and voting utilize **optimistic updates**. The UI updates instantly while the React Query mutation runs in the background, providing a premium, zero-latency feel.
-
-## 6. Security: Planguard & Asset Locking
-
-### The Decision
-We built a custom restriction system called **Planguard** and locked down all external asset domains.
-
-### The Rationale
-- **Planguard:** Restricting features based on subscription plans isn't just a UI toggle. We built a holistic guard system (`planguard`) that acts as middleware to prevent unauthorized API access, ensuring that restrictions are enforced at the server level, not just hidden on the client.
-- **Asset Locking:** To prevent XSS and malicious injections via user profiles, we strictly enforce dynamic avatars and uploads via our Next.js configuration. All external image sources are locked down exclusively to our approved providers (`dicebear` for generated avatars and `cloudinary` for secure user uploads).
+This structure allows us to instantly answer questions like: *"Show me the top upvoted posts, by users who follow me, within villages I am a member of."*
 
 ---
 
-## 7. The Standard Stack (Brief Overview)
+## 2. Frontend Data Management Habits
 
-While the above decisions are specialized, the rest of our stack relies on proven, modern defaults:
-- **Framework:** Next.js (App Router) for hybrid rendering and API route collocation.
-- **State Management:** Zustand for lightweight global state (like active wallet and UI toggles) and React Query for server state and caching.
-- **Styling & UI:** Tailwind CSS combined with Shadcn UI & Radix UI primitives for accessible, rapid UI development. Framer Motion is sprinkled in for micro-interactions.
-- **Editor:** TipTap (headless prose mirror) for our highly customizable rich-text Studio experience.
+Our frontend strictly separates concerns to keep components atomic and responsive.
+
+1. **React Query for Server State**: All data fetching from our `/api` routes is managed by `@tanstack/react-query`. We wrap these in custom hooks (e.g., `useGetNotifications`, `useGetFeed`). This provides automatic background refetching, infinite scrolling pagination, and robust cache invalidation.
+2. **Optimistic UI Updates**: For high-frequency actions (like upvoting a post or marking a notification as read), we heavily leverage React Query's `onMutate` handlers to instantly update the UI cache *before* the server responds, ensuring a zero-latency feel.
+3. **Zustand for Global UI State**: We do not use React Context for rapidly changing values. We use Zustand for UI-level global state such as Modal Management (`modals-context.ts`), Sidebar toggles, and Wallet connection states.
+4. **Colocated API Fetchers**: The actual `fetch` calls are housed in `src/services/frontend/` (or directly inside the hook files) and are fully typed with Zod/TypeScript schemas shared from `src/types/schemas.ts`.
+
+---
+
+## 3. The Future Vision
+
+Mosaic is not just a platform; it is a continuously evolving ecosystem. The architecture we have built today is the foundation for the following pillars:
+
+### Community Legacy
+
+*Mosaic Writers*
+
+Founded  
+↓  
+First 5 members  
+↓  
+First publication  
+↓  
+Sarah joined  
+↓  
+David mentored James  
+↓  
+Anthology published  
+↓  
+Reached 100 subscribers  
+↓  
+Generated 500 ADA  
+↓  
+Inspired another Village
+
+### User Passport
+
+Every member accumulates reputation across communities. This way a user can preserve reputation anywhere they go within the ecosystem. It is not just a profile; it is a history.
+
+**David**  
+- **Founded**: 2 Villages  
+- **Mentored**: 41 writers  
+- **Published**: 18 collaborative works  
+- **Earned**: 12 Proof of Activity badges  
+
+### Derivation Graph
+
+This is where the graph database truly shines. Imagine clicking any piece of work. Instead of opening a flat document... you open its ancestry.
+
+You literally see creativity evolving. You can trace a final published Anthology back to the rough draft, back to the comment that sparked the idea, back to the first post in the Village.
+
+### Community Memory + AI
+
+Leveraging our graph, this will be highly intuitive. Not because AI is trendy, but because the graph makes the AI actually intelligent. It understands *context* and *relationships*.
+
+Imagine opening a village and asking:  
+*"Who has contributed the most to environmental writing?"*
+
+Instant answer. The AI simply traverses the `CONTRIBUTED_TO` edges pointing to pieces `TAGGED_WITH` "environment", aggregates the weights, and responds with perfect accuracy.

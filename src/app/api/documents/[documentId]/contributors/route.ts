@@ -24,6 +24,23 @@ const ProposeSchema = z.object({
 
 const ActionSchema = z.discriminatedUnion('action', [InviteSchema, ProposeSchema]);
 
+
+/**
+ * @swagger
+ * /api/documents/[documentId]/contributors:
+ *   post:
+ *     summary: POST contributors
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (request, { params }, userId) => {
   try {
     const { documentId } = await params as { documentId: string };

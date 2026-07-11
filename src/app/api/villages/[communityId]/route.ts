@@ -50,6 +50,23 @@ export async function GET(
 
 import { withAuth } from '@/lib/backend/request';
 
+
+/**
+ * @swagger
+ * /api/villages/[communityId]:
+ *   delete:
+ *     summary: DELETE [communityId]
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const DELETE = withAuth(async (request, context, userId) => {
   try {
     const { communityId } = await context.params;

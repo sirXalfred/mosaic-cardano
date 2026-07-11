@@ -1,5 +1,22 @@
 import { healthService } from "@/services/backend/health";
 
+
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: GET health
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = async (request: Request) => {
   // If the request URL contains "withdb" as a query parameter, check the database connection
   const withDb = request.url.includes('withdb');

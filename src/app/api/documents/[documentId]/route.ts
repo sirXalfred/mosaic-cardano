@@ -5,6 +5,23 @@ import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
+
+/**
+ * @swagger
+ * /api/documents/[documentId]:
+ *   get:
+ *     summary: GET [documentId]
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (request, { params }, userId) => {
   try {
     const { documentId } = await params as { documentId: string };
@@ -28,6 +45,23 @@ const UpdateSchema = z.object({
   status: z.string().optional()
 });
 
+
+/**
+ * @swagger
+ * /api/documents/[documentId]:
+ *   put:
+ *     summary: PUT [documentId]
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const PUT = withAuth(async (request, { params }, userId) => {
   try {
     const { documentId } = await params as { documentId: string };

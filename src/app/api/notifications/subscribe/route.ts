@@ -11,6 +11,23 @@ const PushSubscriptionSchema = z.object({
   })
 });
 
+
+/**
+ * @swagger
+ * /api/notifications/subscribe:
+ *   post:
+ *     summary: POST subscribe
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (req: Request, context: unknown, userId: string) => {
   try {
     const body = await req.json();

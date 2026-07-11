@@ -234,3 +234,120 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--theme-accent);
 }
+
+.prose {
+  max-width: 75ch;
+  line-height: 1.75;
+}
+.prose h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-sans);
+  color: var(--theme-forest);
+}
+.dark .prose h1 {
+  color: var(--theme-parchment);
+}
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-sans);
+  color: var(--theme-forest);
+}
+.dark .prose h2 {
+  color: var(--theme-parchment);
+}
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-sans);
+  color: var(--theme-forest);
+}
+.dark .prose h3 {
+  color: var(--theme-parchment);
+}
+.prose p {
+  margin-bottom: 1.25rem;
+  color: rgba(17, 24, 39, 0.8);
+}
+.dark .prose p {
+  color: rgba(242, 239, 233, 0.8);
+}
+.prose ul, .prose ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose ul {
+  list-style-type: disc;
+}
+.prose ol {
+  list-style-type: decimal;
+}
+.prose li {
+  margin-bottom: 0.5rem;
+  color: rgba(17, 24, 39, 0.8);
+}
+.dark .prose li {
+  color: rgba(242, 239, 233, 0.8);
+}
+.prose pre {
+  background-color: var(--theme-forest);
+  color: var(--theme-parchment);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(197, 187, 168, 0.2);
+}
+.dark .prose pre {
+  background-color: #0b0f0c;
+  border-color: rgba(197, 187, 168, 0.1);
+}
+.prose code {
+  font-family: monospace;
+  font-size: 0.875em;
+  background-color: rgba(219, 160, 128, 0.15);
+  color: var(--theme-accent);
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+.dark .prose code {
+  background-color: rgba(219, 160, 128, 0.1);
+  color: var(--theme-clay);
+}
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
+}
+.prose blockquote {
+  border-left: 4px solid var(--theme-clay);
+  padding-left: 1.25rem;
+  font-style: italic;
+  margin-bottom: 1.25rem;
+  color: rgba(17, 24, 39, 0.7);
+}
+.dark .prose blockquote {
+  color: rgba(242, 239, 233, 0.7);
+}
+.prose a {
+  color: var(--theme-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 500;
+}
+.dark .prose a {
+  color: var(--theme-clay);
+}
+.prose a:hover {
+  opacity: 0.8;
+}
+

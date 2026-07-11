@@ -21,6 +21,7 @@ const NO_FORCED_REDIRECT_PREFIXES = [
   '/post/',
   '/u/',
   '/v/',
+  '/docs/'
 ];
 
 

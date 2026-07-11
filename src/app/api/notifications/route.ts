@@ -3,6 +3,23 @@ import { withAuth } from '@/lib/backend/request';
 import { notificationService } from '@/services/backend/notification.service';
 import { z } from 'zod';
 
+
+/**
+ * @swagger
+ * /api/notifications:
+ *   get:
+ *     summary: GET notifications
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (req: Request, context: unknown, userId: string) => {
   try {
     const url = new URL(req.url);

@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function MosaicSymbol({ className = "stroke-color-theme-accent", size = 'w-10 h-10' }: { className?: string; size?: string }) {
+export default function MosaicSymbol({ className = "stroke-theme-accent", size = 'w-10 h-10' }: { className?: string; size?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={size} fill="none" xmlns="http://www.w3.org/2000/svg">
       <motion.path

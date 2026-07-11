@@ -6,6 +6,23 @@ import { withAuth } from '@/lib/backend/request';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+
+/**
+ * @swagger
+ * /api/settings:
+ *   get:
+ *     summary: GET settings
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (request, context, userId) => {
   try {
     const settings = await settingsService.getSettings(userId);
@@ -16,6 +33,23 @@ export const GET = withAuth(async (request, context, userId) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /api/settings:
+ *   patch:
+ *     summary: PATCH settings
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const PATCH = withAuth(async (request, context, userId) => {
   try {
     const body = await request.json();

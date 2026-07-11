@@ -10,6 +10,23 @@ const BroadcastRequestSchema = z.object({
   actionUrl: z.string().url().optional(),
 });
 
+
+/**
+ * @swagger
+ * /api/admin/broadcast:
+ *   post:
+ *     summary: POST broadcast
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAdminAuth(async (req: Request) => {
   try {
     const json = await req.json();

@@ -9,6 +9,23 @@ export async function GET() {
   return NextResponse.json({ items });
 }
 
+
+/**
+ * @swagger
+ * /api/villages:
+ *   post:
+ *     summary: POST villages
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (request, context, userId) => {
   try {
     const body = await request.json();

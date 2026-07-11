@@ -10,6 +10,23 @@ const CreateSchema = z.object({
   content: z.string().optional().default('')
 });
 
+
+/**
+ * @swagger
+ * /api/documents:
+ *   post:
+ *     summary: POST documents
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (request, context, userId) => {
   try {
     const body = await request.json();
@@ -30,6 +47,23 @@ export const POST = withAuth(async (request, context, userId) => {
 }
 });
 
+
+/**
+ * @swagger
+ * /api/documents:
+ *   get:
+ *     summary: GET documents
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (request, context, userId) => {
   try {
     const { searchParams } = new URL(request.url);
