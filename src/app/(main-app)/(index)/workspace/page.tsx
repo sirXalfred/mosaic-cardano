@@ -70,7 +70,7 @@ export default function StudioLandingPage() {
       });
 
       // Redirect to the newly created draft in studio
-      router.push(ROUTES.STUDIO_EDITOR(id));
+      router.push(ROUTES.WORKSPACE_EDITOR(id));
 
     } catch (e) {
       console.error(e);
@@ -87,7 +87,7 @@ export default function StudioLandingPage() {
         
         {/* Native Draft Option */}
         <Link 
-          href={ROUTES.STUDIO + '/new'}
+          href={ROUTES.WORKSPACE + '/new'}
           className="bg-white border border-theme-outline/20 hover:border-theme-accent hover:shadow-lg transition-all rounded-2xl p-8 flex flex-col items-start text-left cursor-pointer group h-full"
         >
           <div className="w-12 h-12 bg-theme-clay/10 text-theme-accent rounded-xl flex items-center justify-center mb-6 group-hover:bg-theme-accent group-hover:text-white transition-colors">
@@ -157,7 +157,7 @@ export default function StudioLandingPage() {
             {(showAllDocuments ? mergedPieces : recentPieces).map(piece => (
               <Link
                 key={piece.id} 
-                href={ROUTES.STUDIO_EDITOR(piece.id)}
+                href={piece.status === 'PUBLISHED' || piece.status === 'success' ? ROUTES.ARTIFACT(piece.id) : ROUTES.WORKSPACE_EDITOR(piece.id)}
                 className="bg-white border border-theme-outline/10 hover:border-theme-clay p-5 rounded-xl cursor-pointer transition-colors group flex items-start justify-between"
               >
                 <div>

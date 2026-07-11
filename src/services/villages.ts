@@ -328,13 +328,16 @@ export const useShareInvite = (communityId: string, isMember: boolean = true) =>
   };
 };
 
-export const useGetVillageLibrary = (communityId: string, filter: string) => {
-  return useInfiniteQuery({
+export const useGetVillageLibrary = (communityId: string, filter: string, initialData?: unknown) => {
+  return useInfiniteQuery<{ items: PieceDetails[], nextOffset: number | null }, Error, { pages: { items: PieceDetails[], nextOffset: number | null }[], pageParams: number[] }, readonly unknown[], number>({
     queryKey: ['villageLibrary', communityId, filter],
     initialPageParam: 0,
     queryFn: async ({ pageParam = 0 }) => {
-      return fetchAPI(`/api/villages/${communityId}/library?filter=${filter}&offset=${pageParam}&limit=20`) as Promise<{ items: PieceDetails[], nextOffset: number | null }>;
+      const typeParam = filter === 'All' ? '' : `&filter=${filter}`;
+      return fetchAPI(`/api/villages/${communityId}/library?offset=${pageParam}&limit=20${typeParam}`) as Promise<{ items: PieceDetails[], nextOffset: number | null }>;
     },
     getNextPageParam: (lastPage) => lastPage.nextOffset,
+    // @ts-expect-error - initialData structure depends on React Query infinite query shape
+    initialData: filter === 'All' && initialData ? initialData : undefined,
   });
 };

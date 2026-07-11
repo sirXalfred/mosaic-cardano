@@ -1,12 +1,10 @@
 "use client";
 
 import { useParams } from 'next/navigation';
-import { useGetVillageDetails } from '@/services/villages';
-import VillagePinnedBoard from '@/components/village/VillagePinnedBoard';
+import { useGetVillageDetails, useGetVillageActivityLog } from '@/services/villages';
 import VillageStream from '@/components/village/VillageStream';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2 } from 'lucide-react';
 import { MemberGuard } from '@/contexts/member-guard';
 
 
@@ -23,6 +21,7 @@ function VillageFeedPageContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const { data: village, isLoading } = useGetVillageDetails(communityId);
+  const { data: activityLog, isLoading: isLoadingActivity } = useGetVillageActivityLog(communityId);
 
   return (
     <AppPageContainer
@@ -39,9 +38,6 @@ function VillageFeedPageContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Pinned Board & Stream */}
         <div className="lg:col-span-8 space-y-4">
-          <section>
-            <VillagePinnedBoard />
-          </section>
 
           <section>
             <VillageStream communityId={communityId} />
@@ -50,31 +46,29 @@ function VillageFeedPageContent() {
 
         {/* Right Column: Activity Sidebar */}
         <div className="lg:col-span-4 space-y-8">
-          <div className="bg-theme-surface-high p-6 rounded-lg border border-theme-outline/20">
-            <h4 className="font-sans text-xs uppercase tracking-widest text-theme-accent font-bold mb-4">Village Code</h4>
-            <ul className="text-sm text-theme-on-surface/80 space-y-3">
-              <li className="flex gap-2 items-start"><CheckCircle2 size={16} className="text-theme-forest shrink-0 mt-0.5" /> Respect elders and community knowledge.</li>
-              <li className="flex gap-2 items-start"><CheckCircle2 size={16} className="text-theme-forest shrink-0 mt-0.5" /> All pieces must cite their original sources.</li>
-              <li className="flex gap-2 items-start"><CheckCircle2 size={16} className="text-theme-forest shrink-0 mt-0.5" /> Bounties are open to all sworn members.</li>
-            </ul>
-          </div>
-
           <div className="bg-theme-surface-high p-6 rounded-lg border border-theme-outline/20 sticky top-24">
             <h3 className="font-sans text-xs uppercase tracking-widest text-theme-accent mb-6 font-bold">Recent Activity</h3>
-            <div className="space-y-4">
-              <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 mt-1.5 rounded-full bg-theme-clay shrink-0"></div>
-                <p className="text-theme-on-surface/80"><span className="font-bold text-theme-forest">Amina Diallo</span> published a new draft in <span className="italic">Oral History Archive</span>.</p>
+            {isLoadingActivity ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex gap-3 text-sm animate-pulse">
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-theme-outline/20 shrink-0"></div>
+                    <div className="h-4 bg-theme-outline/20 rounded w-full"></div>
+                  </div>
+                ))}
               </div>
-              <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 mt-1.5 rounded-full bg-theme-outline shrink-0"></div>
-                <p className="text-theme-on-surface/80"><span className="font-bold text-theme-forest">Kofi Mensah</span> claimed the task &quot;GIS Mapping&quot;.</p>
+            ) : activityLog && activityLog.length > 0 ? (
+              <div className="space-y-4">
+                {activityLog.slice(0, 10).map((activity) => (
+                  <div key={activity.id} className="flex gap-3 text-sm">
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-theme-clay shrink-0"></div>
+                    <p className="text-theme-on-surface/80">{activity.description}</p>
+                  </div>
+                ))}
               </div>
-              <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 mt-1.5 rounded-full bg-theme-outline shrink-0"></div>
-                <p className="text-theme-on-surface/80"><span className="font-bold text-theme-forest">David Adeleke</span> joined the village.</p>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-theme-on-surface/50 italic">No recent activity.</p>
+            )}
           </div>
         </div>
       </div>

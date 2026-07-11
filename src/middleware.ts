@@ -8,7 +8,7 @@ const SESSION_COOKIE_NAME = 'mosaic_session';
 
 let NO_FORCED_REDIRECT = [
   ROUTES.LANDING,
-  ROUTES.HOME,
+  ROUTES.EXPLORE,
 ] as string[];
 
 NO_FORCED_REDIRECT = [

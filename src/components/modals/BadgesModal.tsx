@@ -19,8 +19,11 @@ export function BadgesModal() {
 
     const badges = data?.badges || [];
 
+    const [claimingBadgeId, setClaimingBadgeId] = React.useState<string | null>(null);
+
     const handleClaim = async (badgeId: string) => {
         try {
+            setClaimingBadgeId(badgeId);
             await claimMutation.mutateAsync(badgeId);
             // Trigger confetti
             const duration = 3000;
@@ -51,6 +54,8 @@ export function BadgesModal() {
             toast.success("Badge minted on-chain successfully!");
         } catch (e: unknown) {
             toast.error(e instanceof Error ? e.message : "Failed to mint badge");
+        } finally {
+            setClaimingBadgeId(null);
         }
     };
 
@@ -80,6 +85,7 @@ export function BadgesModal() {
                             <AnimatePresence>
                                 {badges.map((badge) => {
                                     const config = getBadgeConfig(badge.type);
+                                    const isThisBadgeClaiming = claimingBadgeId === badge.id;
                                     return (
                                     <motion.div
                                         key={badge.id}
@@ -122,9 +128,9 @@ export function BadgesModal() {
                                                 size="sm" 
                                                 className="w-full mt-2 font-bold shadow-md shadow-theme-clay/20 hover:scale-105 transition-transform"
                                                 onClick={() => handleClaim(badge.id)}
-                                                disabled={claimMutation.isPending}
+                                                disabled={claimingBadgeId !== null}
                                             >
-                                                {claimMutation.isPending ? 'Minting...' : 'Claim Badge'}
+                                                {isThisBadgeClaiming ? 'Minting...' : 'Claim Badge'}
                                             </Button>
                                         )}
                                     </motion.div>

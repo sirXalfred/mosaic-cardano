@@ -2,7 +2,7 @@
 
 import ActionItems from '@/components/home/ActionItems';
 import ActiveProjectsList from '@/components/home/ActiveProjectsList';
-import CommunityUpdates from '@/components/home/CommunityUpdates';
+import PendingSignatures from '@/components/home/PendingSignatures';
 import SavedItems from '@/components/home/SavedItems';
 import { useGetAuthState } from '@/services/auth';
 
@@ -26,8 +26,8 @@ export default function HomePageContent() {
         {/* Main Focus Area */}
         <section className="col-span-12 lg:col-span-8 lg:pr-4 lg:overflow-y-auto">
           <ActionItems />
+          <PendingSignatures />
           <ActiveProjectsList />
-          <CommunityUpdates />
         </section>
 
         {/* Discovery & Periphery Sidebar */}

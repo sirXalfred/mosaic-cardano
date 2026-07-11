@@ -41,9 +41,9 @@ export default function PrivacySettings({ communityId, settings, isCreator }: Pr
             <Globe className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-theme-on-surface">Public Village</h3>
+            <h3 className="font-semibold text-theme-on-surface">Public Community</h3>
             <p className="text-sm text-theme-on-surface/60 font-sans mt-1">
-              Anyone can view artifacts and join the village instantly.
+              Anyone can view artifacts and join the community instantly.
             </p>
           </div>
         </button>

@@ -14,7 +14,7 @@ export function InvitePageContent({ hash, villageId }: { hash?: string, villageI
     if (hash && villageId) {
       localStorage.setItem(INTENT_KEY, AppIntent.INVITE_VILLAGE);
       localStorage.setItem(AppIntent.INVITE_VILLAGE, JSON.stringify({ hash, villageId }));
-      router.push(ROUTES.VILLAGE.HOME(villageId));
+      router.push(ROUTES.VILLAGE.PROFILE(villageId));
 
     } else {
       router.push(ROUTES.LANDING);

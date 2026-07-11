@@ -53,11 +53,12 @@ const ListResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) => z.object({
 });
 
 export const HOME_QUERY_KEYS = {
-  ACTION_ITEMS: ['homeActionItems'] as const,
-  ACTIVE_PROJECTS: ['homeActiveProjects'] as const,
-  COMMUNITY_UPDATES: ['homeCommunityUpdates'] as const,
-  SAVED_ITEMS: ['homeSavedItems'] as const,
-};
+  ACTION_ITEMS: ['home', 'action_items'],
+  ACTIVE_PROJECTS: ['home', 'active_projects'],
+  COMMUNITY_UPDATES: ['home', 'community_updates'],
+  SAVED_ITEMS: ['home', 'saved_items'],
+  PENDING_SIGNATURES: ['home', 'pending_signatures'],
+} as const;
 
 export const ACTION_ITEM_TYPE_LABELS = {
   INVITE: 'Invitation',

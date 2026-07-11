@@ -107,9 +107,8 @@ export const pieceService = {
       LIMIT toInteger($limit)
     `;
 
-    const rows = await runRead(query, { communityId, limit, offset, filter: filter?.slice(0, -1) }, (row) => {
-      // NOTE: slicing 's' off filter if the UI passes 'Pieces' instead of 'Piece' 
-      // or we just trust the filter if the frontend already handles singular vs plural.
+    const rows = await runRead(query, { communityId, limit, offset, filter }, (row) => {
+      // NOTE: The frontend already handles singular vs plural.
       const p = row.p as Record<string, unknown>;
       const legacyAuthor = row.legacyAuthor as Record<string, unknown> | null;
       const communityNode = row.community as Record<string, unknown>;

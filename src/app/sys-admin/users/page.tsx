@@ -37,7 +37,7 @@ export default function AdminUsersPage() {
             <Users size={24} className="text-blue-600" />
             Users Registry
           </h2>
-          <p className="text-theme-on-surface/60 mt-1">Showing {data?.items.length} of {data?.total} total users.</p>
+          <p className="text-theme-on-surface/60 mt-1">Showing {data?.items?.length || 0} of {data?.total || 0} total users.</p>
         </div>
       </header>
 
@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-theme-outline/5">
-              {data?.items.map(user => (
+              {data?.items?.map(user => (
                 <tr key={user.id} className="hover:bg-theme-surface-low/50 transition-colors">
                   <td className="px-6 py-4 font-mono font-bold text-theme-accent">@{user.username}</td>
                   <td className="px-6 py-4 font-medium">{user.displayName}</td>

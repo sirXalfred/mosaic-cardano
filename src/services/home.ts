@@ -109,3 +109,12 @@ export const useGetSavedItems = () => {
     }),
   });
 };
+
+export const useGetPendingSignatures = () => {
+  return useXQuery({
+    queryKey: HOME_QUERY_KEYS.PENDING_SIGNATURES,
+    queryFn: async () => {
+      return await fetchHomeItems<{ id: string, title: string, community: string, link: string }>(API.HOME.PENDING_SIGNATURES);
+    },
+  });
+};

@@ -38,7 +38,7 @@ export default function AdminVillagesPage() {
             <Map size={24} className="text-orange-600" />
             Villages Registry
           </h2>
-          <p className="text-theme-on-surface/60 mt-1">Showing {data?.items.length} of {data?.total} total villages.</p>
+          <p className="text-theme-on-surface/60 mt-1">Showing {data?.items?.length || 0} of {data?.total || 0} total villages.</p>
         </div>
       </header>
 
@@ -55,7 +55,7 @@ export default function AdminVillagesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-theme-outline/5">
-              {data?.items.map(village => (
+              {data?.items?.map(village => (
                 <tr key={village.id} className="hover:bg-theme-surface-low/50 transition-colors">
                   <td className="px-6 py-4 font-bold text-theme-forest">{village.name}</td>
                   <td className="px-6 py-4 font-mono font-bold text-theme-accent text-xs">/v/{village.slug}</td>

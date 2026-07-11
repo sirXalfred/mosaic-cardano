@@ -42,7 +42,7 @@ export default function PostPage() {
           className="inline-flex items-center gap-2 text-sm font-bold text-theme-on-surface/50 hover:text-theme-accent transition-colors mb-6"
         >
           <ArrowLeft size={16} />
-          Back to Village
+          Back to Community
         </Link>
         <div className="flex flex-col relative mt-2">
           {(() => {

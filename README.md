@@ -290,7 +290,7 @@ WEEK 6  ████████████████████  NOW
             Badge minting flow
             ADA subscription and payout logic
 
-WEEK 7  ███████████████░░░░░  UPCOMING
+WEEK 7  ████████████████████  UPCOMING
           Beta Testing
         └── First real community onboarded
             Bug fixing and friction removal

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Bold, Italic, Save, Loader2, 
+import {
+  Bold, Italic, Save, Loader2,
   Image as ImageIcon, Link as LinkIcon, CheckCircle2, MessageSquare,
   QuoteIcon,
   MinusIcon,
@@ -31,14 +31,15 @@ import { ROUTES } from '@/lib/routes';
 const SignContributionButton = dynamic(() => import('./SignContributionButton').then((m) => m.SignContributionButton), { ssr: false });
 
 import { PublishStep } from '@/types/mosaic';
+import { Button } from '../ui/button';
 
-export default function StudioEditor({ 
+export default function StudioEditor({
   setPublishStep,
   documentId,
   document,
   isContentLoading,
   toggleSidebar
-}: { 
+}: {
   setPublishStep: (val: PublishStep) => void,
   documentId: string | null,
   document?: DocumentDetails | null,
@@ -52,7 +53,7 @@ export default function StudioEditor({
   const { openModal } = useModals();
   const { data: authState } = useGetAuthState();
   const router = useRouter();
-  
+
   const [title, setTitle] = useState('');
   const [currentPieceId, setCurrentPieceId] = useState<string | null>(documentId === 'new' ? null : documentId);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -60,6 +61,7 @@ export default function StudioEditor({
   const [charCount, setCharCount] = useState(0);
 
   const isFrozen = ['freezing', 'propose', 'waiting', 'mint', 'success'].includes(document?.publishStage || '');
+  const isNew = documentId === 'new';
 
   const editor = useEditor({
     extensions: [
@@ -115,11 +117,11 @@ export default function StudioEditor({
     async function loadContent() {
       if (!editor) return;
       if (documentId !== 'new' && !document) return;
-      
+
       if (document?.title) {
         setTitle(document.title);
       }
-      
+
       let initialContent = document?.contentRaw || '';
 
       const targetId = documentId === 'new' ? 'new-draft' : documentId;
@@ -150,27 +152,27 @@ export default function StudioEditor({
 
   const handleSave = async () => {
     if (!editor) return;
-    
+
     const loadingToast = toast.loading(currentPieceId ? "Saving changes..." : "Creating new draft...");
-    
+
     try {
       let savedId = currentPieceId;
       if (!currentPieceId) {
         const { id: newId } = await createDocument({
           title: title || 'Untitled Draft',
-          content: editor.getHTML()
+          content: editor.getMarkdown()
         });
         setCurrentPieceId(newId);
         savedId = newId;
         await deleteLocalDocument('new-draft');
-        router.replace(ROUTES.STUDIO_EDITOR(newId));
+        router.replace(ROUTES.WORKSPACE_EDITOR(newId));
       } else {
         await updateDocument({
           documentId: currentPieceId,
-          updates: { title: title || 'Untitled Draft', contentRaw: editor.getHTML() }
+          updates: { title: title || 'Untitled Draft', contentRaw: editor.getMarkdown() }
         });
       }
-      
+
       setLastSaved(new Date());
 
       // Cache locally to IndexedDB
@@ -179,7 +181,7 @@ export default function StudioEditor({
           id: savedId,
           title: title || 'Untitled Draft',
           contentSnippet: editor.getText().slice(0, 100),
-          content: editor.getHTML(),
+          content: editor.getMarkdown(),
           lastAccessed: Date.now(),
         });
       }
@@ -206,7 +208,7 @@ export default function StudioEditor({
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href;
-    
+
     openModal(MODALS.PROMPT, {
       title: "Set Link",
       type: "url",
@@ -230,7 +232,7 @@ export default function StudioEditor({
       toast.error("Please save the draft first");
       return;
     }
-    
+
     openModal(MODALS.PROMPT, {
       title: "Invite Contributor",
       placeholder: "Enter username...",
@@ -245,15 +247,16 @@ export default function StudioEditor({
   const loggedInUserId = authState?.user?.id;
   const userContribution = document?.contributions?.find(c => c.userId === loggedInUserId);
   const needsToSign = userContribution?.status === 'Pending' && (userContribution.weight || 0) > 0;
+  const isCreator = document?.creator?.id === loggedInUserId;
 
   return (
     <main className="flex-1 flex flex-col h-full bg-theme-surface relative">
-      
+
       {/* Streamlined Header */}
       <div className="h-16 border-b border-theme-outline/20 flex items-center justify-between px-6 bg-theme-surface/90 backdrop-blur-md z-40 sticky top-0">
-        
+
         <div className="flex-1 flex items-center pr-6">
-          <input 
+          <input
             type="text"
             className="w-full bg-transparent font-serif text-xl text-theme-forest outline-none placeholder:text-theme-outline/50 truncate"
             value={title}
@@ -261,7 +264,7 @@ export default function StudioEditor({
             placeholder="Untitled Document"
           />
         </div>
-        
+
         <div className="flex items-center gap-6">
 
           {/* Contributors UI */}
@@ -277,7 +280,7 @@ export default function StudioEditor({
                 <div className="w-6 h-6 rounded-full bg-theme-accent text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-theme-surface z-20" title="You (Author)">You</div>
               )}
             </div>
-            <button 
+            <button
               onClick={handleInvite}
               disabled={isInviting}
               className="text-[10px] text-theme-on-surface/50 font-bold uppercase tracking-widest cursor-pointer hover:text-theme-accent disabled:opacity-50"
@@ -288,9 +291,9 @@ export default function StudioEditor({
 
           {/* Sign Button */}
           {needsToSign && currentPieceId && userContribution && (
-            <SignContributionButton 
-              documentId={currentPieceId} 
-              weight={userContribution.weight} 
+            <SignContributionButton
+              documentId={currentPieceId}
+              weight={userContribution.weight}
             />
           )}
 
@@ -301,33 +304,51 @@ export default function StudioEditor({
                 <CheckCircle2 size={12} /> Saved
               </span>
             )}
-            <button 
+            <Button
+              variant={isNew ? 'default' : 'outline'}
+              size="sm"
               onClick={handleSave}
               disabled={isSaving}
-              className="text-theme-on-surface/50 hover:text-theme-forest p-1.5 cursor-pointer disabled:opacity-50 flex items-center transition-colors rounded hover:bg-theme-outline/5"
               title="Save Draft"
             >
-              {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            </button>
-          </div>
-          
-          <button 
-            onClick={() => {
-              if (isFrozen) {
-                setPublishStep(document?.publishStage || 'draft');
-              } else {
-                setPublishStep('draft');
+              {isSaving ? <Loader2 size={16} className="animate-spin" /> :
+                <>
+                  <span className={`${isNew ? '' : 'hidden'} md:block`}>
+                    Save
+                  </span>
+                  <Save size={16} />
+                </>
               }
-            }}
-            disabled={!currentPieceId || isSaving}
-            title={!currentPieceId ? "Please save your draft first" : (isFrozen ? "Continue Publishing" : "Publish to Library")}
-            className="bg-theme-forest text-theme-parchment px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 transition-transform active:scale-95 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isFrozen ? `Continue: ${document?.publishStage}` : 'Publish Piece'}
-          </button>
-          
+            </Button>
+          </div>
+
+          {!isNew && (isCreator ? (
+            <button
+              onClick={() => {
+                if (isFrozen) {
+                  setPublishStep(document?.publishStage || 'draft');
+                } else {
+                  setPublishStep('draft');
+                }
+              }}
+              disabled={!currentPieceId || isSaving}
+              title={!currentPieceId ? "Please save your draft first" : (isFrozen ? "Continue Publishing" : "Publish to Library")}
+              className="bg-theme-forest text-theme-parchment px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90 transition-transform active:scale-95 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isFrozen ? `Continue: ${document?.publishStage}` : 'Publish Piece'}
+            </button>
+          ) : (
+            <button
+              disabled
+              title="Only the creator can publish"
+              className="bg-theme-outline/20 text-theme-on-surface/50 px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest cursor-not-allowed"
+            >
+              Publish Piece
+            </button>
+          ))}
+
           {/* Mobile Sidebar Toggle */}
-          <button 
+          <button
             onClick={toggleSidebar}
             className="lg:hidden text-theme-on-surface/50 hover:text-theme-forest p-1.5 cursor-pointer rounded hover:bg-theme-outline/5"
             title="Toggle Sidebar"
@@ -349,7 +370,7 @@ export default function StudioEditor({
           <button onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`p-2 rounded text-theme-forest hover:bg-theme-outline/10 ${editor.isActive('blockquote') ? 'bg-theme-outline/20' : ''}`}><QuoteIcon size={15} /></button>
           <button onClick={setLink} className={`p-2 rounded text-theme-forest hover:bg-theme-outline/10 ${editor.isActive('link') ? 'bg-theme-outline/20' : ''}`}><LinkIcon size={15} /></button>
           <div className="w-px h-5 bg-theme-outline/20 mx-1"></div>
-          <button onClick={() => {}} className="p-2 rounded text-theme-accent hover:bg-theme-outline/10" title="Add Inline Comment"><MessageSquare size={15} /></button>
+          <button onClick={() => { }} className="p-2 rounded text-theme-accent hover:bg-theme-outline/10" title="Add Inline Comment"><MessageSquare size={15} /></button>
         </BubbleMenu>
       )}
 
@@ -367,7 +388,7 @@ export default function StudioEditor({
 
       {/* Editor Content Area */}
       <div className={`flex-1 overflow-y-auto relative ${isEditorDisabled ? 'opacity-70 pointer-events-none' : ''}`}>
-        <div className="max-w-[700px] mx-auto px-6 py-12 lg:py-16">
+        <div className="max-w-[80%] mx-auto px-6 py-12 lg:py-16">
           {(!editor || isContentLoading) ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="animate-spin text-theme-accent opacity-50" size={32} />
@@ -379,7 +400,7 @@ export default function StudioEditor({
           )}
         </div>
       </div>
-      
+
       {editor && (
         <div className="absolute bottom-6 right-6 flex items-center gap-4 text-[10px] uppercase tracking-widest font-bold text-theme-on-surface/40 pointer-events-none">
           <span>{wordCount} words</span>
@@ -388,7 +409,8 @@ export default function StudioEditor({
       )}
 
       {/* Tiptap Styles to hide generic outlines, handle placeholder, and match theme */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .tiptap-wrapper .ProseMirror {
           outline: none !important;
         }

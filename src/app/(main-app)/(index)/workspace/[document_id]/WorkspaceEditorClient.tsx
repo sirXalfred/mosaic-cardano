@@ -1,25 +1,30 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useGetDocumentDetails } from '@/services/documents';
+import { useGetDocumentDetails, useGetDocumentComments } from '@/services/documents';
 import { useGetMyVillages } from '@/services/villages';
 
 import StudioEditor from '@/components/studio/StudioEditor';
 import StudioSidebarRight from '@/components/studio/StudioSidebarRight';
 import PublishingModal from '@/components/studio/PublishingModal';
-import { PublishStep } from '@/types/mosaic';
+import { PublishStep, DocumentDetails } from '@/types/mosaic';
 
-export default function StudioPage({ params }: { params: { document_id: string } }) {
-  const documentId = params.document_id;
-  
+export default function WorkspaceEditorClient({ 
+  documentId, 
+  initialData 
+}: { 
+  documentId: string;
+  initialData?: DocumentDetails | null;
+}) {
   const { document, isLoading: isDocumentLoading, isContentLoading } = useGetDocumentDetails(documentId);
+  const { data: comments } = useGetDocumentComments(documentId);
   const { data: myVillages } = useGetMyVillages();
   
   const [publishStep, setPublishStep] = useState<PublishStep | null>(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   
-  if (isDocumentLoading) {
-    return <div className="min-h-screen bg-theme-surface flex items-center justify-center">Loading Studio...</div>;
+  if (isDocumentLoading && !initialData) {
+    return <div className="min-h-screen bg-theme-surface flex items-center justify-center">Loading Workspace...</div>;
   }
 
   // Generate a list of communities the user is a member of for the publishing modal
@@ -53,7 +58,7 @@ export default function StudioPage({ params }: { params: { document_id: string }
       )}
       
       <StudioSidebarRight 
-        comments={[]} 
+        comments={comments || []} 
         document={document || null}
         isMobileOpen={showMobileSidebar}
         closeMobileSidebar={() => setShowMobileSidebar(false)}
