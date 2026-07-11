@@ -3,6 +3,23 @@ import { withAuth } from '@/lib/backend/request';
 import { notificationService } from '@/services/backend/notification.service';
 import { z } from 'zod';
 
+
+/**
+ * @swagger
+ * /api/notifications/[notificationId]/read:
+ *   put:
+ *     summary: PUT read
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const PUT = withAuth(async (req: Request, context: { params: Record<string, string> }, userId: string) => {
   const notificationId = context.params.notificationId;
   try {

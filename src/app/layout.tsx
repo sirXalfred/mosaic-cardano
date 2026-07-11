@@ -140,15 +140,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
           <script dangerouslySetInnerHTML={{
             __html: `
-            window.addEventListener('load', function() {
-              var loader = document.getElementById('global-loader');
-              if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(function() {
-                  loader.style.display = 'none';
-                }, 500);
+            (function() {
+              function hideLoader() {
+                var loader = document.getElementById('global-loader');
+                if (loader) {
+                  loader.style.opacity = '0';
+                  setTimeout(function() {
+                    loader.style.display = 'none';
+                  }, 500);
+                }
               }
-            });
+              if (document.readyState === 'interactive' || document.readyState === 'complete') {
+                hideLoader();
+              } else {
+                window.addEventListener('DOMContentLoaded', hideLoader);
+                window.addEventListener('load', hideLoader);
+              }
+            })();
           `
           }} />
         </div>
@@ -160,7 +168,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <MeshProviderWrapper>
                   <div id="up">
                     <Initialize />
-                    <NextTopLoader color="var(--color-theme-accent)" />
+                    <NextTopLoader color="var(--theme-accent)" />
                     <div className="min-h-screen bg-[#FFFBF5] relative selection:bg-amber-200/50">
                       {children}
                       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#4338CA]/5 rounded-full blur-[120px] -z-10 pointer-events-none" />

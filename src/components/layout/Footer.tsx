@@ -18,7 +18,7 @@ type SitemapLink = {
 const SITEMAP: Record<string, SitemapLink[]> = {
   Platform: [
     { label: 'Explore Communities', href: '/explore' },
-    { label: 'Global Archive', href: '#' },
+    // { label: 'Global Archive', href: '#' },
     { label: 'The Studio', href: '/studio' },
     { label: 'Governance', href: '/docs/governance' },
     { label: 'Support & Feedback', action: 'FEEDBACK_MODAL' },
@@ -26,7 +26,7 @@ const SITEMAP: Record<string, SitemapLink[]> = {
   Resources: [
     { label: 'Documentation', href: '/docs' },
     { label: 'Cardano Integration', href: '/docs/cardano-integration' },
-    { label: 'Community Guidelines', href: '/docs/commuity-guidelines' },
+    { label: 'Community Guidelines', href: '/docs/community-guidelines' },
     { label: 'Grants & Funding', href: '/docs/grants' },
   ],
   Legal: [

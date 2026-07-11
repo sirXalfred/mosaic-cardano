@@ -4,6 +4,23 @@ import { authService } from '@/services/backend/auth.service';
 
 export const runtime = 'nodejs';
 
+
+/**
+ * @swagger
+ * /api/users/me:
+ *   patch:
+ *     summary: PATCH me
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const PATCH = withAuth(async (request, context, userId) => {
   try {
     const body = await request.json();

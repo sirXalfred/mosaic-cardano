@@ -1,9 +1,14 @@
 packages: []
 allowBuilds:
+  '@scarf/scarf': false
+  '@tree-sitter-grammars/tree-sitter-yaml': false
   argon2: true
   chacha-native: true
+  core-js-pure: false
   cpu-features: set this to true or false
   msw: true
   protobufjs: true
   ssh2: set this to true or false
+  tree-sitter: false
+  tree-sitter-json: false
   unrs-resolver: true

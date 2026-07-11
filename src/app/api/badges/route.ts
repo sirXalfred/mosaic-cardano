@@ -6,6 +6,23 @@ import { z } from 'zod';
 import { withAuth } from '@/lib/backend/request';
 import { BADGE_ASSETS } from '@/lib/badges';
 
+
+/**
+ * @swagger
+ * /api/badges:
+ *   get:
+ *     summary: GET badges
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (req, context, userId) => {
     try {
         const badges = await badgeService.getUserBadges(userId);
@@ -20,6 +37,23 @@ const ClaimSchema = z.object({
     badgeId: z.string()
 });
 
+
+/**
+ * @swagger
+ * /api/badges:
+ *   post:
+ *     summary: POST badges
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const POST = withAuth(async (req, context, userId) => {
     try {
         const body = await req.json();

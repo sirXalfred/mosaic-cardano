@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server';
 import { villageService } from '@/services/backend/village.service';
 import { withAuth } from '@/lib/backend/request';
 
+
+/**
+ * @swagger
+ * /api/villages/[communityId]/members:
+ *   get:
+ *     summary: GET members
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const GET = withAuth(async (req, { params }) => {
   try {
     const communityId = params.communityId;
@@ -20,6 +37,23 @@ export const GET = withAuth(async (req, { params }) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /api/villages/[communityId]/members:
+ *   delete:
+ *     summary: DELETE members
+ *     tags: [api]
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 export const DELETE = withAuth(async (req, { params }, adminId) => {
   try {
     const communityId = params.communityId;
