@@ -55,10 +55,10 @@ export const getBadgeConfig = (slug: string): BadgeConfig => {
 
 
 export const BADGE_ASSETS: Record<string, string> = {
-  'early-user': 'ipfs://QmPlaceholderUserBadge...',
-  'early-adopter': 'ipfs://QmPlaceholderAdopterBadge...',
-  'first-post': 'ipfs://QmPlaceholderPostBadge...',
-  'first-feedback': 'ipfs://QmPlaceholderFeedbackBadge...',
-  'first-invite': 'ipfs://QmPlaceholderInviteBadge...',
-  'first-document': 'ipfs://QmPlaceholderDocBadge...'
+  'early-user': 'ipfs://bafybeib5g2sm2sqrbjtawhybbvkmx4umbzes3wlqk67rz6gvu44gqxaaz4',
+  'early-adopter': 'ipfs://bafybeiatlymsxt4fcjdy3jol746ech6bjdsp54wpjatwktr5iseksp7ege',
+  'first-post': 'ipfs://bafybeiefn3uw4tm5jfxdqyqhugnx5gut2jk7xolawed4vdyoiicjrhutz4',
+  'first-feedback': 'ipfs://bafybeid66nl352ndjjmw63cyoe6i2xkpqijyz7rorglcg3rmooa6zwrvmy',
+  'first-invite': 'ipfs://bafybeihvwkopwhtqyv3og2bsyy3475gip3shdkcqg2x6nqde2glwuqtena',
+  'first-document': 'ipfs://bafybeigfu4ddw5sysjg6rj5jzeyubyjqoazz5briekgsu45e5itpoiwxgi'
 };

@@ -73,7 +73,7 @@ export const POST = withAuth(async (req, context, userId) => {
         }
 
 
-        const imageUri = BADGE_ASSETS[badge.type] || 'ipfs://QmGenericBadge...';
+        const imageUri = BADGE_ASSETS[badge.type] || `${process.env.NEXT_PUBLIC_SITE_URL}/assets/images/logo.png`;
 
         // Prepare dynamic metadata based on badge type
         const metadata: BadgeMetadata = {
