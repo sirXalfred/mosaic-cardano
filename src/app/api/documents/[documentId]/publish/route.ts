@@ -73,11 +73,12 @@ export const POST = withAuth(async (request, { params }, userId) => {
     };
 
     // 4. Anchor to Cardano
-    const txHash = await anchorContributionManifest(manifest);
+    const { txHash, manifestUri } = await anchorContributionManifest(manifest);
 
     // 5. Store txHash in Neo4j and advance stage to success
     await documentService.updateDocument(pieceId, userId, { 
       ipfsHash: txHash,
+      ipfsManifest: manifestUri,
       publishStage: 'success',
       isMainnet: process.env.NEXT_PUBLIC_IS_LIVE === 'true' ? 1 : 0
     });

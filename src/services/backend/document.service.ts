@@ -63,6 +63,9 @@ export const documentService = {
       setClauses.push('p.contentRaw = $contentRaw, p.contentUrl = $contentUrl');
       params.contentRaw = updates.contentRaw;
       params.contentUrl = contentUrl;
+    } else if (updates.contentUrl) {
+      setClauses.push('p.contentUrl = $contentUrl');
+      params.contentUrl = updates.contentUrl;
     }
     if (updates.status) {
       setClauses.push('p.status = $status');
@@ -75,6 +78,10 @@ export const documentService = {
     if (updates.ipfsHash) {
       setClauses.push('p.ipfsHash = $ipfsHash');
       params.ipfsHash = updates.ipfsHash;
+    }
+    if (updates.ipfsManifest) {
+      setClauses.push('p.ipfsManifest = $ipfsManifest');
+      params.ipfsManifest = updates.ipfsManifest;
     }
     if (updates.isMainnet !== undefined) {
       setClauses.push('p.isMainnet = toInteger($isMainnet)');
@@ -147,6 +154,7 @@ export const documentService = {
         communityId: p.communityId as string,
         publishStage: p.publishStage as import('@/types/mosaic').PublishStep,
         ipfsHash: p.ipfsHash as string,
+        ipfsManifest: p.ipfsManifest as string,
         isMainnet: p.isMainnet !== undefined ? (p.isMainnet as number) : undefined,
         creator: {
           id: creator.id as string,

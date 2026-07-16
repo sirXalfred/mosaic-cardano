@@ -1,5 +1,5 @@
 const PINATA_JWT = process.env.PINATA_JWT;
-const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud/ipfs';
+const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud';
 
 export const uploadJSONToIPFS = async (jsonData: Record<string, unknown> | unknown[], name: string): Promise<string> => {
   if (!PINATA_JWT) {
@@ -66,7 +66,7 @@ export const uploadFileToIPFS = async (file: File | Blob, name: string): Promise
 export const resolveIPFSUri = (uri: string): string => {
   if (!uri) return '';
   if (uri.startsWith('ipfs://')) {
-    return `${PINATA_GATEWAY}/${uri.replace('ipfs://', '')}`;
+    return `${PINATA_GATEWAY}/ipfs/${uri.replace('ipfs://', '')}`;
   }
   return uri;
 };

@@ -75,7 +75,7 @@ export async function getAppWalletBalance(): Promise<number> {
  */
 export async function anchorContributionManifest(
   manifest: ContributionManifest
-): Promise<string> {
+): Promise<{ txHash: string; manifestUri: string }> {
   const mnemonic = process.env.APP_WALLET_MNEMONIC;
   if (!mnemonic) {
     console.warn('APP_WALLET_MNEMONIC is not set.');
@@ -147,7 +147,7 @@ export async function anchorContributionManifest(
     const signedTx = await wallet.signTx(unsignedTx);
     const txHash = await wallet.submitTx(signedTx);
 
-    return txHash;
+    return { txHash, manifestUri: manifestIpfsUri };
   } catch (error) {
     console.error('Failed to anchor to Cardano:', error);
     throw new Error("Failed to anchor contribution to Cardano!")
