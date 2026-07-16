@@ -23,24 +23,13 @@ export const generateMetadata = async ({ params }: { params: Promise<{ username:
   };
 };
 
-export const generateStaticParams = async () => {
-  const users = await authService.getAllUsers();
-  return users.map((user) => ({
-    username: user.username,
-  }));
-};
-
 export default async function UserProfilePage({ 
   params,
-  searchParams 
 }: { 
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ back?: string }>;
 }) {
   const resolvedParams = await params;
   const { username } = resolvedParams;
-  const resolvedSearchParams = await searchParams;
-  const backUrl = resolvedSearchParams.back;
 
   try {
     const user = await getUser(username);
@@ -52,6 +41,6 @@ export default async function UserProfilePage({
   }
 
   return (
-    <ProfilePageContent username={username} backUrl={backUrl} />
+    <ProfilePageContent username={username} />
   )
 }

@@ -12,14 +12,18 @@ import { PublishedWorks } from '@/components/profile/PublishedWorks';
 import { ReputationSidebar } from '@/components/profile/ReputationSidebar';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
+import { useSearchParams } from 'next/navigation';
 
-export const ProfilePageContent = ({ username, backUrl }: { username: string; backUrl?: string }) => {
+export const ProfilePageContent = ({ username }: { username: string; }) => {
     const [showFullPassport, setShowFullPassport] = useState(false);
 
     const { data: works, isLoading: isLoadingWorks } = useGetUserPublishedWorks(username);
     const { data: profile, isLoading: isLoadingProfile } = useGetUserProfile(username);
     const { data: contributions, isLoading: isLoadingContributions } = useGetUserContributions(username);
     const { data: reputation, isLoading: isLoadingReputation } = useGetUserReputation(username);
+
+    const searchParams = useSearchParams();
+    const backUrl = searchParams.get('back');
 
     return (
         <div className="flex-1 space-y-16">
