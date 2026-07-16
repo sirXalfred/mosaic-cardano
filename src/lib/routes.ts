@@ -13,7 +13,7 @@ export const ROUTES = {
   NOTIFICATIONS: '/inbox',
   ARTIFACT: (id: string) => `/piece/${id}`,
 
-  USER: (id: string, currentUserId?: string) => id === currentUserId ? '/profile' : `/u/${id}`,
+  USER: (username: string, currentUsername?: string) => username === currentUsername ? '/profile' : `/u/${username}`,
 
   VILLAGE: {
     PROFILE: (villageId: string) => `/v/${villageId}`,

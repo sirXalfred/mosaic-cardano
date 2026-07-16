@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getDocContent, getDocsList } from '@/lib/docs';
+import { cache } from "react";
 
 interface PageProps {
   params: {
@@ -16,8 +17,13 @@ export async function generateStaticParams() {
   }));
 }
 
+
+const getDocumentBySlug = cache(async (slug: string) => {
+  return getDocContent(slug);
+});
+
 export async function generateMetadata({ params }: PageProps) {
-  const doc = await getDocContent(params.doc_slug);
+  const doc = await getDocumentBySlug(params.doc_slug);
   if (!doc) {
     return {
       title: 'Document Not Found | Mosaic Docs',
@@ -30,7 +36,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function DocPage({ params }: PageProps) {
-  const doc = await getDocContent(params.doc_slug);
+  const doc = await getDocumentBySlug(params.doc_slug);
 
   if (!doc) {
     notFound();

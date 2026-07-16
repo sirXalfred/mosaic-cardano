@@ -1,21 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getRequestUserId } from '@/lib/backend/request';
+import { withAuth } from '@/lib/backend/request';
 import { postService } from '@/services/backend/post.service';
 
 export const runtime = 'nodejs';
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ postId: string }> }
-) {
+export const POST = withAuth(async (request, { params }, userId) => {
   try {
-    const { postId } = await params;
-    const userId = await getRequestUserId(request);
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    const { postId } = await params as { postId: string };
     const body = await request.json();
     const { direction } = body;
 
@@ -34,4 +25,4 @@ export async function POST(
     console.error('Error voting on post:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

@@ -2,14 +2,28 @@ import React from 'react';
 import { Metadata } from 'next';
 import VillageLayout from '@/components/village/VillageLayout';
 import { villageService } from '@/services/backend/village.service';
+import { notFound, redirect } from 'next/navigation';
+import { ROUTES } from '@/lib/routes';
+import { cache } from "react";
+
+const getCommunity = cache(async (id: string) => {
+    return villageService.getCommunityByIdOrSlug(id);
+});
 
 
-export async function generateMetadata({ params }: { params: { community_id: string } }): Promise<Metadata> {
+
+export async function generateMetadata({ params }: { params: Promise<{ community_id: string }> }): Promise<Metadata> {
   const { community_id } = await params;
-  const communityData = await villageService.getCommunityByIdOrSlug(community_id);
-  const communityName = communityData?.name || "Community";
-  const image = communityData?.profileImageUrl;
-  const descr = communityData?.description || "A community on Mosaic";
+  const communityData = await getCommunity(community_id);
+  if (!communityData) {
+    return {
+      title: 'Community Not Found',
+      description: 'The requested community does not exist.',
+    };
+  }
+  const communityName = communityData.name;
+  const image = communityData.profileImageUrl;
+  const descr = communityData.description || "A community on Mosaic";
 
   return {
     title: {
@@ -29,6 +43,23 @@ export async function generateMetadata({ params }: { params: { community_id: str
 }
 
 
-export default function CommunityLayout({ children }: { children: React.ReactNode }) {
+export default async function CommunityLayout({ 
+  children,
+  params
+}: { 
+  children: React.ReactNode;
+  params: Promise<{ community_id: string }>;
+}) {
+  const { community_id } = await params;
+  const communityData = await getCommunity(community_id);
+  
+  if (!communityData) {
+    notFound();
+  }
+
+  if (communityData.id !== community_id) {
+    redirect(ROUTES.VILLAGE.PROFILE(communityData.id));
+  }
+
   return <VillageLayout>{children}</VillageLayout>;
 }

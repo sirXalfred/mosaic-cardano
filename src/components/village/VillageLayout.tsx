@@ -5,7 +5,7 @@ import VillageSidebar from './VillageSidebar';
 import { cn } from '@/lib/utils';
 import VillageTopAppBar from './VillageTopAppBar';
 import { SidebarProvider } from '@/contexts/sidebar-context';
-import { useParams } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 import { useGetVillageDetails } from '@/services/villages';
 
 export default function VillageLayout({ children, communityId }: { children: React.ReactNode, communityId?: string }) {
@@ -15,6 +15,10 @@ export default function VillageLayout({ children, communityId }: { children: Rea
   const params = useParams();
   const activeCommunityId = communityId || (params.community_id as string);
   const { data: village, isLoaded, isError } = useGetVillageDetails(activeCommunityId);
+
+  if (isLoaded && (!village || isError)) {
+    notFound();
+  }
 
   useEffect(() => {
     setMounted(true);

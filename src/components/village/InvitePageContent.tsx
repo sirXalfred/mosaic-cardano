@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/routes';
 import { AppIntent, INTENT_KEY } from '@/lib/intents';
 import MosaicSymbol from '../ui/icons/MosaicSymbol';
+import { StatePanel } from '../ui/StatePanel';
 
 
 export function InvitePageContent({ hash, villageId }: { hash?: string, villageId?: string }) {
@@ -16,8 +17,6 @@ export function InvitePageContent({ hash, villageId }: { hash?: string, villageI
       localStorage.setItem(AppIntent.INVITE_VILLAGE, JSON.stringify({ hash, villageId }));
       router.push(ROUTES.VILLAGE.PROFILE(villageId));
 
-    } else {
-      router.push(ROUTES.LANDING);
     }
   }, [hash, villageId, router]);
 
@@ -27,6 +26,18 @@ export function InvitePageContent({ hash, villageId }: { hash?: string, villageI
         <MosaicSymbol />
         <p className="font-serif italic text-xl">Preparing your invite...</p>
       </div>
+      {
+        !hash && !villageId && (
+          <StatePanel
+            variant="error"
+            title="Invalid Invite"
+            description="The invitation is invalid or has expired."
+            hasAction={true}
+            actionLabel="Go to Landing Page"
+            onTriggerAction={() => router.push(ROUTES.LANDING)}
+          />
+        )
+      }
     </div>
   );
 }
