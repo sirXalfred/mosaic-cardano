@@ -35,10 +35,15 @@ export async function generateMetadata({ params }: { params: Promise<{ piece_id:
 }
 
 export const generateStaticParams = async () => {
-  const pieces = await pieceService.getFeaturedPieces(10);
-  return pieces.map((piece) => ({
-    piece_id: piece.id,
-  }));
+  try {
+    const pieces = await pieceService.getFeaturedPieces(10);
+    return pieces.map((piece) => ({
+      piece_id: piece.id,
+    }));
+  } catch (error) {
+    console.warn('Skipping pre-rendering for pieces during build (DB unreachable):', error instanceof Error ? error.message : error);
+    return [];
+  }
 };
 
 export default async function PiecePage({ params }: { params: Promise<{ piece_id: string }> }) {

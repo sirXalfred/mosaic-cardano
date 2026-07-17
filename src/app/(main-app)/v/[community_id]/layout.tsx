@@ -42,12 +42,16 @@ export async function generateMetadata({ params }: { params: Promise<{ community
   };
 }
 
-
 export async function generateStaticParams() {
-  const villages = await villageService.listAllVillages();
-  return villages.map(village => ({
-    community_id: village.id,
-  }));
+  try {
+    const villages = await villageService.listAllVillages();
+    return villages.map(village => ({
+      community_id: village.id,
+    }));
+  } catch (error) {
+    console.warn('Skipping pre-rendering for communities during build (DB unreachable):', error instanceof Error ? error.message : error);
+    return [];
+  }
 }
 
 

@@ -1,0 +1,8 @@
+I noticed that the contenthash that i see that is published on ipfs as the metadata for the pieces is still the cloudinary but htis should have been swicthed for the real hash
+
+also i know we have view on explore but this isnt even the main one.. the main one shoudld be the link to the piece ipfs manifest.. the one that points to the actual content
+so maybe we can ave both links there for the piece
+
+we should havve settigns in the user dropown so the user downs have to escape to mosaic first before seeign the platform ettigns
+also the workspace icon there shoulld be upated to match the one a the sidebar
+
