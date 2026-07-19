@@ -71,7 +71,7 @@ Demo flow:
 7. **User Profile & Badges:** Open the user's profile page (`/u/[username]`), displaying their dynamic portfolio of published works, contribution history, and earned badges.
 8. **Plan Subscription Payment:** Go to settings, choose a tier (Basic/Pro), and trigger an ADA payment. The wallet prompts for transaction signing, sends the Lovelace to the Mosaic treasury, attaches metadata Label `674` (`"Mosaic Upgrade"`), and upgrades the account.
 
-<!-- **Demo and final presentation video:** [TODO] -->
+**Demo and final presentation video:** [Video](https://drive.google.com/file/d/1LMI3c5KamK7TuhGjcmH0A438y2lEmvqQ/view?usp=drive_link)
 
 ---
 
@@ -160,7 +160,7 @@ All updates posted from [@DavidTimi_1](https://x.com/DavidTimi_1).
    - **IPFS Manifest URI:** `ipfs://bafkreihxmdjyxibawxjzalr4b3xqbecz47p4br6ddbdlu34ohq2duhjyna`
 2. **ADA Plan Subscription Payments:**
    Users pay in ADA to upgrade their subscription plans. The app calculates the ADA/USD rate, prompts the wallet signature, transfers Lovelace to the treasury address, and attaches metadata Label `674`.
-   - **Subscription Tx Hash:** `[View on Explorer](https://cardanoscan.io/transaction/5274c458e558bedbb69483a5c487d9de011b918ad541d046143d72c14cea684a)`
+   - **Subscription Tx Hash:** [View on Explorer](https://cardanoscan.io/transaction/5274c458e558bedbb69483a5c487d9de011b918ad541d046143d72c14cea684a)
 3. **Wallet-native Authentication (CIP-8):**
    Login and authentication are handled entirely without passwords by signing a cryptographic payload through the connected Cardano wallet.
 4. **App Wallet Treasury Management:**
@@ -212,7 +212,7 @@ Detailed feedback sessions and platform critiques are archived in the [Mosaic Fe
 - **Project name:** Mosaic
 - **Repo:** [github.com/sirXalfred/mosaic-cardano](https://github.com/sirXalfred/mosaic-cardano)
 - **Live product:** [Mosaic Webapp](https://mosaic-cardano-production-e6ae.up.railway.app)
-- **Demo and presentation video:** `[Video](https://drive.google.com/file/d/1LMI3c5KamK7TuhGjcmH0A438y2lEmvqQ/view?usp=drive_link)`
+- **Demo and presentation video:** [Video](https://drive.google.com/file/d/1LMI3c5KamK7TuhGjcmH0A438y2lEmvqQ/view?usp=drive_link)
 - **X account:** [@DavidTimi_1](https://x.com/DavidTimi_1)
 
 **Weekly update posts:**

@@ -85,17 +85,17 @@ export const POST = withAuth(async (req, context, userId) => {
         };
 
         if (badge.type === 'early-adopter') {
-            metadata.villageCreated = true;
+            metadata.villageCreated = 'true';
         } else if (badge.type === 'first-post') {
-            metadata.postPublished = true;
+            metadata.postPublished = 'true';
         } else if (badge.type === 'first-feedback') {
-            metadata.feedbackProvided = true;
+            metadata.feedbackProvided = 'true';
         } else if (badge.type === 'first-invite') {
-            metadata.inviteSent = true;
+            metadata.inviteSent = 'true';
         } else if (badge.type === 'first-document') {
-            metadata.documentPublished = true;
+            metadata.documentPublished = 'true';
         } else if (badge.type === 'early-user') {
-            metadata.onboarded = true;
+            metadata.onboarded = 'true';
         }
 
         const { txHash, policyId, assetNameHex, assetNameBase } = await mintCIP68Badge(

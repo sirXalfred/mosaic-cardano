@@ -80,6 +80,7 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
     // 5 & 6. Mark payment UTXO as consumed and Extend subscription period in db
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30); // 30 days subscription
+    const createdAt = new Date().toISOString();
     
     // Determine if on mainnet by checking Blockfrost project ID prefix (mainnet... or preprod...)
     const isMainnet = BLOCKFROST_PROJECT_ID.startsWith('mainnet') ? 1 : 0;
@@ -88,7 +89,7 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
     const updateQuery = `
       MATCH (u:Mosaic_User {id: $userId})
       MERGE (u)-[:HAS_SUBSCRIPTION]->(s:Mosaic_Subscription)
-      ON CREATE SET s.createdAt = datetime().toString()
+      ON CREATE SET s.createdAt = $createdAt
       SET s.expiresAt = $expiresAt,
           s.lastPaymentTxHash = $txHash,
           s.status = 'ACTIVE',
@@ -104,6 +105,7 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
       planType: planType.toUpperCase(),
       txHash,
       expiresAt: expiresAt.toISOString(),
+      createdAt,
       isMainnet,
       expectedAda
     }, row => row);
