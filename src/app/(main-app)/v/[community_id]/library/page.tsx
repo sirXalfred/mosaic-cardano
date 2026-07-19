@@ -3,6 +3,8 @@ import AppPageContainer from '@/components/layout/AppPageContainer';
 import VillageLibraryClient from './VillageLibraryClient';
 import { pieceService } from '@/services/backend/piece.service';
 
+export const dynamic = 'force-dynamic';
+
 export default async function VillageLibraryPage({ params, searchParams }: { params: Promise<{ community_id: string }>, searchParams: Promise<{ filter?: string }> }) {
   const { community_id } = await params;
   const { filter } = await searchParams;

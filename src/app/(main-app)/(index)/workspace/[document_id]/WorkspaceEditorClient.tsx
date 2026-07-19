@@ -16,7 +16,7 @@ export default function WorkspaceEditorClient({
   documentId: string;
   initialData?: DocumentDetails | null;
 }) {
-  const { document, isLoading: isDocumentLoading, isContentLoading } = useGetDocumentDetails(documentId);
+  const { document, isLoading: isDocumentLoading, isContentLoading, refetch } = useGetDocumentDetails(documentId);
   const { data: comments } = useGetDocumentComments(documentId);
   const { data: myVillages } = useGetMyVillages();
   
@@ -87,6 +87,7 @@ export default function WorkspaceEditorClient({
         document={document || null}
         communities={communities}
         nextPublishStep={nextPublishStep} 
+        refetchDocument={refetch}
       />
     </div>
   );

@@ -89,7 +89,7 @@ Demo flow:
 6. The transaction is submitted on-chain, sending Lovelace to the Mosaic treasury address with metadata Label `674` containing the plan type and user ID.
 7. The platform verifies the transaction hash on-chain, updates the database, and upgrades the user's community limits.
 
-**Fulfillment evidence:** [TODO]
+**Fulfillment evidence:** [View on Explorer](https://cardanoscan.io/transaction/5274c458e558bedbb69483a5c487d9de011b918ad541d046143d72c14cea684a)
 
 ---
 
@@ -160,7 +160,7 @@ All updates posted from [@DavidTimi_1](https://x.com/DavidTimi_1).
    - **IPFS Manifest URI:** `ipfs://bafkreihxmdjyxibawxjzalr4b3xqbecz47p4br6ddbdlu34ohq2duhjyna`
 2. **ADA Plan Subscription Payments:**
    Users pay in ADA to upgrade their subscription plans. The app calculates the ADA/USD rate, prompts the wallet signature, transfers Lovelace to the treasury address, and attaches metadata Label `674`.
-   - **Subscription Tx Hash:** `[TODO]`
+   - **Subscription Tx Hash:** `[View on Explorer](https://cardanoscan.io/transaction/5274c458e558bedbb69483a5c487d9de011b918ad541d046143d72c14cea684a)`
 3. **Wallet-native Authentication (CIP-8):**
    Login and authentication are handled entirely without passwords by signing a cryptographic payload through the connected Cardano wallet.
 4. **App Wallet Treasury Management:**
@@ -212,7 +212,7 @@ Detailed feedback sessions and platform critiques are archived in the [Mosaic Fe
 - **Project name:** Mosaic
 - **Repo:** [github.com/sirXalfred/mosaic-cardano](https://github.com/sirXalfred/mosaic-cardano)
 - **Live product:** [Mosaic Webapp](https://mosaic-cardano-production-e6ae.up.railway.app)
-- **Demo and presentation video:** `[TODO]`
+- **Demo and presentation video:** `[Video](https://drive.google.com/file/d/1LMI3c5KamK7TuhGjcmH0A438y2lEmvqQ/view?usp=drive_link)`
 - **X account:** [@DavidTimi_1](https://x.com/DavidTimi_1)
 
 **Weekly update posts:**

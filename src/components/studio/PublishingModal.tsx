@@ -18,16 +18,21 @@ export default function PublishingModal({
   setPublishStep,
   document,
   communities,
-  nextPublishStep
+  nextPublishStep,
+  refetchDocument
 }: {
   publishStep: PublishStep;
   setPublishStep: (val: PublishStep | null) => void;
   document: DocumentDetails | null;
   communities: { id: string, name: string }[];
   nextPublishStep: (current: PublishStep) => void;
+  refetchDocument?: () => void;
 }) {
   const [selectedCommunity, setSelectedCommunity] = useState<string>(document?.communityId || '');
   const [pieceId, setPieceId] = useState<string>(publishStep === 'success' ? document?.id || '' : '');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const displayPieceId = pieceId || document?.id || '';
   
   const { mutateAsync: publishDocument } = usePublishDocument();
   const { mutateAsync: proposeSplits, isPending: isProposing } = useProposeSplits();
@@ -35,6 +40,14 @@ export default function PublishingModal({
   const { mutateAsync: updateDocument, isPending: isCanceling } = useUpdateDocument();
   const { data: authState } = useGetAuthState();
   const isCreator = document?.creator?.id === authState?.user?.id;
+
+  const handleRefresh = async () => {
+    if (!refetchDocument) return;
+    setIsRefreshing(true);
+    refetchDocument();
+    toast.success('Fetched latest updates');
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
 
   // Local state for split proposals
   const [splits, setSplits] = useState<{ userId: string, name: string, role: string, weight: number }[]>([]);
@@ -348,6 +361,17 @@ export default function PublishingModal({
                   </div>
                 ))}
               </div>
+
+              {refetchDocument && (
+                <button
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="mt-4 text-xs font-bold uppercase tracking-widest text-theme-accent hover:text-theme-accent/80 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <Loader2 size={12} className={isRefreshing ? 'animate-spin' : ''} />
+                  {isRefreshing ? 'Refreshing...' : 'Refresh Status'}
+                </button>
+              )}
             </div>
           )}
 
@@ -373,7 +397,7 @@ export default function PublishingModal({
                 &quot; {document.title || 'Untitled Draft'} &quot; has been successfully secured on the blockchain and added to the Community Library.
               </p>
               <div className="bg-theme-surface-low p-3 rounded border border-theme-outline/20 w-full font-mono text-xs text-theme-on-surface/50 truncate select-all">
-                Piece ID: {pieceId || 'Unknown'}
+                Piece ID: {displayPieceId || 'Unknown'}
               </div>
             </div>
           )}
@@ -415,7 +439,7 @@ export default function PublishingModal({
         {publishStep === 'success' && (
           <div className="px-8 py-5 border-t border-theme-outline/20 bg-theme-surface-low flex justify-center gap-4">
             <Link
-              href={pieceId ? ROUTES.ARTIFACT(pieceId) : ROUTES.WORKSPACE}
+              href={displayPieceId ? ROUTES.ARTIFACT(displayPieceId) : ROUTES.WORKSPACE}
               className="bg-theme-forest text-theme-parchment px-8 py-3 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-theme-forest/90"
             >
               View Piece

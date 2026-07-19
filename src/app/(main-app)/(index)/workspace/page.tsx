@@ -9,6 +9,7 @@ import AppPageContainer from '@/components/layout/AppPageContainer';
 import { ROUTES } from '@/lib/routes';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { formatDistanceToNowStrict } from 'date-fns';
 
 export default function StudioLandingPage() {
   const router = useRouter();
@@ -30,15 +31,31 @@ export default function StudioLandingPage() {
     getLocalDocuments().then(setLocalPieces);
   }, []);
 
-  // Merge local pieces with remote pieces, preferring local for recentness
-  const mergedPieces = [...localPieces.map(p => ({
-    id: p.id,
-    title: p.title,
-    status: 'LOCAL',
-    updatedAt: 'Just now'
-  })), ...allPieces.filter(ap => !localPieces.find(lp => lp.id === ap.id))];
+  // Merge local pieces with remote pieces, sorted by updatedAt/lastAccessed DESC
+  const mergedPieces = [
+    ...localPieces.map(p => ({
+      id: p.id,
+      title: p.title,
+      status: 'LOCAL',
+      updatedAt: p.lastAccessed
+    })),
+    ...allPieces.map(ap => ({
+      id: ap.id,
+      title: ap.title,
+      status: ap.status === 'Published' ? 'PUBLISHED' : (ap.publishStage?.toUpperCase() || 'DRAFT'),
+      updatedAt: ap.updatedAt
+    })).filter(ap => !localPieces.find(lp => lp.id === ap.id))
+  ].sort((a, b) => b.updatedAt - a.updatedAt);
 
   const recentPieces = mergedPieces.slice(0, 4);
+
+  const formatTime = (time: number) => {
+    try {
+      return `${formatDistanceToNowStrict(new Date(time))} ago`;
+    } catch {
+      return 'just now';
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -166,7 +183,7 @@ export default function StudioLandingPage() {
                     <span className="uppercase tracking-widest text-[9px] bg-theme-surface-low px-2 py-0.5 rounded text-theme-on-surface/70">
                       {piece.status}
                     </span>
-                    • {piece.updatedAt}
+                    • {formatTime(piece.updatedAt as number)}
                   </p>
                 </div>
                 <div className="w-8 h-8 rounded bg-theme-surface flex items-center justify-center text-theme-outline/50 group-hover:bg-theme-clay/10 group-hover:text-theme-accent transition-colors">

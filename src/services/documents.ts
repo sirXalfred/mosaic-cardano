@@ -153,7 +153,14 @@ export const useGetDocumentDetails = (documentId: string | null, initialData?: D
     },
     enabled: !!documentId && documentId !== 'new' && !initialData,
     initialData: initialData,
-    staleTime: 5 * 1000 // 10 seconds to quickly reflect new status when waiting for others
+    staleTime: 5 * 1000, // 5 seconds
+    refetchInterval: (query) => {
+      const data = query.state.data as DocumentDetails | null;
+      if (data && data.publishStage && data.publishStage !== 'draft' && data.publishStage !== 'success') {
+        return 3000; // Poll every 3s during publishing
+      }
+      return false;
+    }
   });
 
   const contentQuery = useQuery({
