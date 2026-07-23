@@ -73,9 +73,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['authState']
-      });
+      queryClient.clear();
     }
   });
 }
