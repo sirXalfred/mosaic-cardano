@@ -27,8 +27,8 @@ export function BadgesModal() {
         try {
             setClaimingBadgeId(badgeId);
             await claimMutation.mutateAsync(badgeId);
-            toast.success("Badge minting began!", {
-                description: "You'll be notified when ready.",
+            toast.success("Minting in progress...", {
+                description: "You'll be notified as soon as your badge is on-chain.",
             });
         } catch (e: unknown) {
             toast.error(e instanceof Error ? e.message : "Failed to mint badge");
@@ -119,7 +119,7 @@ export function BadgesModal() {
                                                 disabled={claimingBadgeId !== null}
                                             >
                                                 {claimingBadgeId === badge.id ? (
-                                                    <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Enqueuing...</span>
+                                                    <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Minting...</span>
                                                 ) : (
                                                     'Claim Badge'
                                                 )}

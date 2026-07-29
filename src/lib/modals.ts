@@ -6,6 +6,7 @@ export const MODALS = {
   FEEDBACK: 'FEEDBACK',
   BADGES: 'BADGES',
   PROMPT: 'PROMPT',
+  CONFIRM: 'CONFIRM',
 } as const;
 
 export type ModalId = typeof MODALS[keyof typeof MODALS];

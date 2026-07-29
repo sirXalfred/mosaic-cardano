@@ -9,6 +9,7 @@ import VerifyPaymentModal from '../modals/VerifyPaymentModal';
 import FeedbackModal from '../modals/FeedbackModal';
 import { BadgesModal } from '../modals/BadgesModal';
 import PromptModal from '../modals/PromptModal';
+import ConfirmModal from '../modals/ConfirmModal';
 import dynamic from 'next/dynamic';
 
 const WalletConnectModal = dynamic(() => import('@/components/modals/WalletConnectModal'),
@@ -43,6 +44,7 @@ export const ModalsContainer = () => {
       />
       <BadgesModal />
       <PromptModal />
+      <ConfirmModal />
     </>
   );
 };

@@ -78,6 +78,19 @@ export const useLogout = () => {
   });
 }
 
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI('/api/auth/delete-account', { method: 'DELETE' });
+    },
+    onSuccess: () => {
+      queryClient.clear();
+    }
+  });
+};
+
 export const useLinkWallet = () => {
   const queryClient = useQueryClient();
 

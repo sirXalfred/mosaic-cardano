@@ -1,7 +1,9 @@
-import { useGetUserSettings, useGetAuthState } from '@/services/auth';
+import { useGetUserSettings, useGetAuthState, useDeleteAccount } from '@/services/auth';
 import { Button } from '@/components/ui/button';
 import { useModals } from '@/contexts/modals-context';
 import { MODALS } from '@/lib/modals';
+import { useAuth } from '@/contexts/auth-context';
+import { toast } from 'sonner';
 
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,12 +18,31 @@ const WalletLinkButton = dynamic(() => import('@/components/wallet/WalletStatus'
   loading: () => <Skeleton className="w-32 h-10" />
 });
 
-
-
 export default function AccountTab() {
   const { data: settings, isLoading: isSettingsLoading } = useGetUserSettings();
   const { data: authState } = useGetAuthState();
   const { openModal } = useModals();
+  const deleteAccountMutation = useDeleteAccount();
+  const { logout } = useAuth();
+
+  const handleDeleteAccount = () => {
+    openModal(MODALS.CONFIRM, {
+      title: 'Delete Account',
+      description: 'Are you sure you want to delete your account? All your personal credentials and settings will be permanently removed. This action cannot be undone.',
+      confirmText: 'Delete Account',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteAccountMutation.mutateAsync();
+          toast.success('Your account has been deleted.');
+          await logout();
+        } catch (e) {
+          console.error(e);
+          toast.error('Failed to delete account');
+        }
+      },
+    });
+  };
 
   return (
     <div className="space-y-8 animate-onrender --fade-in">
@@ -130,7 +151,12 @@ export default function AccountTab() {
         <div className="pt-4">
           <h3 className="text-sm font-bold text-red-600 mb-2">Danger Zone</h3>
           <p className="text-xs text-theme-on-surface/60 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-          <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+          <Button
+            variant="outline"
+            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            onClick={handleDeleteAccount}
+            isLoading={deleteAccountMutation.isPending}
+          >
             Delete Account
           </Button>
         </div>
