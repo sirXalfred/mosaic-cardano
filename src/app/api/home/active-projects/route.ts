@@ -23,6 +23,11 @@ export const runtime = 'nodejs';
  *         description: Internal server error
  */
 export const GET = withAuth(async (request, context, userId) => {
-  const items = await homeService.listActiveProjects(userId);
-  return NextResponse.json({ items });
-})
+  try {
+    const items = await homeService.listActiveProjects(userId);
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error('Failed to fetch home active projects:', error);
+    return NextResponse.json({ items: [] });
+  }
+});
