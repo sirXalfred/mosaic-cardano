@@ -284,7 +284,7 @@ export const notificationService = {
 			type: 'SYSTEM',
 			title: 'New Badge Unlocked!',
 			body: `You've earned the ${badgeName} badge. Click to mint it on-chain!`,
-			actionUrl: `mosaic://?modal=${MODALS.BADGES}`
+			actionUrl: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/explore?modal=${MODALS.BADGES}`
 		});
 	},
 
@@ -343,6 +343,29 @@ export const notificationService = {
 			await notificationQueue.add('send-collaboration-invite-email', { inviterName, targetEmail, pieceId, pieceTitle }).catch((err) => {
 				console.error('Failed to enqueue collaboration invite email job:', err);
 			});
+		}
+	},
+
+	async notifyVillageAnnouncement(communityId: string, communityName: string, postTitleOrSnippet: string, postId: string, adminName: string) {
+		const members = await runRead(
+			`MATCH (u:Mosaic_User)-[:MEMBER_OF]->(c:Mosaic_Community {id: $communityId}) RETURN u.id AS userId`,
+			{ communityId },
+			row => row.userId as string
+		);
+
+		const title = `📣 Announcement in ${communityName}`;
+		const body = `${adminName} pinned: "${postTitleOrSnippet.length > 80 ? postTitleOrSnippet.substring(0, 80) + '...' : postTitleOrSnippet}"`;
+		const actionUrl = `${ROUTES.VILLAGE.FEED(communityId)}?post=${postId}`;
+
+		for (const userId of members) {
+			this.queueNotification({
+				userId,
+				type: 'VILLAGE_ANNOUNCEMENT',
+				title,
+				body,
+				actionUrl,
+				aggregationKey: `announcement_${communityId}_${postId}`
+			}).catch(console.error);
 		}
 	}
 };
