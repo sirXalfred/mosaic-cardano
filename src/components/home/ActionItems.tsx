@@ -5,9 +5,8 @@ import { getActionItemLabel, useGetActionItems } from '@/services/home';
 import { Mail, Edit3, ArrowRight } from 'lucide-react';
 import { StatePanel } from '@/components/ui/StatePanel';
 
-export default function ActionItems() {
+export default function ActionItems({hideIfEmpty}: {hideIfEmpty: boolean}) {
   const { data: items, isLoading, isError, error, refetch } = useGetActionItems();
-
   if (isLoading) {
     return <StatePanel variant="loading" title="Loading attention items" description="We are checking for invitations, mentions, and project updates." className="mb-12" />;
   }
@@ -26,6 +25,10 @@ export default function ActionItems() {
   }
 
   if (!items || items.length === 0) {
+    if (hideIfEmpty){
+      return <></>
+    }
+
     return (
       <StatePanel
         variant="empty"

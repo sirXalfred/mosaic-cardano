@@ -4,9 +4,16 @@ import Link from 'next/link';
 import { useGetPendingSignatures } from '@/services/home';
 import { PenTool, ArrowRight } from 'lucide-react';
 import { StatePanel } from '@/components/ui/StatePanel';
+import { useEffect } from 'react';
 
-export default function PendingSignatures() {
+export default function PendingSignatures({setHasSomething}: {setHasSomething: (hasSomething: boolean) => void}) {
   const { data: items, isLoading, isError, error, refetch } = useGetPendingSignatures();
+
+  useEffect(() => {
+    if (items?.length) {
+      setHasSomething(true);
+    }
+  }, [items])
 
   if (isLoading) {
     return <StatePanel variant="loading" title="Checking signatures" description="Finding documents that need your signature." className="mb-12" />;
@@ -27,12 +34,13 @@ export default function PendingSignatures() {
 
   if (!items || items.length === 0) {
     return (
-      <StatePanel
-        variant="empty"
-        title="No pending signatures"
-        description="You do not have any documents waiting for your signature at this time."
-        className="mb-12"
-      />
+      <></>
+      // <StatePanel
+      //   variant="empty"
+      //   title="No pending signatures"
+      //   description="You do not have any documents waiting for your signature at this time."
+      //   className="mb-12"
+      // />
     );
   }
 

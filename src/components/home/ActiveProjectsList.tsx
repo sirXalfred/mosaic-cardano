@@ -1,23 +1,27 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 
 import { StatePanel } from '@/components/ui/StatePanel';
-import { ROUTES } from '@/lib/routes';
 import { useGetActiveProjects } from '@/services/home';
+import { ROUTES } from '@/lib/routes';
 
-export default function ActiveProjectsList() {
-  const router = useRouter();
+export default function ActiveProjectsList({setHasSomething}: {setHasSomething: (hasSomething: boolean) => void}) {
   const { data: projects, isLoading, isError, error, refetch } = useGetActiveProjects();
+
+  useEffect(() => {
+    if (projects?.length) {
+      setHasSomething(true);
+    }
+  }, [projects])
 
   if (isLoading) {
     return (
       <div className="mb-12">
         <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
-          <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Projects</h2>
-          <Link href="/project" className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
+          <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Work</h2>
+          <Link href={ROUTES.WORKSPACE} className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
             View All Library
           </Link>
         </div>
@@ -34,8 +38,8 @@ export default function ActiveProjectsList() {
     return (
       <div className="mb-12">
         <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
-          <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Projects</h2>
-          <Link href="/project" className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
+          <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Work</h2>
+          <Link href={ROUTES.WORKSPACE} className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
             View All Library
           </Link>
         </div>
@@ -52,22 +56,23 @@ export default function ActiveProjectsList() {
 
   if (!projects || projects.length === 0) {
     return (
-      <div className="mb-12">
-        <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
-          <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Projects</h2>
-          <Link href="/project" className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
-            View All Library
-          </Link>
-        </div>
-        <StatePanel
-          variant="empty"
-          title="No active projects yet"
-          description="Projects you are contributing to will appear here once they are created or assigned to you."
-          hasAction
-          actionLabel="Create Project"
-          onTriggerAction={() => router.push(ROUTES.WORKSPACE)}
-        />
-      </div>
+      <></>
+      // <div className="mb-12">
+      //   <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
+      //     <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Work</h2>
+      //     <Link href={ROUTES.WORKSPACE} className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
+      //       View All Library
+      //     </Link>
+      //   </div>
+      //   <StatePanel
+      //     variant="empty"
+      //     title="No active projects yet"
+      //     description="Projects you are contributing to will appear here once they are created or assigned to you."
+      //     hasAction
+      //     actionLabel="Create Project"
+      //     onTriggerAction={() => router.push(ROUTES.WORKSPACE)}
+      //   />
+      // </div>
     );
   }
 
@@ -75,7 +80,7 @@ export default function ActiveProjectsList() {
     <div className="mb-12">
       <div className="flex items-end justify-between mb-6 border-b border-theme-outline/30 pb-2">
         <h2 className="font-serif text-2xl font-medium text-theme-forest">Active Projects</h2>
-        <Link href="/project" className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
+        <Link href={ROUTES.WORKSPACE} className="font-sans text-[10px] uppercase tracking-widest text-theme-on-surface/70 mb-1 cursor-pointer hover:text-theme-accent">
           View All Library
         </Link>
       </div>
