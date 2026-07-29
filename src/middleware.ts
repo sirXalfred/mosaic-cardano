@@ -30,6 +30,9 @@ const PUBLIC_API_PREFIXES = [
   '/api/dev',
   '/api/explore',
   '/api/preview',
+  '/api/villages',
+  '/api/pieces',
+  '/api/invites',
 ];
 
 function addSecurityHeaders(response: NextResponse) {

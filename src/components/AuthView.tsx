@@ -205,6 +205,7 @@ export default function AuthView() {
                 <WalletLoginButton 
                   onLoadingChange={setWalletLoading}
                   onError={setWalletError}
+                  disabled={isLoading || isSuccessful}
                 />
 
               <FormError message={walletError ? walletError || "An unknown error occurred" : ''} />

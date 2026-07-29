@@ -181,13 +181,13 @@ export function WalletLinkButton() {
   );
 }
 
-export function WalletLoginButton({
-  onLoadingChange,
-  onError
-}: {
-  onLoadingChange?: (loading: boolean) => void;
+interface WalletLoginButtonProps {
+  onLoadingChange?: (isLoading: boolean) => void;
   onError?: (error: string | null) => void;
-}) {
+  disabled?: boolean;
+}
+
+export function WalletLoginButton({ onLoadingChange, onError, disabled: externalDisabled }: WalletLoginButtonProps) {
   const { wallet, connected, name, connect } = useWallet();
   const { mutateAsync: loginWithWallet, isPending } = useLoginWithWallet();
   const { openModal, isOpen } = useModals();
@@ -284,7 +284,7 @@ export function WalletLoginButton({
       className='w-full group/cardano'
       size="lg"
       onClick={handleWalletLogin}
-      disabled={isPending || pendingLogin}
+      disabled={isPending || pendingLogin || externalDisabled}
     >
       {isPending || pendingLogin ? (
         <Loader2 className="animate-spin" size={18} />
