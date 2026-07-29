@@ -10,6 +10,15 @@ import { runRead, runWrite } from '../services/backend/shared';
 
 console.log('🚀 Starting Mosaic Background Worker Daemon...');
 
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  const subject = process.env.VAPID_SUBJECT || `mailto:${process.env.NEXT_PUBLIC_SUPPORT_MAIL || 'admin@mosaic.app'}`;
+  webpush.setVapidDetails(
+    subject,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
+
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // 1. Notification Queue Worker
@@ -71,18 +80,26 @@ const notificationWorker = new Worker(
         const { audience, title, body, actionUrl } = job.data;
         console.log(`[Worker:Broadcast] 📢 Dispatching push notifications for broadcast to audience "${audience}"...`);
 
-        let userQuery = `MATCH (u:Mosaic_User) WHERE u.pushSubscription IS NOT NULL RETURN u.pushSubscription AS sub`;
+        if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+          console.warn('[Worker:Broadcast] ⚠️ VAPID keys not configured in environment, skipping push broadcast.');
+          return { sent: false, reason: 'VAPID_NOT_CONFIGURED' };
+        }
+
+        let userQuery = `MATCH (u:Mosaic_User) WHERE u.pushSubscription IS NOT NULL RETURN u.id AS userId, u.pushSubscription AS sub`;
         const params: Record<string, unknown> = {};
 
         if (audience !== 'ALL') {
-          userQuery = `MATCH (u:Mosaic_User {planType: $planType}) WHERE u.pushSubscription IS NOT NULL RETURN u.pushSubscription AS sub`;
+          userQuery = `MATCH (u:Mosaic_User {planType: $planType}) WHERE u.pushSubscription IS NOT NULL RETURN u.id AS userId, u.pushSubscription AS sub`;
           params.planType = audience;
         }
 
-        const subscriptions = await runRead(userQuery, params, (row: Record<string, unknown>) => row.sub as string);
+        const subscriptions = await runRead(userQuery, params, (row: Record<string, unknown>) => ({
+          userId: row.userId as string,
+          subJson: row.sub as string
+        }));
         let pushedCount = 0;
 
-        for (const subJson of subscriptions) {
+        for (const { userId, subJson } of subscriptions) {
           try {
             const subscription = JSON.parse(subJson);
             await webpush.sendNotification(
@@ -90,13 +107,100 @@ const notificationWorker = new Worker(
               JSON.stringify({ title, body, url: actionUrl })
             );
             pushedCount++;
-          } catch (pushErr) {
-            console.error('[Worker:Broadcast] Push dispatch error:', pushErr);
+          } catch (pushErr: unknown) {
+            const errObj = pushErr as { statusCode?: number; message?: string };
+            const statusCode = errObj?.statusCode;
+            console.error(`[Worker:Broadcast] Push dispatch error for user ${userId} (status ${statusCode}):`, errObj?.message || pushErr);
+            if (statusCode === 401 || statusCode === 410) {
+              console.log(`[Worker:Broadcast] 🧹 Removing expired/unauthorized push subscription for user ${userId}...`);
+              await runWrite('MATCH (u:Mosaic_User {id: $userId}) REMOVE u.pushSubscription', { userId }, () => null).catch(() => {});
+            }
           }
         }
 
         console.log(`[Worker:Broadcast] ✅ Web Push broadcast complete. Sent ${pushedCount} push notifications.`);
         return { pushedCount };
+      }
+
+      case 'send-welcome-email': {
+        const { email, displayName } = job.data;
+        console.log(`[Worker:WelcomeEmail] 📧 Dispatching welcome email to ${email}`);
+
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        if (!resend || !fromEmail) {
+          console.warn('[Worker:WelcomeEmail] ⚠️ RESEND_API_KEY missing, skipping email.');
+          return { sent: false, reason: 'RESEND_NOT_CONFIGURED' };
+        }
+
+        const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mosaic.app';
+
+        const result = await resend.emails.send({
+          from: fromEmail,
+          to: [email],
+          subject: 'Welcome to Mosaic! 🎉',
+          html: `
+            <h2>Welcome aboard, ${displayName}!</h2>
+            <p>Thank you for joining Mosaic. You can now explore communities, publish piece compositions, earn badges, and collaborate with creators across Cardano.</p>
+            <p><a href="${appUrl}/explore" style="display:inline-block;padding:10px 20px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Explore Mosaic</a></p>
+          `,
+        });
+
+        console.log(`[Worker:WelcomeEmail] ✅ Welcome email sent! Result ID: ${result.data?.id || 'OK'}`);
+        return { sent: true, emailId: result.data?.id };
+      }
+
+      case 'send-piece-published-email': {
+        const { email, pieceId, pieceTitle } = job.data;
+        console.log(`[Worker:PieceEmail] 📧 Dispatching piece published email to ${email} for piece "${pieceTitle}"`);
+
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        if (!resend || !fromEmail) {
+          console.warn('[Worker:PieceEmail] ⚠️ RESEND_API_KEY missing, skipping email.');
+          return { sent: false, reason: 'RESEND_NOT_CONFIGURED' };
+        }
+
+        const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mosaic.app';
+
+        const result = await resend.emails.send({
+          from: fromEmail,
+          to: [email],
+          subject: `Your piece "${pieceTitle}" is published! 🚀`,
+          html: `
+            <h2>Piece Published Successfully!</h2>
+            <p>Congratulations! Your piece <strong>"${pieceTitle}"</strong> has been successfully published on Mosaic.</p>
+            <p><a href="${appUrl}/studio/${pieceId}" style="display:inline-block;padding:10px 20px;background:#10b981;color:#fff;text-decoration:none;border-radius:6px;">View Piece</a></p>
+          `,
+        });
+
+        console.log(`[Worker:PieceEmail] ✅ Piece published email sent! Result ID: ${result.data?.id || 'OK'}`);
+        return { sent: true, emailId: result.data?.id };
+      }
+
+      case 'send-collaboration-invite-email': {
+        const { inviterName, targetEmail, pieceId, pieceTitle } = job.data;
+        console.log(`[Worker:CollabEmail] 📧 Dispatching collaboration invite email to ${targetEmail} from ${inviterName}`);
+
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        if (!resend || !fromEmail) {
+          console.warn('[Worker:CollabEmail] ⚠️ RESEND_API_KEY missing, skipping email.');
+          return { sent: false, reason: 'RESEND_NOT_CONFIGURED' };
+        }
+
+        const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mosaic.app';
+
+        const result = await resend.emails.send({
+          from: fromEmail,
+          to: [targetEmail],
+          subject: `${inviterName} invited you to collaborate on "${pieceTitle}" ✍️`,
+          html: `
+            <h2>You've been invited to collaborate!</h2>
+            <p><strong>${inviterName}</strong> has requested your collaboration as a co-author on <strong>"${pieceTitle}"</strong>.</p>
+            <p><a href="${appUrl}/studio/${pieceId}" style="display:inline-block;padding:10px 20px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Review & Co-sign Piece</a></p>
+          `,
+        });
+
+        console.log(`[Worker:CollabEmail] ✅ Collaboration invite email sent! Result ID: ${result.data?.id || 'OK'}`);
+        return { sent: true, emailId: result.data?.id };
       }
 
       default:

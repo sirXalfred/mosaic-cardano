@@ -20,6 +20,8 @@ import { NotificationNodeSchema, type NotificationNode } from '@/types/schemas';
 import { cacheAside, cacheKey, invalidateCachePattern } from './cache';
 import { runRead, runWrite } from './shared';
 import { notificationQueue } from '@/lib/queue';
+import { ROUTES } from '@/lib/routes';
+import { MODALS } from '@/lib/modals';
 
 const markReadInput = z.object({
 	userId: z.string().uuid(),
@@ -262,7 +264,7 @@ export const notificationService = {
 			type: 'SIGNATURE_REQUEST',
 			title: 'Signature Request',
 			body: `${actorName} requested your signature as a co-author on "${pieceTitle}"`,
-			actionUrl: `/studio/${pieceId}`
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
 		});
 	},
 
@@ -282,7 +284,7 @@ export const notificationService = {
 			type: 'SYSTEM',
 			title: 'New Badge Unlocked!',
 			body: `You've earned the ${badgeName} badge. Click to mint it on-chain!`,
-			actionUrl: `?modal=BADGES`
+			actionUrl: `mosaic://?modal=${MODALS.BADGES}`
 		});
 	},
 
@@ -294,6 +296,54 @@ export const notificationService = {
 			body: `${actorName} mentioned you in a post in ${communityName}`,
 			actionUrl: `/v/${communityId}/feed`
 		});
+	},
+
+	async notifyWelcome(userId: string, email: string, displayName: string) {
+		await this.queueNotification({
+			userId,
+			type: 'SYSTEM',
+			title: 'Welcome to Mosaic! 🎉',
+			body: `Welcome aboard, ${displayName}! Explore communities or create your first piece.`,
+			actionUrl: '/explore'
+		});
+
+		if (email) {
+			await notificationQueue.add('send-welcome-email', { userId, email, displayName }).catch((err) => {
+				console.error('Failed to enqueue welcome email job:', err);
+			});
+		}
+	},
+
+	async notifyPiecePublished(userId: string, email: string | null, pieceId: string, pieceTitle: string) {
+		await this.queueNotification({
+			userId,
+			type: 'PIECE_UPDATE',
+			title: 'Piece Published! 🚀',
+			body: `Your piece "${pieceTitle}" has been successfully published!`,
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
+		});
+
+		if (email) {
+			await notificationQueue.add('send-piece-published-email', { userId, email, pieceId, pieceTitle }).catch((err) => {
+				console.error('Failed to enqueue piece published email job:', err);
+			});
+		}
+	},
+
+	async notifyCollaborationInvite(inviterName: string, targetUserId: string, targetEmail: string | null, pieceId: string, pieceTitle: string) {
+		await this.queueNotification({
+			userId: targetUserId,
+			type: 'SIGNATURE_REQUEST',
+			title: 'Collaboration Invitation ✍️',
+			body: `${inviterName} invited you to collaborate on "${pieceTitle}"`,
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
+		});
+
+		if (targetEmail) {
+			await notificationQueue.add('send-collaboration-invite-email', { inviterName, targetEmail, pieceId, pieceTitle }).catch((err) => {
+				console.error('Failed to enqueue collaboration invite email job:', err);
+			});
+		}
 	}
 };
 
