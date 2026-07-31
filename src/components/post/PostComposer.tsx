@@ -43,19 +43,6 @@ export function PostComposer({ communityId, replyToId, isInline, initialContent,
     ).slice(0, 5);
   }, [mentionQuery, members]);
 
-  // Utility to transform host URLs to mosaic:// protocol
-  const transformLinks = (text: string) => {
-    if (typeof window === 'undefined') return text;
-    const hostUrl = window.location.origin;
-    // Regex to match the host URL and any path after it
-    const regex = new RegExp(hostUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/\\S*)?', 'g');
-    return text.replace(regex, (match, path) => {
-      // If path is empty or just '/', return mosaic://, else mosaic:/path (avoiding double slash if path starts with /)
-      if (!path || path === '/') return 'mosaic://';
-      return `mosaic:/${path}`;
-    });
-  };
-
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setContent(newContent);
@@ -125,9 +112,7 @@ export function PostComposer({ communityId, replyToId, isInline, initialContent,
     e.preventDefault();
     if (!content.trim() || isPending) return;
 
-    const transformedContent = transformLinks(content);
-
-    createPost({ content: transformedContent, replyToId }, {
+    createPost({ content, replyToId }, {
       onSuccess: () => {
         setContent(''); 
         setMentionQuery(null);

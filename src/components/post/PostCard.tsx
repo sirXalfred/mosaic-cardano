@@ -122,8 +122,8 @@ export function PostCard({ post, communityId, autoExpandDepth = 0, focusedChildI
 
   const timeAgo = formatDistanceToNowStrict(new Date(post.createdAt)) + ' ago';
 
-  // Parse content for embeds: [mosaic]://[type]/[id]
-  const embedRegex = /:\/\/(village|project|piece|publication)\/([a-zA-Z0-9-]+)/g;
+  // Parse content for embeds: matches relative or origin URLs like /v/id, /piece/id, /project/id
+  const embedRegex = /(?:https?:\/\/[^\s/]+|\b)\/(v|village|project|piece|publication|document)\/([a-zA-Z0-9-]+)/g;
   const contentParts = [];
   const embeds: { type: EntityType; id: string }[] = [];
   
@@ -133,7 +133,9 @@ export function PostCard({ post, communityId, autoExpandDepth = 0, focusedChildI
     if (match.index > lastIndex) {
       contentParts.push(post.content.slice(lastIndex, match.index));
     }
-    embeds.push({ type: match[1] as EntityType, id: match[2] });
+    const rawType = match[1];
+    const entityType: EntityType = (rawType === 'v' ? 'village' : rawType) as EntityType;
+    embeds.push({ type: entityType, id: match[2] });
     lastIndex = embedRegex.lastIndex;
   }
   if (lastIndex < post.content.length) {

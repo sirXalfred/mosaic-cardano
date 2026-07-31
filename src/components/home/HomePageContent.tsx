@@ -5,9 +5,11 @@ import ActiveProjectsList from '@/components/home/ActiveProjectsList';
 import PendingSignatures from '@/components/home/PendingSignatures';
 import SavedItems from '@/components/home/SavedItems';
 import { useGetAuthState } from '@/services/auth';
+import { useState } from 'react';
 
 export default function HomePageContent() {
   const { data } = useGetAuthState();
+  const [hasSomething, setHasSomething] = useState(false);
   const username = data?.user?.name;
 
   return (
@@ -25,9 +27,9 @@ export default function HomePageContent() {
 
         {/* Main Focus Area */}
         <section className="col-span-12 lg:col-span-8 lg:pr-4 lg:overflow-y-auto">
-          <ActionItems />
-          <PendingSignatures />
-          <ActiveProjectsList />
+          <ActionItems hideIfEmpty={hasSomething} />
+          <PendingSignatures setHasSomething={setHasSomething} />
+          <ActiveProjectsList setHasSomething={setHasSomething} />
         </section>
 
         {/* Discovery & Periphery Sidebar */}

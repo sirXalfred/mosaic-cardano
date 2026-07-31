@@ -1,6 +1,8 @@
 
 
 export const API = {
+    SERVER_EVENTS: '/api/events/stream',
+
     AUTH: {
         WHOAMI: '/api/auth/me',
         LOGIN: '/api/auth/login',

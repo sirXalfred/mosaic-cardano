@@ -1,9 +1,8 @@
-"use client";
-
 import React, { useState } from 'react';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, Clock } from 'lucide-react';
 import { useVerifyPayment } from '@/services/payments';
 import { CloseButton } from '../ui/close-button';
+import { useUserEventsStream } from '@/hooks/useUserEventsStream';
 
 interface VerifyPaymentModalProps {
   isOpen: boolean;
@@ -12,10 +11,12 @@ interface VerifyPaymentModalProps {
 
 export default function VerifyPaymentModal({ isOpen, onClose }: VerifyPaymentModalProps) {
   const [txHash, setTxHash] = useState('');
-  const [planType, setPlanType] = useState('PRO'); // Default or dropdown, but usually we know or they select
+  const [planType, setPlanType] = useState('PRO');
   const { mutateAsync: verifyPayment, isPending } = useVerifyPayment();
-  const [success, setSuccess] = useState(false);
+  const [queued, setQueued] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useUserEventsStream(isOpen);
 
   if (!isOpen) return null;
 
@@ -24,12 +25,12 @@ export default function VerifyPaymentModal({ isOpen, onClose }: VerifyPaymentMod
     setErrorMsg('');
     try {
       await verifyPayment({ txHash: txHash.trim(), planType });
-      setSuccess(true);
+      setQueued(true);
       setTimeout(() => {
-        setSuccess(false);
+        setQueued(false);
         setTxHash('');
         onClose();
-      }, 2000);
+      }, 3500);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } }; message?: string };
       setErrorMsg(error.response?.data?.error || error.message || 'Verification failed');
@@ -43,14 +44,16 @@ export default function VerifyPaymentModal({ isOpen, onClose }: VerifyPaymentMod
 
         <h2 className="text-2xl font-serif text-theme-forest mb-2">Verify Payment</h2>
         <p className="text-sm text-theme-on-surface/60 mb-6">
-          If you already paid but closed the window before it confirmed, paste your transaction hash below.
+          If you already paid on Cardano but closed the window, paste your transaction hash below to confirm your plan upgrade.
         </p>
 
-        {success ? (
-          <div className="flex flex-col items-center justify-center py-8 text-green-600">
-            <CheckCircle2 size={48} className="mb-4" />
-            <p className="font-bold text-lg">Payment Verified!</p>
-            <p className="text-sm opacity-80">Your plan has been upgraded.</p>
+        {queued ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center text-amber-600">
+            <Clock size={48} className="mb-4 animate-pulse" />
+            <p className="font-bold text-lg text-theme-forest">Verification Queued!</p>
+            <p className="text-sm text-theme-on-surface/70 mt-1 max-w-xs">
+              Our worker is confirming your transaction on the Cardano blockchain. You will receive an in-app notification as soon as it completes.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

@@ -1,43 +1,73 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyPaymentAndUpdatePlan } from '@/services/backend/payment.service';
-import { getRequestUserId } from '@/lib/backend/request';
+import { NextResponse } from 'next/server';
+import { isTxHashConsumed } from '@/services/backend/payment.service';
+import { withAuth } from '@/lib/backend/request';
+import { validatePayload } from '@/lib/backend/api-validation';
+import { paymentQueue } from '@/lib/queue';
+import { z } from 'zod';
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+const VerifySchema = z.object({
+  txHash: z.string().min(10, 'Invalid transaction hash'),
+  planType: z.enum(['BASIC', 'PRO', 'basic', 'pro']),
+});
+
+/**
+ * @swagger
+ * /api/payments/verify:
+ *   post:
+ *     summary: Verify Cardano payment and upgrade user subscription plan (Queued)
+ *     tags: [Payments]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [txHash, planType]
+ *             properties:
+ *               txHash: { type: string, example: "a1b2c3..." }
+ *               planType: { type: string, enum: [BASIC, PRO] }
+ *     responses:
+ *       202:
+ *         description: Payment verification queued successfully
+ *       400:
+ *         description: Invalid input or transaction hash already consumed
+ *       401:
+ *         description: Unauthorized
+ */
+export const POST = withAuth(async (req, context, userId) => {
   try {
-    // 1. Authenticate user
-    const userId = await getRequestUserId(req);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // 2. Parse request body
     const body = await req.json();
-    const { txHash, planType } = body;
+    const validation = await validatePayload(VerifySchema, body);
+    if (!validation.success) return validation.response;
 
-    if (!txHash || !planType) {
-      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    const { txHash, planType } = validation.data;
+
+    // Check if transaction was already consumed
+    const consumed = await isTxHashConsumed(txHash);
+    if (consumed) {
+      return NextResponse.json({ error: 'Transaction hash has already been consumed.' }, { status: 400 });
     }
 
-    // 3. Verify payment and update plan
-    try {
-      const success = await verifyPaymentAndUpdatePlan(userId, txHash, planType);
-      if (success) {
-        return NextResponse.json({ success: true, message: 'Plan upgraded successfully' });
-      } else {
-        return NextResponse.json({ error: 'Payment verification failed' }, { status: 400 });
-      }
-    } catch (verifyError: unknown) {
-      const errorMsg = verifyError instanceof Error ? verifyError.message : 'Payment verification failed';
-      return NextResponse.json({ error: errorMsg }, { status: 400 });
-    }
+    // Enqueue verification job into paymentQueue
+    await paymentQueue.add('verify-payment', {
+      userId,
+      txHash,
+      planType: planType.toUpperCase(),
+    });
 
-  } catch (error) {
+    return NextResponse.json(
+      { success: true, status: 'PENDING_VERIFICATION', message: 'Payment verification queued. You will be notified once confirmed.' },
+      { status: 202 }
+    );
+  } catch (error: unknown) {
     console.error('API Error /payments/verify:', error);
     return NextResponse.json(
-      { error: (error as Error).message || 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
-}
+});

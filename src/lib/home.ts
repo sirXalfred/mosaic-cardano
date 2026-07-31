@@ -31,7 +31,7 @@ const HomeProjectSummaryResponseSchema = z.object({
 
 const HomeCommunityUpdateResponseSchema = z.object({
   id: z.string(),
-  type: z.enum(['governance', 'discussion', 'treasury']),
+  type: z.enum(['governance', 'discussion', 'treasury', 'announcement']),
   community: z.string(),
   title: z.string(),
   description: z.string(),

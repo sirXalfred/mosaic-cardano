@@ -15,6 +15,8 @@ export const ROUTES = {
 
   USER: (username: string, currentUsername?: string) => username === currentUsername ? '/profile' : `/u/${username}`,
 
+  POST: (postId: string) => `/post/${postId}`,
+
   VILLAGE: {
     PROFILE: (villageId: string) => `/v/${villageId}`,
     HOME: (villageId: string) => `/v/${villageId}/feed`,

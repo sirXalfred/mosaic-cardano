@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { fetchAPI } from './api';
 
@@ -145,6 +146,8 @@ export const useSignContribution = () => {
 };
 
 export const useGetDocumentDetails = (documentId: string | null, initialData?: DocumentDetails | null) => {
+  const queryClient = useQueryClient();
+
   const docQuery = useQuery({
     queryKey: ['documentDetails', documentId],
     queryFn: async () => {
@@ -154,14 +157,38 @@ export const useGetDocumentDetails = (documentId: string | null, initialData?: D
     enabled: !!documentId && documentId !== 'new' && !initialData,
     initialData: initialData,
     staleTime: 5 * 1000, // 5 seconds
-    refetchInterval: (query) => {
-      const data = query.state.data as DocumentDetails | null;
-      if (data && data.publishStage && data.publishStage !== 'draft' && data.publishStage !== 'success') {
-        return 3000; // Poll every 3s during publishing
-      }
-      return false;
-    }
   });
+
+  // Real-time EventSource listener for active document publishing stages
+  useEffect(() => {
+    if (!documentId || documentId === 'new') return;
+    const stage = docQuery.data?.publishStage;
+    const isPublishing = stage && stage !== 'draft' && stage !== 'success';
+
+    if (!isPublishing) return;
+
+    const eventSource = new EventSource(`/api/documents/${documentId}/stream`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.publishStage || payload.updated) {
+          queryClient.invalidateQueries({ queryKey: ['documentDetails', documentId] });
+        }
+      } catch (err) {
+        console.error('Failed to parse SSE payload:', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('SSE connection error:', err);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [documentId, docQuery.data?.publishStage, queryClient]);
 
   const contentQuery = useQuery({
     queryKey: ['documentContent', docQuery.data?.contentUrl],

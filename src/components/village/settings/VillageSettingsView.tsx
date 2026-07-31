@@ -11,6 +11,9 @@ import MemberManagement from './MemberManagement';
 import ActivityLog from './ActivityLog';
 import AppPageContainer from '@/components/layout/AppPageContainer';
 import { ROUTES } from '@/lib/routes';
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
+import { toast } from 'sonner';
 
 interface Props {
   communityId: string;
@@ -21,6 +24,7 @@ export default function VillageSettingsView({ communityId }: Props) {
   const deleteMutation = useDeleteVillage(communityId);
   const leaveMutation = useLeaveCommunity(communityId);
   const router = useRouter();
+  const { openModal } = useModals();
   const [activeTab, setActiveTab] = useState<'general' | 'members' | 'activity'>('general');
 
   if (isLoading) {
@@ -37,28 +41,42 @@ export default function VillageSettingsView({ communityId }: Props) {
 
   const isCreator = settings.isCreator ?? false;
 
-  const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this community? This action cannot be undone.")) {
-      try {
-        await deleteMutation.mutateAsync();
-        router.push(ROUTES.HOME);
-      } catch (e) {
-        console.error(e);
-        alert("Failed to delete community");
-      }
-    }
+  const handleDelete = () => {
+    openModal(MODALS.CONFIRM, {
+      title: 'Delete Community',
+      description: 'Are you sure you want to delete this community? This action cannot be undone.',
+      confirmText: 'Delete Community',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteMutation.mutateAsync();
+          toast.success('Community deleted');
+          router.push(ROUTES.HOME);
+        } catch (e) {
+          console.error(e);
+          toast.error('Failed to delete community');
+        }
+      },
+    });
   };
 
-  const handleLeave = async () => {
-    if (confirm("Are you sure you want to leave this community?")) {
-      try {
-        await leaveMutation.mutateAsync();
-        router.push(ROUTES.HOME);
-      } catch (e) {
-        console.error(e);
-        alert("Failed to leave community");
-      }
-    }
+  const handleLeave = () => {
+    openModal(MODALS.CONFIRM, {
+      title: 'Leave Community',
+      description: 'Are you sure you want to leave this community?',
+      confirmText: 'Leave Community',
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          await leaveMutation.mutateAsync();
+          toast.success('Left community');
+          router.push(ROUTES.HOME);
+        } catch (e) {
+          console.error(e);
+          toast.error('Failed to leave community');
+        }
+      },
+    });
   };
 
   return (

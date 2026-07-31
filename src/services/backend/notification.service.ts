@@ -3,7 +3,7 @@ import webpush from 'web-push';
 
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
 	webpush.setVapidDetails(
-		'mailto:support@mosaic.app',
+		`mailto:${process.env.NEXT_PUBLIC_SUPPORT_MAIL}`,
 		process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
 		process.env.VAPID_PRIVATE_KEY
 	);
@@ -19,6 +19,9 @@ import {
 import { NotificationNodeSchema, type NotificationNode } from '@/types/schemas';
 import { cacheAside, cacheKey, invalidateCachePattern } from './cache';
 import { runRead, runWrite } from './shared';
+import { notificationQueue } from '@/lib/queue';
+import { ROUTES } from '@/lib/routes';
+import { MODALS } from '@/lib/modals';
 
 const markReadInput = z.object({
 	userId: z.string().uuid(),
@@ -26,6 +29,12 @@ const markReadInput = z.object({
 });
 
 export const notificationService = {
+	async queueNotification(input: CreateNotificationRequest): Promise<void> {
+		await notificationQueue.add('create-inapp-notification', input).catch((err) => {
+			console.error('Failed to enqueue notification job:', err);
+		});
+	},
+
 	async createNotification(input: CreateNotificationRequest): Promise<NotificationNode> {
 		const parsed = CreateNotificationRequestSchema.parse(input);
 		const now = Date.now();
@@ -147,10 +156,32 @@ export const notificationService = {
 			async () => {
 				const rows = await runRead(
 					`
-						MATCH (:Mosaic_User {id: $userId})-[:HAS_NOTIFICATION]->(n:Mosaic_Notification)
+						MATCH (u:Mosaic_User {id: $userId})
+						OPTIONAL MATCH (u)-[:HAS_NOTIFICATION]->(n:Mosaic_Notification)
 						WHERE $cursor IS NULL OR n.createdAt < toInteger($cursor)
-						RETURN n AS notification
-						ORDER BY n.createdAt DESC
+						WITH u, collect(n) AS userNavs
+
+						OPTIONAL MATCH (sa:Mosaic_SystemAnnouncement)
+						WHERE (sa.audience = 'ALL' OR sa.audience = coalesce(u.planType, 'FREE'))
+						  AND ($cursor IS NULL OR sa.createdAt < toInteger($cursor))
+						WITH userNavs, collect(sa {
+						  .id,
+						  userId: $userId,
+						  type: 'SYSTEM',
+						  title: sa.title,
+						  body: sa.body,
+						  isRead: false,
+						  aggregationKey: null,
+						  actionUrl: sa.actionUrl,
+						  actors: [],
+						  createdAt: sa.createdAt,
+						  updatedAt: sa.createdAt
+						}) AS sysNavs
+
+						UNWIND (userNavs + sysNavs) AS notification
+						WITH notification WHERE notification IS NOT NULL AND notification.id IS NOT NULL
+						RETURN notification
+						ORDER BY notification.createdAt DESC
 						LIMIT toInteger($limit)
 					`,
 					{
@@ -217,11 +248,7 @@ export const notificationService = {
 		const title = `New Upvote`;
 		const body = `${actorName} upvoted your post "${postTitle}"`;
 		
-		// In a real scenario with actors array, we'd pass actorName to createNotification 
-		// and the Cypher query would append it to `actors` if it exists. 
-		// For now we just overwrite the body to show the latest state.
-		
-		return this.createNotification({
+		return this.queueNotification({
 			userId,
 			type: 'UPVOTE',
 			title,
@@ -232,17 +259,17 @@ export const notificationService = {
 	},
 
 	async notifySignatureRequest(userId: string, actorName: string, pieceTitle: string, pieceId: string) {
-		return this.createNotification({
+		return this.queueNotification({
 			userId,
 			type: 'SIGNATURE_REQUEST',
 			title: 'Signature Request',
 			body: `${actorName} requested your signature as a co-author on "${pieceTitle}"`,
-			actionUrl: `/studio/${pieceId}`
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
 		});
 	},
 
 	async notifyCommunityMemberJoined(adminId: string, memberName: string, communityName: string, communityId: string) {
-		return this.createNotification({
+		return this.queueNotification({
 			userId: adminId,
 			type: 'COMMUNITY_MEMBER_JOINED',
 			title: 'New Community Member',
@@ -252,23 +279,94 @@ export const notificationService = {
 	},
 
 	async notifyBadgeEarned(userId: string, badgeName: string) {
-		return this.createNotification({
+		return this.queueNotification({
 			userId,
 			type: 'SYSTEM',
 			title: 'New Badge Unlocked!',
 			body: `You've earned the ${badgeName} badge. Click to mint it on-chain!`,
-			actionUrl: `?modal=BADGES`
+			actionUrl: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/explore?modal=${MODALS.BADGES}`
 		});
 	},
 
 	async notifyMention(userId: string, actorName: string, communityName: string, communityId: string) {
-		return this.createNotification({
+		return this.queueNotification({
 			userId,
 			type: 'MENTION',
 			title: 'You were mentioned',
 			body: `${actorName} mentioned you in a post in ${communityName}`,
 			actionUrl: `/v/${communityId}/feed`
 		});
+	},
+
+	async notifyWelcome(userId: string, email: string, displayName: string) {
+		await this.queueNotification({
+			userId,
+			type: 'SYSTEM',
+			title: 'Welcome to Mosaic! 🎉',
+			body: `Welcome aboard, ${displayName}! Explore communities or create your first piece.`,
+			actionUrl: '/explore'
+		});
+
+		if (email) {
+			await notificationQueue.add('send-welcome-email', { userId, email, displayName }).catch((err) => {
+				console.error('Failed to enqueue welcome email job:', err);
+			});
+		}
+	},
+
+	async notifyPiecePublished(userId: string, email: string | null, pieceId: string, pieceTitle: string) {
+		await this.queueNotification({
+			userId,
+			type: 'PIECE_UPDATE',
+			title: 'Piece Published! 🚀',
+			body: `Your piece "${pieceTitle}" has been successfully published!`,
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
+		});
+
+		if (email) {
+			await notificationQueue.add('send-piece-published-email', { userId, email, pieceId, pieceTitle }).catch((err) => {
+				console.error('Failed to enqueue piece published email job:', err);
+			});
+		}
+	},
+
+	async notifyCollaborationInvite(inviterName: string, targetUserId: string, targetEmail: string | null, pieceId: string, pieceTitle: string) {
+		await this.queueNotification({
+			userId: targetUserId,
+			type: 'SIGNATURE_REQUEST',
+			title: 'Collaboration Invitation ✍️',
+			body: `${inviterName} invited you to collaborate on "${pieceTitle}"`,
+			actionUrl: ROUTES.WORKSPACE_EDITOR(pieceId)
+		});
+
+		if (targetEmail) {
+			await notificationQueue.add('send-collaboration-invite-email', { inviterName, targetEmail, pieceId, pieceTitle }).catch((err) => {
+				console.error('Failed to enqueue collaboration invite email job:', err);
+			});
+		}
+	},
+
+	async notifyVillageAnnouncement(communityId: string, communityName: string, postTitleOrSnippet: string, postId: string, adminName: string) {
+		const members = await runRead(
+			`MATCH (u:Mosaic_User)-[:MEMBER_OF]->(c:Mosaic_Community {id: $communityId}) RETURN u.id AS userId`,
+			{ communityId },
+			row => row.userId as string
+		);
+
+		const title = `📣 Announcement in ${communityName}`;
+		const body = `${adminName} pinned: "${postTitleOrSnippet.length > 80 ? postTitleOrSnippet.substring(0, 80) + '...' : postTitleOrSnippet}"`;
+		const actionUrl = `${ROUTES.VILLAGE.FEED(communityId)}?post=${postId}`;
+
+		for (const userId of members) {
+			this.queueNotification({
+				userId,
+				type: 'VILLAGE_ANNOUNCEMENT',
+				title,
+				body,
+				actionUrl,
+				aggregationKey: `announcement_${communityId}_${postId}`
+			}).catch(console.error);
+		}
 	}
 };
 

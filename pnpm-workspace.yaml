@@ -6,6 +6,8 @@ allowBuilds:
   chacha-native: true
   core-js-pure: false
   cpu-features: set this to true or false
+  esbuild: false
+  msgpackr-extract: false
   msw: true
   protobufjs: true
   ssh2: set this to true or false

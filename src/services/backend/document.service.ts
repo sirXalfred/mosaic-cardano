@@ -212,11 +212,35 @@ export const documentService = {
       CREATE (p)-[:HAS_CONTRIBUTION]->(c)
       CREATE (c)-[:MADE_BY]->(targetUser)
       
-      RETURN c.id
+      RETURN c.id AS id,
+             targetUser.id AS targetUserId,
+             targetUser.email AS targetEmail,
+             coalesce(creator.displayName, creator.username) AS inviterName,
+             p.title AS pieceTitle
     `;
     
-    const rows = await runWrite(query, { documentId, creatorId, usernameToInvite: sanitizedUsername }, (row) => row);
+    const rows = await runWrite(query, { documentId, creatorId, usernameToInvite: sanitizedUsername }, (row) => ({
+      id: row.id as string,
+      targetUserId: row.targetUserId as string,
+      targetEmail: (row.targetEmail as string) || null,
+      inviterName: row.inviterName as string,
+      pieceTitle: row.pieceTitle as string,
+    }));
+
     if (!rows.length) throw new Error('Failed to invite user (they may not exist or are already invited)');
+
+    try {
+      const { notificationService } = await import('./notification.service');
+      await notificationService.notifyCollaborationInvite(
+        rows[0].inviterName,
+        rows[0].targetUserId,
+        rows[0].targetEmail,
+        documentId,
+        rows[0].pieceTitle
+      );
+    } catch (err) {
+      console.error('Failed to send collaboration invite notification:', err);
+    }
   },
 
   async proposeSplits(documentId: string, creatorId: string, splits: { userId: string, role: string, weight: number }[]): Promise<void> {
@@ -275,14 +299,43 @@ export const documentService = {
     const publishQuery = `
       MATCH (p:Mosaic_Piece {id: $documentId})
       MATCH (c:Mosaic_Community {id: $communityId})
-      SET p.status = 'Published'
+      MATCH (p)-[:CREATED_BY]->(creator:Mosaic_User)
+      OPTIONAL MATCH (p)-[:HAS_CONTRIBUTION]->(:Mosaic_Contribution)-[:MADE_BY]->(contribUser:Mosaic_User)
+      SET p.status = 'Published', p.publishStage = 'success'
       MERGE (p)-[:PUBLISHED_IN]->(c)
-      RETURN p.id AS id
+      RETURN p.id AS id, p.title AS title,
+             creator.id AS creatorId, creator.email AS creatorEmail,
+             collect({ id: contribUser.id, email: contribUser.email }) AS contributors
     `;
 
-    const rows = await runWrite(publishQuery, { documentId, communityId }, (row) => row.id as string);
+    const rows = await runWrite(publishQuery, { documentId, communityId }, (row) => ({
+      id: row.id as string,
+      title: row.title as string,
+      creatorId: row.creatorId as string,
+      creatorEmail: (row.creatorEmail as string) || null,
+      contributors: (row.contributors as { id: string; email: string | null }[]).filter(c => c && c.id)
+    }));
+
     if (!rows.length) throw new Error('Failed to link piece to community');
-    return rows[0];
+
+    try {
+      const { notificationService } = await import('./notification.service');
+      const piece = rows[0];
+
+      // Notify creator
+      await notificationService.notifyPiecePublished(piece.creatorId, piece.creatorEmail, documentId, piece.title);
+
+      // Notify co-authors / contributors
+      for (const contrib of piece.contributors) {
+        if (contrib.id && contrib.id !== piece.creatorId) {
+          await notificationService.notifyPiecePublished(contrib.id, contrib.email, documentId, piece.title);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to send piece published notification:', err);
+    }
+
+    return rows[0].id;
   },
 
   async addComment(documentId: string, userId: string, content: string): Promise<string> {

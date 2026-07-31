@@ -78,6 +78,19 @@ export const useLogout = () => {
   });
 }
 
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      return fetchAPI('/api/auth/delete-account', { method: 'DELETE' });
+    },
+    onSuccess: () => {
+      queryClient.clear();
+    }
+  });
+};
+
 export const useLinkWallet = () => {
   const queryClient = useQueryClient();
 
@@ -110,7 +123,7 @@ export const useClaimBadge = () => {
       return fetchAPI('/api/badges', {
         method: 'POST',
         data: { badgeId }
-      }) as Promise<{ txHash: string }>;
+      }) as Promise<{ status?: string; message?: string; txHash?: string }>;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userBadges'] });

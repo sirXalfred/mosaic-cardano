@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { badgeService } from '@/services/backend/badge.service';
 import { authService } from '@/services/backend/auth.service';
-import { mintCIP68Badge, BadgeMetadata } from '@/lib/blockchain/minting';
+import type { BadgeMetadata } from '@/lib/blockchain/minting';
 import { z } from 'zod';
 import { withAuth } from '@/lib/backend/request';
 import { BADGE_ASSETS } from '@/lib/badges';
@@ -54,10 +54,16 @@ const ClaimSchema = z.object({
  *       500:
  *         description: Internal server error
  */
+import { badgeQueue } from '@/lib/queue';
+import { validatePayload } from '@/lib/backend/api-validation';
+
 export const POST = withAuth(async (req, context, userId) => {
     try {
         const body = await req.json();
-        const { badgeId } = ClaimSchema.parse(body);
+        const validation = await validatePayload(ClaimSchema, body);
+        if (!validation.success) return validation.response;
+
+        const { badgeId } = validation.data;
 
         // Verify the user owns this badge and it is UNCLAIMED
         const badges = await badgeService.getUserBadges(userId);
@@ -65,6 +71,7 @@ export const POST = withAuth(async (req, context, userId) => {
 
         if (!badge) return NextResponse.json({ error: "Badge not found" }, { status: 404 });
         if (badge.status === 'CLAIMED') return NextResponse.json({ error: "Badge already claimed" }, { status: 400 });
+        if (badge.status === 'MINTING') return NextResponse.json({ message: "Badge minting already in progress", status: 'MINTING' }, { status: 202 });
 
         // Get user's wallet address
         const settings = await authService.getUserSettings(userId);
@@ -72,8 +79,7 @@ export const POST = withAuth(async (req, context, userId) => {
             return NextResponse.json({ error: "You must link a Cardano wallet before claiming badges." }, { status: 400 });
         }
 
-
-        const imageUri = BADGE_ASSETS[badge.type] || `${process.env.NEXT_PUBLIC_SITE_URL}/assets/images/logo.png`;
+        const imageUri = BADGE_ASSETS[badge.type] || `${process.env.NEXT_PUBLIC_SITE_URL || ''}/assets/images/logo.png`;
 
         // Prepare dynamic metadata based on badge type
         const metadata: BadgeMetadata = {
@@ -96,20 +102,27 @@ export const POST = withAuth(async (req, context, userId) => {
             metadata.documentPublished = 'true';
         } else if (badge.type === 'early-user') {
             metadata.onboarded = 'true';
+        } else if (badge.type === 'test-badge') {
+            metadata.isTestBadge = 'true';
         }
 
-        const { txHash, policyId, assetNameHex, assetNameBase } = await mintCIP68Badge(
-            settings.walletAddress,
-            badge.type,
-            badge.id,
+        // 1. Mark status as MINTING in Neo4j database
+        await badgeService.markBadgeMinting(userId, badge.id);
+
+        // 2. Queue job in BullMQ for background worker execution
+        await badgeQueue.add('mint-badge', {
+            userId,
+            badgeId: badge.id,
+            badgeType: badge.type,
+            walletAddress: settings.walletAddress,
             metadata
+        });
+
+        // 3. Return 202 Accepted status immediately
+        return NextResponse.json(
+            { message: "Badge minting queued successfully", status: 'MINTING', badgeId: badge.id },
+            { status: 202 }
         );
-
-        // Mark as claimed
-        const isMainnet = process.env.NEXT_PUBLIC_IS_LIVE === 'true' ? 1 : 0;
-        await badgeService.markBadgeClaimed(userId, badge.id, policyId, assetNameHex, assetNameBase, txHash, isMainnet);
-
-        return NextResponse.json({ txHash, policyId, assetNameBase, assetNameHex });
     } catch (error: unknown) {
         console.error('Failed to claim badge:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to claim badge" }, { status: 500 });

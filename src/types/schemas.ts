@@ -25,15 +25,15 @@ export const UserNodeSchema = z.object({
   id: UUIDSchema,
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
   displayName: z.string().min(1),
-  bio: z.string().max(500).optional(),
-  walletAddress: z.string().optional(),
+  bio: z.string().max(500).optional().nullable(),
+  walletAddress: z.string().optional().nullable(),
   isVerified: z.boolean().default(false),
   isOnboarded: z.boolean().default(false),
   planType: z.enum(['FREE', 'BASIC', 'PRO', 'CUSTOM']).default('FREE'),
   role: z.enum(['USER', 'ADMIN', 'MODERATOR']).default('USER'),
-  settings: z.string().optional(),
+  settings: z.string().optional().nullable(),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const CommunityNodeSchema = z.object({
@@ -55,7 +55,7 @@ export const ProjectNodeSchema = z.object({
   description: z.string().max(500).default(''),
   status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']).default('DRAFT'),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const PieceNodeSchema = z.object({
@@ -66,18 +66,18 @@ export const PieceNodeSchema = z.object({
   contentUrl: z.string().url(),
   contentType: z.enum(['TEXT', 'AUDIO', 'IMAGE', 'VIDEO', 'CODE', 'OTHER']).default('OTHER'),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const PostNodeSchema = z.object({
   id: UUIDSchema,
-  communityId: UUIDSchema.optional(),
+  communityId: UUIDSchema.optional().nullable(),
   authorId: UUIDSchema,
   content: z.string().min(1).max(5000),
   score: z.number().int().default(0),
   replyCount: z.number().int().default(0),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const DocumentCommentNodeSchema = z.object({
@@ -87,17 +87,17 @@ export const DocumentCommentNodeSchema = z.object({
   content: z.string().min(1).max(2000),
   resolved: z.boolean().default(false),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const SkillNodeSchema = z.object({
   name: z.string().trim().toLowerCase().min(1).max(80),
-  createdAt: TimestampSchema.optional(),
+  createdAt: TimestampSchema.optional().nullable(),
 });
 
 export const TopicNodeSchema = z.object({
   name: z.string().trim().toLowerCase().min(1).max(80),
-  createdAt: TimestampSchema.optional(),
+  createdAt: TimestampSchema.optional().nullable(),
 });
 
 export const NotificationNodeSchema = z.object({
@@ -105,13 +105,13 @@ export const NotificationNodeSchema = z.object({
   userId: UUIDSchema,
   type: NotificationTypeSchema,
   title: z.string().min(1).max(140),
-  body: z.string().max(1000).optional(),
+  body: z.string().max(1000).optional().nullable(),
   isRead: z.boolean().default(false),
-  aggregationKey: z.string().optional(),
-  actionUrl: z.string().optional(),
-  actors: z.array(z.string()).default([]),
+  aggregationKey: z.string().optional().nullable(),
+  actionUrl: z.string().optional().nullable(),
+  actors: z.array(z.string()).optional().nullable().transform(val => val ?? []),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const CredentialNodeSchema = z.object({
@@ -120,9 +120,9 @@ export const CredentialNodeSchema = z.object({
   email: z.string().email().toLowerCase(),
   passwordHash: z.string().min(20),
   provider: AuthProviderSchema.default('LOCAL'),
-  lastLoginAt: TimestampSchema.optional(),
+  lastLoginAt: TimestampSchema.optional().nullable(),
   createdAt: TimestampSchema,
-  updatedAt: TimestampSchema.optional(),
+  updatedAt: TimestampSchema.optional().nullable(),
 });
 
 export const PagedResultMetaSchema = z.object({
@@ -137,7 +137,7 @@ export const InviteNodeSchema = z.object({
   communityId: UUIDSchema,
   inviterId: UUIDSchema,
   createdAt: TimestampSchema,
-  expiresAt: TimestampSchema.optional(),
+  expiresAt: TimestampSchema.optional().nullable(),
 });
 
 

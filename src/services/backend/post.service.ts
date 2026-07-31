@@ -113,7 +113,7 @@ export const postService = {
     } else if (filter === 'Announcements') {
       whereClause += ` AND p.isPinned = true`;
     } else if (filter === 'Pieces') {
-      whereClause += ` AND (p.content CONTAINS 'mosaic://piece/' OR p.content CONTAINS 'mosaic://publication/')`;
+      whereClause += ` AND (p.content CONTAINS '/piece/' OR p.content CONTAINS '/publication/' OR p.content CONTAINS '/artifact/')`;
     }
 
     const query = `
@@ -307,6 +307,24 @@ export const postService = {
     if (isUpvoted) viewerVote = 'UP';
     else if (isDownvoted) viewerVote = 'DOWN';
 
+    const communityId = post.communityId as string;
+    const adminName = (author.displayName || author.username || 'Admin') as string;
+
+    if (isPinned && communityId) {
+      runRead(`MATCH (c:Mosaic_Community {id: $communityId}) RETURN c.name AS name`, { communityId }, (r) => r.name as string)
+        .then(names => {
+          const communityName = names[0] || 'Village';
+          notificationService.notifyVillageAnnouncement(
+            communityId,
+            communityName,
+            post.content as string,
+            post.id as string,
+            adminName
+          ).catch(console.error);
+        })
+        .catch(console.error);
+    }
+
     return {
       id: post.id as string,
       content: post.content as string,
@@ -319,7 +337,7 @@ export const postService = {
         username: author.username as string,
         avatarUrl: (author.avatarUrl || author.profileImageUrl || null) as string | null,
       },
-      communityId: post.communityId as string,
+      communityId,
       isPinned: post.isPinned as boolean || false,
       viewerVote
     };

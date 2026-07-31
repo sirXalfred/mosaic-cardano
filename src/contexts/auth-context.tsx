@@ -59,10 +59,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (isForced) {
             toast.info("Your session has expired, please log back in to continue");
+            if (typeof window !== 'undefined') {
+                const currentPath = window.location.pathname + window.location.search;
+                router.push(`${ROUTES.AUTH}?next=${encodeURIComponent(currentPath)}`);
+            } else {
+                router.push(ROUTES.AUTH);
+            }
         } else {
-            router.push(ROUTES.AUTH)
+            router.push(ROUTES.AUTH);
             toast.success("You have been logged out successfully");
-            
         }
     }, [logoutMutation, router, authState?.isAuthenticated]);
 

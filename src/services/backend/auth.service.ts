@@ -138,13 +138,7 @@ export const authService = {
 
 		try {
 			const { notificationService } = await import('./notification.service');
-			await notificationService.createNotification({
-				userId: user.id,
-				type: 'SYSTEM',
-				title: 'Welcome to Mosaic! 🎉',
-				body: 'Discover a new way to publish, collaborate, and earn on Cardano. Head over to the Explore tab to find your first village or join the conversation.',
-				actionUrl: '/explore',
-			});
+			await notificationService.notifyWelcome(user.id, email, user.displayName || user.username);
 		} catch (err) {
 			console.error('Failed to send welcome notification:', err);
 		}
@@ -382,6 +376,26 @@ export const authService = {
 			row => mapUserNode(row.user),
 		);
 		return rows;
+	},
+
+	async deleteAccount(userId: string): Promise<void> {
+		const parsedUserId = z.string().uuid().parse(userId);
+		const now = Date.now();
+
+		await runWrite(
+			`
+				MATCH (u:Mosaic_User {id: $userId})
+				OPTIONAL MATCH (u)-[:HAS_CREDENTIAL]->(cred:Mosaic_Credential)
+				OPTIONAL MATCH (s:Mosaic_Session {userId: $userId})
+				SET u.isDeleted = true, u.deletedAt = $now, u.displayName = 'Deleted User', u.walletAddress = null
+				DELETE cred, s
+				RETURN u.id AS userId
+			`,
+			{ userId: parsedUserId, now },
+			row => row.userId,
+		);
+
+		await invalidateCacheKey(cacheKey('user', parsedUserId));
 	},
 };
 

@@ -2,7 +2,7 @@ import { runWrite } from './shared';
 
 export const healthService = {
   // Triggers every 24 hours to keep the Neo4j instance hot
-  async keepAlive(){
+  async keepDBActive() {
     await runWrite(
       `MERGE (m:Mosaic_Maintenance) 
        SET m.isActive = false, 

@@ -14,6 +14,9 @@ import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
 
 
+import { useModals } from '@/contexts/modals-context';
+import { MODALS } from '@/lib/modals';
+
 export default function VillageMembersPage() {
   return (
     <MemberGuard>
@@ -26,6 +29,7 @@ function VillageMembersPageContent() {
   const params = useParams();
   const communityId = params.community_id as string;
   const pathname = usePathname();
+  const { openModal } = useModals();
 
   const { data: members, isLoading, isError, refetch } = useGetVillageMembers(communityId);
   const { data: village } = useGetVillageDetails(communityId);
@@ -53,17 +57,27 @@ function VillageMembersPageContent() {
   const handleRemoveSelected = () => {
     if (selectedMemberIds.size === 0) return;
     
-    if (confirm(`Are you sure you want to remove ${selectedMemberIds.size} member(s)?`)) {
-      removeMembers(Array.from(selectedMemberIds), {
-        onSuccess: () => {
-          toast.success(`Removed ${selectedMemberIds.size} member(s)`);
-          setSelectedMemberIds(new Set());
-        },
-        onError: () => {
-          toast.error('Failed to remove members');
-        }
-      });
-    }
+    openModal(MODALS.CONFIRM, {
+      title: 'Remove Members',
+      description: `Are you sure you want to remove ${selectedMemberIds.size} member(s)?`,
+      confirmText: 'Remove Members',
+      variant: 'danger',
+      onConfirm: async () => {
+        return new Promise<void>((resolve, reject) => {
+          removeMembers(Array.from(selectedMemberIds), {
+            onSuccess: () => {
+              toast.success(`Removed ${selectedMemberIds.size} member(s)`);
+              setSelectedMemberIds(new Set());
+              resolve();
+            },
+            onError: (err) => {
+              toast.error('Failed to remove members');
+              reject(err);
+            }
+          });
+        });
+      },
+    });
   };
 
   const handleInvite = async () => {

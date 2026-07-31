@@ -1,4 +1,4 @@
-import { runRead } from './shared';
+import { runRead, runWrite } from './shared';
 import { BlockfrostProvider } from '@meshsdk/core';
 
 export const adminService = {
@@ -100,32 +100,44 @@ export const adminService = {
   },
 
   async broadcastMessage(audience: string, title: string, body: string, actionUrl?: string) {
-    const { notificationService } = await import('./notification.service');
-    
-    let userQuery = `MATCH (u:Mosaic_User) RETURN u.id AS id`;
-    const params: Record<string, unknown> = {};
+    const { notificationQueue } = await import('@/lib/queue');
+    const announcementId = crypto.randomUUID();
+    const now = Date.now();
 
-    if (audience !== 'ALL') {
-      userQuery = `MATCH (u:Mosaic_User {planType: $planType}) RETURN u.id AS id`;
-      params.planType = audience;
-    }
+    // Create 1 single System Announcement node in Neo4j (Read-on-Demand)
+    await runWrite(
+      `
+        CREATE (a:Mosaic_SystemAnnouncement {
+          id: $id,
+          audience: $audience,
+          title: $title,
+          body: $body,
+          actionUrl: $actionUrl,
+          createdAt: $now
+        })
+        RETURN a.id AS id
+      `,
+      {
+        id: announcementId,
+        audience: audience.toUpperCase(),
+        title: title,
+        body: body,
+        actionUrl: actionUrl || null,
+        now: now,
+      },
+      (row: Record<string, unknown>) => row.id as string
+    );
 
-    const users = await runRead(userQuery, params, row => row.id as string);
-    let sentCount = 0;
+    // Queue background task to send Web Push notifications to audience subscribers
+    await notificationQueue.add('broadcast-push-notifications', {
+      announcementId,
+      audience: audience.toUpperCase(),
+      title,
+      body,
+      actionUrl,
+    }).catch(err => console.error('Failed to enqueue broadcast push job:', err));
 
-    // Send notifications in batches to avoid overwhelming the system
-    for (const userId of users) {
-      await notificationService.createNotification({
-        userId,
-        type: 'SYSTEM',
-        title,
-        body,
-        actionUrl
-      }).catch(err => console.error(`Broadcast failed for user ${userId}:`, err));
-      sentCount++;
-    }
-
-    return { sentCount };
+    return { sentCount: 1, announcementId };
   },
 
   async listUsers(page: number = 1, limit: number = 50) {

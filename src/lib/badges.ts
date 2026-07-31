@@ -42,6 +42,12 @@ export const BADGE_MAP: Record<string, BadgeConfig> = {
     icon: '📜',
     description: 'Published a piece of work in the studio.',
   },
+  'test-badge': {
+    slug: 'test-badge',
+    name: 'Dev Mint Test Badge',
+    icon: '🧪',
+    description: 'Development test badge always available for minting when IS_LIVE is false.',
+  },
 };
 
 export const getBadgeConfig = (slug: string): BadgeConfig => {
@@ -60,5 +66,6 @@ export const BADGE_ASSETS: Record<string, string> = {
   'first-post': 'ipfs://bafybeiefn3uw4tm5jfxdqyqhugnx5gut2jk7xolawed4vdyoiicjrhutz4',
   'first-feedback': 'ipfs://bafybeid66nl352ndjjmw63cyoe6i2xkpqijyz7rorglcg3rmooa6zwrvmy',
   'first-invite': 'ipfs://bafybeihvwkopwhtqyv3og2bsyy3475gip3shdkcqg2x6nqde2glwuqtena',
-  'first-document': 'ipfs://bafybeigfu4ddw5sysjg6rj5jzeyubyjqoazz5briekgsu45e5itpoiwxgi'
+  'first-document': 'ipfs://bafybeigfu4ddw5sysjg6rj5jzeyubyjqoazz5briekgsu45e5itpoiwxgi',
+  'test-badge': 'ipfs://bafybeib5g2sm2sqrbjtawhybbvkmx4umbzes3wlqk67rz6gvu44gqxaaz4',
 };

@@ -1,5 +1,7 @@
 import { BlockfrostProvider } from '@meshsdk/core';
 import { runWrite, runRead } from './shared';
+import { notificationService } from './notification.service';
+import redis from '@/lib/backend/redis';
 
 const TREASURY_ADDRESS = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
 const BLOCKFROST_PROJECT_ID = process.env.BLOCKFROST_PROJECT_ID;
@@ -8,6 +10,15 @@ const PLAN_PRICES: Record<string, number> = {
   'BASIC': 8,
   'PRO': 60
 };
+
+export async function isTxHashConsumed(txHash: string): Promise<boolean> {
+  const checkQuery = `
+    MATCH (s:Mosaic_Subscription {lastPaymentTxHash: $txHash})
+    RETURN s
+  `;
+  const existing = await runRead(checkQuery, { txHash }, row => row.s);
+  return Boolean(existing && existing.length > 0);
+}
 
 export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string, planType: string): Promise<boolean> {
   if (!TREASURY_ADDRESS || !BLOCKFROST_PROJECT_ID) {
@@ -21,12 +32,8 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
 
   try {
     // 1. Check if Tx is already consumed to prevent replay attacks
-    const checkQuery = `
-      MATCH (s:Mosaic_Subscription {lastPaymentTxHash: $txHash})
-      RETURN s
-    `;
-    const existing = await runRead(checkQuery, { txHash }, row => row.s);
-    if (existing && existing.length > 0) {
+    const consumed = await isTxHashConsumed(txHash);
+    if (consumed) {
       throw new Error('Transaction hash has already been consumed.');
     }
 
@@ -39,7 +46,6 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
     const requiredLovelace = Math.ceil(requiredAda * 1_000_000);
     const minAcceptableLovelace = Math.floor(requiredLovelace * 0.95); // 5% slippage
 
-    
     const provider = new BlockfrostProvider(BLOCKFROST_PROJECT_ID);
 
     // 3. Verify transaction metadata (CIP-20) to prevent hash stealing
@@ -85,6 +91,7 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
     // Determine if on mainnet by checking Blockfrost project ID prefix (mainnet... or preprod...)
     const isMainnet = BLOCKFROST_PROJECT_ID.startsWith('mainnet') ? 1 : 0;
     const expectedAda = requiredLovelace / 1_000_000;
+    const formattedPlan = planType.toUpperCase();
 
     const updateQuery = `
       MATCH (u:Mosaic_User {id: $userId})
@@ -102,7 +109,7 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
 
     const result = await runWrite(updateQuery, { 
       userId, 
-      planType: planType.toUpperCase(),
+      planType: formattedPlan,
       txHash,
       expiresAt: expiresAt.toISOString(),
       createdAt,
@@ -114,9 +121,28 @@ export async function verifyPaymentAndUpdatePlan(userId: string, txHash: string,
       throw new Error('User not found or plan update failed.');
     }
 
+    // 7. Send in-app notification to user
+    await notificationService.queueNotification({
+      userId,
+      type: 'SYSTEM',
+      title: 'Plan Upgraded! 🎉',
+      body: `Your account has been successfully upgraded to the ${formattedPlan} plan.`,
+      actionUrl: '/settings',
+    }).catch((err) => console.error('Failed to send plan upgrade notification:', err));
+
+    // 8. Publish real-time SSE event
+    const eventPayload = JSON.stringify({
+      event: 'plan_upgraded',
+      userId,
+      planType: formattedPlan,
+      txHash,
+      timestamp: new Date().toISOString(),
+    });
+    redis.publish(`user:events:${userId}`, eventPayload).catch(() => {});
+
     return true;
   } catch (error) {
     console.error('Payment verification failed:', error);
-    throw error; // Rethrow to let the route handler capture the specific message
+    throw error;
   }
 }
