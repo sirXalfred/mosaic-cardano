@@ -29,6 +29,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/docs',
   '/api/dev',
   '/api/explore',
+  '/api/feedback',
   '/api/preview',
   '/api/villages',
   '/api/pieces',
